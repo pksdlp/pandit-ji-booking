@@ -4,24 +4,323 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="theme-color" content="#166534">
-<title>पंडित जी बुकिंग मैनेजर</title>
 <link rel="manifest" href="./manifest.webmanifest">
+<title>पंडित जी बुकिंग मैनेजर</title>
 <style>
 *{box-sizing:border-box}
-body{margin:0;font-family:Arial,sans-serif;background:#f2f5f2;color:#222}
-header{background:#166534;color:white;padding:20px 14px;text-align:center}
+body{margin:0;background:#f1f5f2;color:#222;font-family:Arial,sans-serif}
+header{background:#166534;color:white;padding:20px 15px;text-align:center}
 header h2{margin:0 0 6px}
-header p{margin:0;font-size:14px}
-main{max-width:750px;margin:auto;padding:12px}
-.card{background:white;padding:15px;margin-bottom:14px;border-radius:12px;box-shadow:0 2px 7px #0001}
-h3{margin-top:0;color:#166534}
-label{display:block;font-weight:bold;font-size:14px;margin:10px 0 5px}
-input,select,textarea,button{width:100%;padding:11px;border:1px solid #ccc;border-radius:7px;font-size:15px}
-textarea{min-height:65px}
-button{background:#166534;color:white;border:0;font-weight:bold;margin-top:10px;cursor:pointer}
+.container{padding:12px;max-width:700px;margin:auto}
+.card{background:white;padding:15px;border-radius:12px;margin-bottom:13px;box-shadow:0 2px 7px #0001}
+.stats{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.stat{background:#e8f5e9;padding:13px;border-radius:9px;text-align:center}
+.stat strong{display:block;font-size:21px;color:#166534;margin-top:5px}
+h3{margin:0 0 12px;color:#166534}
+label{display:block;font-size:14px;margin:10px 0 5px}
+input,select,textarea{width:100%;padding:11px;border:1px solid #ccc;border-radius:7px;font-size:15px;background:white}
+button{border:0;border-radius:7px;padding:11px 13px;background:#166534;color:white;font-size:14px;margin:5px 3px 0 0}
 button.secondary{background:#475569}
 button.danger{background:#b91c1c}
-button.small{width:auto;padding:7px 10px;margin:4px 3px 4px 0;font-size:13px}
-.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-.stats{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-.stat{padding:13px;background:#e8f5e9;border-radius
+button.orange{background:#c66b0b}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+.booking{border:1px solid #ddd;border-radius:9px;padding:12px;margin:10px 0}
+.booking h4{margin:0 0 8px;color:#166534}
+.small{font-size:13px;color:#555;line-height:1.7}
+.amount{font-weight:bold;color:#166534}
+.actions{margin-top:8px}
+#message{color:#166534;font-size:14px}
+</style>
+</head>
+<body>
+<header>
+<h2>☕ पंडित जी</h2>
+<div>चाय एवं कॉफी स्टॉल सर्विस</div>
+<small>बुकिंग मैनेजर</small>
+</header>
+
+<div class="container">
+<div class="card">
+<h3>📊 बुकिंग का हिसाब</h3>
+<div class="stats">
+<div class="stat">कुल बुकिंग<strong id="totalCount">0</strong></div>
+<div class="stat">कुल रकम<strong id="totalAmount">₹0</strong></div>
+<div class="stat">एडवांस<strong id="totalAdvance">₹0</strong></div>
+<div class="stat">बाकी रकम<strong id="totalDue">₹0</strong></div>
+</div>
+</div>
+
+<div class="card">
+<h3>➕ नई बुकिंग जोड़ें</h3>
+<form id="bookingForm">
+<input type="hidden" id="editId">
+
+<label>ग्राहक का नाम *</label>
+<input id="name" required placeholder="ग्राहक का नाम">
+
+<label>मोबाइल नंबर</label>
+<input id="phone" type="tel" placeholder="मोबाइल नंबर">
+
+<label>बुकिंग का काम</label>
+<select id="category">
+<option>चाय स्टॉल</option>
+<option>कॉफी स्टॉल</option>
+<option>रोटी बनाना</option>
+<option>कच्ची रसोई</option>
+<option>शादी / पार्टी</option>
+<option>अन्य</option>
+</select>
+
+<label>कार्यक्रम का पता</label>
+<input id="address" placeholder="गांव / शहर / पूरा पता">
+
+<div class="row">
+<div>
+<label>शुरू होने की तारीख *</label>
+<input id="date" type="date" required>
+</div>
+<div>
+<label>समाप्ति की तारीख</label>
+<input id="endDate" type="date">
+</div>
+</div>
+
+<div class="row">
+<div>
+<label>समय</label>
+<input id="time" type="time">
+</div>
+<div>
+<label>कुल रकम ₹ *</label>
+<input id="amount" type="number" min="0" required placeholder="0">
+</div>
+</div>
+
+<div class="row">
+<div>
+<label>एडवांस ₹</label>
+<input id="advance" type="number" min="0" value="0">
+</div>
+<div>
+<label>रिमाइंडर तारीख</label>
+<input id="reminder" type="date">
+</div>
+</div>
+
+<label>बुकिंग की स्थिति</label>
+<select id="status">
+<option>पक्की</option>
+<option>बातचीत जारी</option>
+<option>काम पूरा</option>
+<option>रद्द</option>
+</select>
+
+<label>अन्य जानकारी</label>
+<textarea id="notes" rows="2" placeholder="कोई जरूरी बात..."></textarea>
+
+<button type="submit" id="saveBtn">बुकिंग सेव करें</button>
+<button type="button" class="secondary" onclick="resetForm()">फॉर्म साफ करें</button>
+<p id="message"></p>
+</form>
+</div>
+
+<div class="card">
+<h3>📋 बुकिंग की सूची</h3>
+<input id="search" placeholder="नाम या मोबाइल से खोजें..." oninput="render()">
+<div class="row">
+<select id="filter" onchange="render()">
+<option value="">सभी बुकिंग</option>
+<option>पक्की</option>
+<option>बातचीत जारी</option>
+<option>काम पूरा</option>
+<option>रद्द</option>
+</select>
+<select id="monthFilter" onchange="render()">
+<option value="">सभी महीने</option>
+</select>
+</div>
+<div id="bookingList"></div>
+</div>
+
+<div class="card">
+<h3>📅 रिपोर्ट और बैकअप</h3>
+<p class="small">अपना डेटा सुरक्षित रखने के लिए समय-समय पर बैकअप डाउनलोड करें।</p>
+<button onclick="backup()">बैकअप डाउनलोड करें</button>
+<button class="secondary" onclick="document.getElementById('restoreFile').click()">बैकअप वापस डालें</button>
+<input type="file" id="restoreFile" accept=".json" hidden onchange="restore(event)">
+<button class="orange" onclick="exportCSV()">Excel के लिए CSV रिपोर्ट</button>
+<p class="small" id="report"></p>
+</div>
+</div>
+
+<script>
+const KEY="panditJiBookings";
+let bookings=JSON.parse(localStorage.getItem(KEY)||"[]");
+
+function saveData(){
+ localStorage.setItem(KEY,JSON.stringify(bookings));
+ render();
+}
+
+function money(n){
+ return "₹"+Number(n||0).toLocaleString("en-IN");
+}
+
+function el(id){return document.getElementById(id)}
+
+function resetForm(){
+ el("bookingForm").reset();
+ el("editId").value="";
+ el("advance").value=0;
+ el("saveBtn").textContent="बुकिंग सेव करें";
+}
+
+el("bookingForm").addEventListener("submit",function(e){
+ e.preventDefault();
+ const amount=Number(el("amount").value);
+ const advance=Number(el("advance").value);
+ if(advance>amount){alert("एडवांस कुल रकम से ज्यादा नहीं हो सकता।");return;}
+
+ const id=el("editId").value;
+ const item={
+ id:id||String(Date.now()),
+ name:el("name").value.trim(),
+ phone:el("phone").value.trim(),
+ category:el("category").value,
+ address:el("address").value.trim(),
+ date:el("date").value,
+ endDate:el("endDate").value,
+ time:el("time").value,
+ amount,advance,
+ reminder:el("reminder").value,
+ status:el("status").value,
+ notes:el("notes").value
+ };
+
+ if(id){
+ const i=bookings.findIndex(x=>x.id===id);
+ if(i>=0)bookings[i]=item;
+ }else{
+ bookings.push(item);
+ }
+ saveData();
+ resetForm();
+ el("message").textContent="बुकिंग सफलतापूर्वक सेव हो गई।";
+});
+
+function editBooking(id){
+ const b=bookings.find(x=>x.id===id);
+ if(!b)return;
+ ["name","phone","category","address","date","endDate","time","amount","advance","reminder","status","notes"].forEach(k=>el(k).value=b[k]??"");
+ el("editId").value=id;
+ el("saveBtn").textContent="बदलाव सेव करें";
+ window.scrollTo({top:0,behavior:"smooth"});
+}
+
+function deleteBooking(id){
+ if(confirm("क्या आप यह बुकिंग डिलीट करना चाहते हैं?")){
+ bookings=bookings.filter(x=>x.id!==id);
+ saveData();
+ }
+}
+
+function completeBooking(id){
+ const b=bookings.find(x=>x.id===id);
+ if(b){b.status="काम पूरा";saveData();}
+}
+
+function render(){
+ const q=el("search").value.toLowerCase();
+ const f=el("filter").value;
+ const m=el("monthFilter").value;
+
+ const total=bookings.filter(b=>b.status!=="रद्द");
+ el("totalCount").textContent=total.length;
+ el("totalAmount").textContent=money(total.reduce((s,b)=>s+b.amount,0));
+ el("totalAdvance").textContent=money(total.reduce((s,b)=>s+b.advance,0));
+ el("totalDue").textContent=money(total.reduce((s,b)=>s+b.amount-b.advance,0));
+
+ const months=[...new Set(bookings.map(b=>b.date?.slice(0,7)).filter(Boolean))].sort().reverse();
+ const mf=el("monthFilter");
+ const old=mf.value;
+ mf.innerHTML='<option value="">सभी महीने</option>'+months.map(x=>`<option value="${x}">${x}</option>`).join("");
+ mf.value=months.includes(old)?old:"";
+
+ const list=bookings.filter(b=>
+ (!q||(b.name+" "+b.phone).toLowerCase().includes(q))&&
+ (!f||b.status===f)&&
+ (!m||b.date?.startsWith(m))
+ ).sort((a,b)=>b.date.localeCompare(a.date));
+
+ el("bookingList").innerHTML=list.length?list.map(b=>`
+ <div class="booking">
+ <h4>${escapeHTML(b.name)} — ${escapeHTML(b.category)}</h4>
+ <div class="small">
+ 📞 ${escapeHTML(b.phone||"नंबर नहीं दिया")}<br>
+ 📍 ${escapeHTML(b.address||"पता नहीं दिया")}<br>
+ 📅 ${b.date||"-"} ${b.time||""} ${b.endDate?"से "+b.endDate:""}<br>
+ कुल रकम: <span class="amount">${money(b.amount)}</span><br>
+ एडवांस: ${money(b.advance)} | बाकी: <b>${money(b.amount-b.advance)}</b><br>
+ स्थिति: <b>${escapeHTML(b.status)}</b>
+ ${b.reminder?"<br>🔔 रिमाइंडर: "+b.reminder:""}
+ ${b.notes?"<br>नोट: "+escapeHTML(b.notes):""}
+ </div>
+ <div class="actions">
+ <button onclick="editBooking('${b.id}')">✏️ एडिट</button>
+ <button class="orange" onclick="completeBooking('${b.id}')">काम पूरा</button>
+ <button class="danger" onclick="deleteBooking('${b.id}')">डिलीट</button>
+ </div>
+ </div>`).join(""):"<p class='small'>अभी कोई बुकिंग नहीं है।</p>";
+
+ const due=total.reduce((s,b)=>s+b.amount-b.advance,0);
+ el("report").textContent="कुल सक्रिय बुकिंग: "+total.length+" | कुल बाकी रकम: "+money(due);
+}
+
+function escapeHTML(s){
+ return String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+}
+
+function backup(){
+ const blob=new Blob([JSON.stringify(bookings,null,2)],{type:"application/json"});
+ download(blob,"Pandit-Ji-Booking-Backup.json");
+}
+
+function restore(e){
+ const file=e.target.files[0];
+ if(!file)return;
+ const reader=new FileReader();
+ reader.onload=()=>{
+ try{
+ const data=JSON.parse(reader.result);
+ if(!Array.isArray(data))throw Error();
+ if(confirm("मौजूदा बुकिंग की जगह बैकअप का डेटा डालें?")){
+ bookings=data;saveData();alert("बैकअप सफलतापूर्वक वापस आ गया।");
+ }
+ }catch(err){alert("यह सही बैकअप फाइल नहीं है।");}
+ };
+ reader.readAsText(file);
+ e.target.value="";
+}
+
+function exportCSV(){
+ const rows=[["नाम","मोबाइल","काम","पता","तारीख","समय","कुल रकम","एडवांस","बाकी","स्थिति"]];
+ bookings.forEach(b=>rows.push([b.name,b.phone,b.category,b.address,b.date,b.time,b.amount,b.advance,b.amount-b.advance,b.status]));
+ const csv="\uFEFF"+rows.map(r=>r.map(x=>'"'+String(x??"").replace(/"/g,'""')+'"').join(",")).join("\n");
+ download(new Blob([csv],{type:"text/csv;charset=utf-8"}),"Pandit-Ji-Booking-Report.csv");
+}
+
+function download(blob,name){
+ const a=document.createElement("a");
+ a.href=URL.createObjectURL(blob);
+ a.download=name;
+ a.click();
+ URL.revokeObjectURL(a.href);
+}
+
+if("serviceWorker" in navigator){
+ window.addEventListener("load",()=>navigator.serviceWorker.register("./sw.js").catch(()=>{}));
+}
+render();
+</script>
+</body>
+</html>
