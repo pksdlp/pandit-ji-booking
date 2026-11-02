@@ -121,7 +121,6 @@ button.theme{background:#334155;margin-top:12px}
 .actions{margin-top:8px}
 #message{color:#166534;font-size:14px}
 
-/* DARK THEME */
 body.dark{
  background:#121212;
  color:#eeeeee;
@@ -132,14 +131,10 @@ body.dark .card{
  color:#eeeeee;
 }
 
-body.dark .booking{
- border-color:#555;
-}
+body.dark .booking{border-color:#555}
 
 body.dark h3,
-body.dark .booking h4{
- color:#86efac;
-}
+body.dark .booking h4{color:#86efac}
 
 body.dark input,
 body.dark select,
@@ -156,8 +151,7 @@ body.dark .stat{
  color:white;
 }
 
-body.dark .stat strong{color:#86efac}
-
+body.dark .stat strong,
 body.dark .amount{color:#86efac}
 
 @media(max-width:380px){
@@ -173,7 +167,9 @@ body.dark .amount{color:#86efac}
 <div>चाय एवं कॉफी स्टॉल सर्विस</div>
 <small>बुकिंग मैनेजर</small>
 <br>
-<button class="theme" onclick="toggleTheme()" id="themeBtn">🌙 Dark Mode</button>
+<button class="theme" onclick="toggleTheme()" id="themeBtn">
+🌙 Dark Mode
+</button>
 </header>
 
 <div class="container">
@@ -259,6 +255,7 @@ body.dark .amount{color:#86efac}
 
 <button type="submit" id="saveBtn">बुकिंग सेव करें</button>
 <button type="button" class="secondary" onclick="resetForm()">फॉर्म साफ करें</button>
+
 <p id="message"></p>
 </form>
 </div>
@@ -291,7 +288,7 @@ body.dark .amount{color:#86efac}
 
 <button onclick="backup()">बैकअप डाउनलोड करें</button>
 
-<button class="secondary" onclick="document.getElementById('restoreFile').click()">
+<button class="secondary" onclick="el('restoreFile').click()">
 बैकअप वापस डालें
 </button>
 
@@ -305,8 +302,17 @@ body.dark .amount{color:#86efac}
 </div>
 
 <script>
+
 const KEY="panditJiBookings";
-let bookings=JSON.parse(localStorage.getItem(KEY)||"[]");
+
+let bookings=[];
+
+try{
+ bookings=JSON.parse(localStorage.getItem(KEY)||"[]");
+ if(!Array.isArray(bookings)) bookings=[];
+}catch(e){
+ bookings=[];
+}
 
 function el(id){
  return document.getElementById(id);
@@ -316,7 +322,7 @@ function money(n){
  return "₹"+Number(n||0).toLocaleString("en-IN");
 }
 
-/* THEME FUNCTION */
+/* THEME */
 
 function toggleTheme(){
  document.body.classList.toggle("dark");
@@ -345,14 +351,17 @@ function saveData(){
  render();
 }
 
+/* RESET FORM */
+
 function resetForm(){
  el("bookingForm").reset();
  el("editId").value="";
  el("advance").value=0;
  el("saveBtn").textContent="बुकिंग सेव करें";
+ el("message").textContent="";
 }
 
-/* BOOKING FORM */
+/* SAVE OR UPDATE BOOKING */
 
 el("bookingForm").addEventListener("submit",function(e){
 
@@ -377,41 +386,81 @@ el("bookingForm").addEventListener("submit",function(e){
   date:el("date").value,
   endDate:el("endDate").value,
   time:el("time").value,
-  amount,
-  advance,
+  amount:amount,
+  advance:advance,
   reminder:el("reminder").value,
   status:el("status").value,
   notes:el("notes").value
  };
 
  if(id){
-  const i=bookings.findIndex(x=>x.id===id);
-  if(i>=0)bookings[i]=item;
+
+  const i=bookings.findIndex(
+   x=>String(x.id)===String(id)
+  );
+
+  if(i>=0){
+   bookings[i]=item;
+  }else{
+   alert("यह बुकिंग नहीं मिली।");
+   return;
+  }
+
  }else{
+
   bookings.push(item);
+
  }
 
  saveData();
  resetForm();
 
- el("message").textContent="बुकिंग सफलतापूर्वक सेव हो गई।";
+ el("message").textContent=
+ "बुकिंग सफलतापूर्वक सेव हो गई।";
+
 });
 
-/* EDIT BOOKING */
+/* EDIT BOOKING - FIXED */
 
 function editBooking(id){
 
- const b=bookings.find(x=>x.id===id);
- if(!b)return;
+ const b=bookings.find(
+  x=>String(x.id)===String(id)
+ );
 
- ["name","phone","category","address","date","endDate","time","amount","advance","reminder","status","notes"].forEach(k=>{
+ if(!b){
+  alert("बुकिंग नहीं मिली।");
+  return;
+ }
+
+ [
+  "name",
+  "phone",
+  "category",
+  "address",
+  "date",
+  "endDate",
+  "time",
+  "amount",
+  "advance",
+  "reminder",
+  "status",
+  "notes"
+ ].forEach(k=>{
   el(k).value=b[k]??"";
  });
 
- el("editId").value=id;
+ el("editId").value=String(b.id);
+
  el("saveBtn").textContent="बदलाव सेव करें";
 
- window.scrollTo({top:0,behavior:"smooth"});
+ el("message").textContent="अब आप जानकारी बदल सकते हैं।";
+
+ window.scrollTo({
+  top:0,
+  behavior:"smooth"
+ });
+
 }
 
 /* DELETE BOOKING */
@@ -419,28 +468,39 @@ function editBooking(id){
 function deleteBooking(id){
 
  if(confirm("क्या आप यह बुकिंग डिलीट करना चाहते हैं?")){
-  bookings=bookings.filter(x=>x.id!==id);
+
+  bookings=bookings.filter(
+   x=>String(x.id)!==String(id)
+  );
+
   saveData();
  }
+
 }
 
 /* COMPLETE BOOKING */
 
 function completeBooking(id){
 
- const b=bookings.find(x=>x.id===id);
+ const b=bookings.find(
+  x=>String(x.id)===String(id)
+ );
 
  if(b){
   b.status="काम पूरा";
   saveData();
  }
+
 }
 
 /* WHATSAPP SHARE */
 
 function shareBooking(id){
 
- const b=bookings.find(x=>x.id===id);
+ const b=bookings.find(
+  x=>String(x.id)===String(id)
+ );
+
  if(!b)return;
 
  const msg=`☕ पंडित जी – चाय एवं कॉफी स्टॉल सर्विस
@@ -452,10 +512,12 @@ function shareBooking(id){
 तारीख: ${b.date}
 समाप्ति: ${b.endDate||"नहीं दी"}
 समय: ${b.time||"नहीं दिया"}
+
 कुल रकम: ₹${b.amount}
 एडवांस: ₹${b.advance}
 बाकी: ₹${b.amount-b.advance}
 स्थिति: ${b.status}
+
 नोट: ${b.notes||"कोई नहीं"}
 
 धन्यवाद!`;
@@ -463,6 +525,21 @@ function shareBooking(id){
  const url="https://wa.me/?text="+encodeURIComponent(msg);
 
  window.open(url,"_blank");
+
+}
+
+/* HTML SECURITY */
+
+function escapeHTML(s){
+
+ return String(s??"").replace(/[&<>"']/g,c=>({
+  "&":"&amp;",
+  "<":"&lt;",
+  ">":"&gt;",
+  '"':"&quot;",
+  "'":"&#39;"
+ }[c]));
+
 }
 
 /* DISPLAY BOOKINGS */
@@ -478,13 +555,13 @@ function render(){
  el("totalCount").textContent=total.length;
 
  el("totalAmount").textContent=
- money(total.reduce((s,b)=>s+b.amount,0));
+ money(total.reduce((s,b)=>s+Number(b.amount||0),0));
 
  el("totalAdvance").textContent=
- money(total.reduce((s,b)=>s+b.advance,0));
+ money(total.reduce((s,b)=>s+Number(b.advance||0),0));
 
  el("totalDue").textContent=
- money(total.reduce((s,b)=>s+b.amount-b.advance,0));
+ money(total.reduce((s,b)=>s+Number(b.amount||0)-Number(b.advance||0),0));
 
  const months=[...new Set(
   bookings.map(b=>b.date?.slice(0,7)).filter(Boolean)
@@ -493,18 +570,20 @@ function render(){
  const mf=el("monthFilter");
  const old=mf.value;
 
- mf.innerHTML='<option value="">सभी महीने</option>'+
+ mf.innerHTML=
+ '<option value="">सभी महीने</option>'+
  months.map(x=>`<option value="${x}">${x}</option>`).join("");
 
  mf.value=months.includes(old)?old:"";
 
  const list=bookings.filter(b=>
-  (!q||(b.name+" "+b.phone).toLowerCase().includes(q))&&
+  (!q||(String(b.name||"")+" "+String(b.phone||"")).toLowerCase().includes(q))&&
   (!f||b.status===f)&&
   (!m||b.date?.startsWith(m))
  ).sort((a,b)=>(b.date||"").localeCompare(a.date||""));
 
  el("bookingList").innerHTML=list.length?
+
  list.map(b=>`
 
  <div class="booking">
@@ -517,17 +596,19 @@ function render(){
 
  📍 ${escapeHTML(b.address||"पता नहीं दिया")}<br>
 
- 📅 ${b.date||"-"} ${b.time||""}
- ${b.endDate?"से "+b.endDate:""}<br>
+ 📅 ${escapeHTML(b.date||"-")}
+ ${escapeHTML(b.time||"")}
+ ${b.endDate?"से "+escapeHTML(b.endDate):""}<br>
 
- कुल रकम: <span class="amount">${money(b.amount)}</span><br>
+ कुल रकम:
+ <span class="amount">${money(b.amount)}</span><br>
 
  एडवांस: ${money(b.advance)}
- | बाकी: <b>${money(b.amount-b.advance)}</b><br>
+ | बाकी: <b>${money(Number(b.amount||0)-Number(b.advance||0))}</b><br>
 
  स्थिति: <b>${escapeHTML(b.status)}</b>
 
- ${b.reminder?"<br>🔔 रिमाइंडर: "+b.reminder:""}
+ ${b.reminder?"<br>🔔 रिमाइंडर: "+escapeHTML(b.reminder):""}
 
  ${b.notes?"<br>नोट: "+escapeHTML(b.notes):""}
 
@@ -535,17 +616,19 @@ function render(){
 
  <div class="actions">
 
- <button onclick="editBooking('${b.id}')">✏️ एडिट</button>
+ <button onclick="editBooking('${encodeURIComponent(String(b.id))}')">
+ ✏️ एडिट
+ </button>
 
- <button class="whatsapp" onclick="shareBooking('${b.id}')">
+ <button class="whatsapp" onclick="shareBooking('${encodeURIComponent(String(b.id))}')">
  📲 WhatsApp शेयर
  </button>
 
- <button class="orange" onclick="completeBooking('${b.id}')">
+ <button class="orange" onclick="completeBooking('${encodeURIComponent(String(b.id))}')">
  काम पूरा
  </button>
 
- <button class="danger" onclick="deleteBooking('${b.id}')">
+ <button class="danger" onclick="deleteBooking('${encodeURIComponent(String(b.id))}')">
  डिलीट
  </button>
 
@@ -556,25 +639,47 @@ function render(){
 
  "<p class='small'>अभी कोई बुकिंग नहीं है।</p>";
 
- const due=total.reduce((s,b)=>s+b.amount-b.advance,0);
+ const due=total.reduce(
+  (s,b)=>s+Number(b.amount||0)-Number(b.advance||0),0
+ );
 
  el("report").textContent=
  "कुल सक्रिय बुकिंग: "+total.length+
  " | कुल बाकी रकम: "+money(due);
+
 }
 
-/* HTML SECURITY */
+/* DECODE BUTTON IDS */
 
-function escapeHTML(s){
-
- return String(s).replace(/[&<>"']/g,c=>({
-  "&":"&amp;",
-  "<":"&lt;",
-  ">":"&gt;",
-  '"':"&quot;",
-  "'":"&#39;"
- }[c]));
+function decodeId(id){
+ return decodeURIComponent(String(id));
 }
+
+/* BUTTON ACTION WRAPPERS */
+
+const originalEditBooking=editBooking;
+
+editBooking=function(id){
+ originalEditBooking(decodeId(id));
+};
+
+const originalShareBooking=shareBooking;
+
+shareBooking=function(id){
+ originalShareBooking(decodeId(id));
+};
+
+const originalCompleteBooking=completeBooking;
+
+completeBooking=function(id){
+ originalCompleteBooking(decodeId(id));
+};
+
+const originalDeleteBooking=deleteBooking;
+
+deleteBooking=function(id){
+ originalDeleteBooking(decodeId(id));
+};
 
 /* BACKUP */
 
@@ -586,6 +691,7 @@ function backup(){
  );
 
  download(blob,"Pandit-Ji-Booking-Backup.json");
+
 }
 
 /* RESTORE BACKUP */
@@ -593,6 +699,7 @@ function backup(){
 function restore(e){
 
  const file=e.target.files[0];
+
  if(!file)return;
 
  const reader=new FileReader();
@@ -608,19 +715,25 @@ function restore(e){
    if(confirm("मौजूदा बुकिंग की जगह बैकअप का डेटा डालें?")){
 
     bookings=data;
+
     saveData();
 
     alert("बैकअप सफलतापूर्वक वापस आ गया।");
+
    }
 
   }catch(err){
 
    alert("यह सही बैकअप फाइल नहीं है।");
+
   }
+
  };
 
  reader.readAsText(file);
+
  e.target.value="";
+
 }
 
 /* CSV REPORT */
@@ -632,8 +745,16 @@ function exportCSV(){
  ];
 
  bookings.forEach(b=>rows.push([
-  b.name,b.phone,b.category,b.address,b.date,b.time,
-  b.amount,b.advance,b.amount-b.advance,b.status
+  b.name,
+  b.phone,
+  b.category,
+  b.address,
+  b.date,
+  b.time,
+  b.amount,
+  b.advance,
+  Number(b.amount||0)-Number(b.advance||0),
+  b.status
  ]));
 
  const csv="\uFEFF"+rows.map(r=>
@@ -644,6 +765,7 @@ function exportCSV(){
   new Blob([csv],{type:"text/csv;charset=utf-8"}),
   "Pandit-Ji-Booking-Report.csv"
  );
+
 }
 
 /* DOWNLOAD FILE */
@@ -654,9 +776,11 @@ function download(blob,name){
 
  a.href=URL.createObjectURL(blob);
  a.download=name;
+
  a.click();
 
  setTimeout(()=>URL.revokeObjectURL(a.href),1000);
+
 }
 
 /* OFFLINE APP */
@@ -664,8 +788,11 @@ function download(blob,name){
 if("serviceWorker" in navigator){
 
  window.addEventListener("load",()=>{
+
   navigator.serviceWorker.register("./sw.js").catch(()=>{});
+
  });
+
 }
 
 /* START APP */
@@ -674,5 +801,6 @@ loadTheme();
 render();
 
 </script>
+
 </body>
 </html>
