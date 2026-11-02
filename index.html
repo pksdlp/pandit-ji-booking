@@ -6,7 +6,34 @@
 <meta name="theme-color" content="#166534">
 <link rel="manifest" href="./manifest.webmanifest">
 <title>पंडित जी बुकिंग मैनेजर</title>
-<style>
+body.dark{
+background:#121212;
+color:#eeeeee;
+}
+body.dark .card{
+background:#242424;
+color:#eeeeee;
+}
+body.dark .booking{
+border-color:#555;
+}
+body.dark input,
+body.dark select,
+body.dark textarea{
+background:#333;
+color:white;
+border-color:#666;
+}
+body.dark .small{
+color:#cccccc;
+}
+body.dark .stat{
+background:#303b32;
+color:white;
+}
+body.dark .stat strong{
+color:#86efac;
+}<style>
 *{box-sizing:border-box}
 body{margin:0;background:#f1f5f2;color:#222;font-family:Arial,sans-serif}
 header{background:#166534;color:white;padding:20px 15px;text-align:center}
@@ -36,7 +63,7 @@ button.orange{background:#c66b0b}
 <header>
 <h2>☕ पंडित जी</h2>
 <div>चाय एवं कॉफी स्टॉल सर्विस</div>
-<small>बुकिंग मैनेजर</small>
+<small>बुकिंग मैनेजर</small><button onclick="toggleTheme()" id="themeBtn">🌙 Dark Mode</button>
 </header>
 
 <div class="container">
@@ -266,7 +293,7 @@ function render(){
  ${b.notes?"<br>नोट: "+escapeHTML(b.notes):""}
  </div>
  <div class="actions">
- <button onclick="editBooking('${b.id}')">✏️ एडिट</button>
+ <button onclick="editBooking('${b.id}')">✏️ एडिट</button><button style="background:#25D366" onclick="shareBooking('${b.id}')">📲 WhatsApp शेयर</button>
  <button class="orange" onclick="completeBooking('${b.id}')">काम पूरा</button>
  <button class="danger" onclick="deleteBooking('${b.id}')">डिलीट</button>
  </div>
@@ -321,6 +348,45 @@ if("serviceWorker" in navigator){
  window.addEventListener("load",()=>navigator.serviceWorker.register("./sw.js").catch(()=>{}));
 }
 render();
-</script>
+function toggleTheme(){
+ document.body.classList.toggle("dark");
+ const dark=document.body.classList.contains("dark");
+ localStorage.setItem("panditTheme",dark?"dark":"light");
+ document.getElementById("themeBtn").textContent=
+ dark?"☀️ Light Mode":"🌙 Dark Mode";
+}
+
+(function(){
+ const dark=localStorage.getItem("panditTheme")==="dark";
+ if(dark){
+ document.body.classList.add("dark");
+ }
+ window.addEventListener("DOMContentLoaded",()=>{
+ const btn=document.getElementById("themeBtn");
+ if(btn){
+ btn.textContent=dark?"☀️ Light Mode":"🌙 Dark Mode";
+ }
+ });
+})();function shareBooking(id){
+ const b=bookings.find(x=>x.id===id);
+ if(!b)return;
+
+ const msg=`☕ पंडित जी – चाय एवं कॉफी स्टॉल सर्विस
+
+ग्राहक: ${b.name}
+मोबाइल: ${b.phone}
+काम: ${b.category}
+पता: ${b.address}
+तारीख: ${b.date}
+समय: ${b.time}
+कुल रकम: ₹${b.amount}
+एडवांस: ₹${b.advance}
+बाकी: ₹${b.amount-b.advance}
+स्थिति: ${b.status}
+
+धन्यवाद!`;
+
+ window.open("https://wa.me/?text="+encodeURIComponent(msg),"_blank");
+}</script>
 </body>
 </html>
