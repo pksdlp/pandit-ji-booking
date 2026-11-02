@@ -619,7 +619,11 @@ function render(){
   (!q||(String(b.name||"")+" "+String(b.phone||"")).toLowerCase().includes(q))&&
   (!f||b.status===f)&&
   (!m||b.date?.startsWith(m))
-  ).sort((a,b)=>(a.date||"9999-12-31").localeCompare(b.date||"9999-12-31"));
+  ).sort((a,b)=>{
+ const da=a.date||"9999-12-31";
+ const db=b.date||"9999-12-31";
+ return da.localeCompare(db);
+});
 
  el("bookingList").innerHTML=list.length?
 
