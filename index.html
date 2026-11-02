@@ -15,17 +15,27 @@ body{
  background:#f1f5f2;
  color:#222;
  font-family:Arial,sans-serif;
- transition:background .2s,color .2s;
+ font-size:20px;
 }
 
 header{
  background:#166534;
  color:white;
- padding:20px 15px;
+ padding:18px 12px;
  text-align:center;
 }
 
-header h2{margin:0 0 6px}
+.header-photo{
+ width:115px;
+ height:115px;
+ object-fit:cover;
+ border-radius:50%;
+ border:3px solid #fff;
+ background:#fff;
+}
+
+header h2{font-size:29px;margin:8px 0}
+header div{font-size:19px}
 
 .container{
  padding:12px;
@@ -35,9 +45,9 @@ header h2{margin:0 0 6px}
 
 .card{
  background:white;
- padding:15px;
+ padding:16px;
  border-radius:12px;
- margin-bottom:13px;
+ margin-bottom:14px;
  box-shadow:0 2px 7px #0001;
 }
 
@@ -52,40 +62,41 @@ header h2{margin:0 0 6px}
  padding:13px;
  border-radius:9px;
  text-align:center;
+ font-size:17px;
 }
 
 .stat strong{
  display:block;
- font-size:21px;
+ font-size:25px;
  color:#166534;
  margin-top:5px;
 }
 
-h3{margin:0 0 12px;color:#166534}
+h3{margin:0 0 12px;color:#166534;font-size:23px}
 
 label{
  display:block;
- font-size:14px;
- margin:10px 0 5px;
+ font-size:19px;
+ margin:12px 0 6px;
 }
 
 input,select,textarea{
  width:100%;
- padding:11px;
+ padding:14px;
  border:1px solid #ccc;
  border-radius:7px;
- font-size:15px;
+ font-size:19px;
  background:white;
  color:#222;
 }
 
 button{
  border:0;
- border-radius:7px;
- padding:11px 13px;
+ border-radius:8px;
+ padding:13px 15px;
  background:#166534;
  color:white;
- font-size:14px;
+ font-size:17px;
  margin:5px 3px 0 0;
  cursor:pointer;
 }
@@ -95,6 +106,7 @@ button.danger{background:#b91c1c}
 button.orange{background:#c66b0b}
 button.whatsapp{background:#25D366;color:white}
 button.theme{background:#334155;margin-top:12px}
+button.shareapp{background:#0f766e}
 
 .row{
  display:grid;
@@ -105,21 +117,38 @@ button.theme{background:#334155;margin-top:12px}
 .booking{
  border:1px solid #ddd;
  border-radius:9px;
- padding:12px;
  margin:10px 0;
+ overflow:hidden;
 }
 
-.booking h4{margin:0 0 8px;color:#166534}
+.booking-title{
+ width:100%;
+ text-align:left;
+ background:#e8f5e9;
+ color:#166534;
+ padding:16px;
+ font-size:20px;
+ font-weight:bold;
+ margin:0;
+ border-radius:0;
+}
+
+.booking-details{
+ padding:13px;
+ border-top:1px solid #ddd;
+}
 
 .small{
- font-size:13px;
+ font-size:17px;
  color:#555;
- line-height:1.7;
+ line-height:1.9;
 }
 
 .amount{font-weight:bold;color:#166534}
-.actions{margin-top:8px}
-#message{color:#166534;font-size:14px}
+.actions{margin-top:10px}
+#message{color:#166534;font-size:17px}
+
+.hidden{display:none}
 
 body.dark{
  background:#121212;
@@ -133,8 +162,16 @@ body.dark .card{
 
 body.dark .booking{border-color:#555}
 
-body.dark h3,
-body.dark .booking h4{color:#86efac}
+body.dark h3{color:#86efac}
+
+body.dark .booking-title{
+ background:#303b32;
+ color:#86efac;
+}
+
+body.dark .booking-details{
+ border-color:#555;
+}
 
 body.dark input,
 body.dark select,
@@ -155,46 +192,9 @@ body.dark .stat strong,
 body.dark .amount{color:#86efac}
 
 @media(max-width:380px){
- button{font-size:12px;padding:10px}
-} /* BIG FONT MODE */
-
-body{
-  font-size:18px;
-}
-
-h2{
-  font-size:26px;
-}
-
-h3{
-  font-size:22px;
-}
-
-label{
-  font-size:17px;
-}
-
-input, select, textarea{
-  font-size:18px;
-  padding:14px;
-}
-
-button{
-  font-size:17px;
-  padding:14px 16px;
-}
-
-.small{
-  font-size:16px;
-  line-height:1.9;
-}
-
-.booking h4{
-  font-size:19px;
-}
-
-.stat strong{
-  font-size:25px;
+ button{font-size:16px;padding:12px}
+ .row{gap:6px}
+ .header-photo{width:95px;height:95px}
 }
 </style>
 </head>
@@ -202,19 +202,32 @@ button{
 <body>
 
 <header>
+
+<img class="header-photo"
+src="./hanuman-blessing.png"
+alt="बजरंग बली">
+
 <h2>☕ पंडित जी</h2>
 <div>चाय एवं कॉफी स्टॉल सर्विस</div>
 <small>बुकिंग मैनेजर</small>
+
 <br>
+
 <button class="theme" onclick="toggleTheme()" id="themeBtn">
 🌙 Dark Mode
 </button>
+
+<button class="shareapp" onclick="shareApp()">
+📲 ऐप शेयर करें
+</button>
+
 </header>
 
 <div class="container">
 
 <div class="card">
 <h3>📊 बुकिंग का हिसाब</h3>
+
 <div class="stats">
 <div class="stat">कुल बुकिंग<strong id="totalCount">0</strong></div>
 <div class="stat">कुल रकम<strong id="totalAmount">₹0</strong></div>
@@ -227,6 +240,7 @@ button{
 <h3>➕ नई बुकिंग जोड़ें</h3>
 
 <form id="bookingForm">
+
 <input type="hidden" id="editId">
 
 <label>ग्राहक का नाम *</label>
@@ -236,7 +250,8 @@ button{
 <input id="phone" type="tel" placeholder="मोबाइल नंबर">
 
 <label>बुकिंग का काम</label>
-<select id="category">
+
+<select id="category" onchange="toggleOtherWork()">
 <option>चाय स्टॉल</option>
 <option>कॉफी स्टॉल</option>
 <option>रोटी बनाना</option>
@@ -244,6 +259,11 @@ button{
 <option>शादी / पार्टी</option>
 <option>अन्य</option>
 </select>
+
+<div id="otherWorkBox" class="hidden">
+<label>काम का नाम लिखें *</label>
+<input id="otherWork" placeholder="अपना काम लिखें">
+</div>
 
 <label>कार्यक्रम का पता</label>
 <input id="address" placeholder="गांव / शहर / पूरा पता">
@@ -253,6 +273,7 @@ button{
 <label>शुरू होने की तारीख *</label>
 <input id="date" type="date" required>
 </div>
+
 <div>
 <label>समाप्ति की तारीख</label>
 <input id="endDate" type="date">
@@ -264,6 +285,7 @@ button{
 <label>समय</label>
 <input id="time" type="time">
 </div>
+
 <div>
 <label>कुल रकम ₹ *</label>
 <input id="amount" type="number" min="0" required placeholder="0">
@@ -275,6 +297,7 @@ button{
 <label>एडवांस ₹</label>
 <input id="advance" type="number" min="0" value="0">
 </div>
+
 <div>
 <label>रिमाइंडर तारीख</label>
 <input id="reminder" type="date">
@@ -293,16 +316,22 @@ button{
 <textarea id="notes" rows="2" placeholder="कोई जरूरी बात..."></textarea>
 
 <button type="submit" id="saveBtn">बुकिंग सेव करें</button>
-<button type="button" class="secondary" onclick="resetForm()">फॉर्म साफ करें</button>
+
+<button type="button" class="secondary" onclick="resetForm()">
+फॉर्म साफ करें
+</button>
 
 <p id="message"></p>
+
 </form>
 </div>
 
 <div class="card">
 <h3>📋 बुकिंग की सूची</h3>
 
-<input id="search" placeholder="नाम या मोबाइल से खोजें..." oninput="render()">
+<input id="search"
+placeholder="नाम या मोबाइल से खोजें..."
+oninput="render()">
 
 <div class="row">
 <select id="filter" onchange="render()">
@@ -323,7 +352,10 @@ button{
 
 <div class="card">
 <h3>📅 रिपोर्ट और बैकअप</h3>
-<p class="small">अपना डेटा सुरक्षित रखने के लिए समय-समय पर बैकअप डाउनलोड करें।</p>
+
+<p class="small">
+अपना डेटा सुरक्षित रखने के लिए समय-समय पर बैकअप डाउनलोड करें।
+</p>
 
 <button onclick="backup()">बैकअप डाउनलोड करें</button>
 
@@ -331,9 +363,12 @@ button{
 बैकअप वापस डालें
 </button>
 
-<input type="file" id="restoreFile" accept=".json" hidden onchange="restore(event)">
+<input type="file" id="restoreFile"
+accept=".json" hidden onchange="restore(event)">
 
-<button class="orange" onclick="exportCSV()">Excel के लिए CSV रिपोर्ट</button>
+<button class="orange" onclick="exportCSV()">
+Excel के लिए CSV रिपोर्ट
+</button>
 
 <p class="small" id="report"></p>
 </div>
@@ -348,7 +383,7 @@ let bookings=[];
 
 try{
  bookings=JSON.parse(localStorage.getItem(KEY)||"[]");
- if(!Array.isArray(bookings)) bookings=[];
+ if(!Array.isArray(bookings))bookings=[];
 }catch(e){
  bookings=[];
 }
@@ -364,6 +399,7 @@ function money(n){
 /* THEME */
 
 function toggleTheme(){
+
  document.body.classList.toggle("dark");
 
  const dark=document.body.classList.contains("dark");
@@ -375,12 +411,57 @@ function toggleTheme(){
 }
 
 function loadTheme(){
+
  const dark=localStorage.getItem("panditTheme")==="dark";
 
  document.body.classList.toggle("dark",dark);
 
  el("themeBtn").textContent=
  dark?"☀️ Light Mode":"🌙 Dark Mode";
+}
+
+/* APP SHARE */
+
+function shareApp(){
+
+ const url="https://pksdlp.github.io/pandit-ji-booking/";
+
+ if(navigator.share){
+
+  navigator.share({
+   title:"पंडित जी बुकिंग मैनेजर",
+   text:"पंडित जी – चाय एवं कॉफी स्टॉल सर्विस बुकिंग ऐप",
+   url:url
+  }).catch(()=>{});
+
+ }else{
+
+  if(navigator.clipboard){
+   navigator.clipboard.writeText(url).then(()=>{
+    alert("ऐप का लिंक कॉपी हो गया। अब WhatsApp पर शेयर कर सकते हैं।");
+   }).catch(()=>{
+    prompt("इस लिंक को कॉपी करके शेयर करें:",url);
+   });
+  }else{
+   prompt("इस लिंक को कॉपी करके शेयर करें:",url);
+  }
+
+ }
+}
+
+/* OTHER WORK */
+
+function toggleOtherWork(){
+
+ const show=el("category").value==="अन्य";
+
+ el("otherWorkBox").classList.toggle("hidden",!show);
+
+ el("otherWork").required=show;
+
+ if(!show){
+  el("otherWork").value="";
+ }
 }
 
 /* SAVE DATA */
@@ -393,14 +474,21 @@ function saveData(){
 /* RESET FORM */
 
 function resetForm(){
+
  el("bookingForm").reset();
+
  el("editId").value="";
  el("advance").value=0;
+
  el("saveBtn").textContent="बुकिंग सेव करें";
+
  el("message").textContent="";
+
+ el("otherWorkBox").classList.add("hidden");
+ el("otherWork").required=false;
 }
 
-/* SAVE OR UPDATE BOOKING */
+/* SAVE OR UPDATE */
 
 el("bookingForm").addEventListener("submit",function(e){
 
@@ -414,13 +502,22 @@ el("bookingForm").addEventListener("submit",function(e){
   return;
  }
 
+ const category=el("category").value;
+ const otherWork=category==="अन्य"?el("otherWork").value.trim():"";
+
+ if(category==="अन्य"&&!otherWork){
+  alert("कृपया काम का नाम लिखें।");
+  return;
+ }
+
  const id=el("editId").value;
 
  const item={
   id:id||String(Date.now()),
   name:el("name").value.trim(),
   phone:el("phone").value.trim(),
-  category:el("category").value,
+  category:category,
+  otherWork:otherWork,
   address:el("address").value.trim(),
   date:el("date").value,
   endDate:el("endDate").value,
@@ -434,9 +531,7 @@ el("bookingForm").addEventListener("submit",function(e){
 
  if(id){
 
-  const i=bookings.findIndex(
-   x=>String(x.id)===String(id)
-  );
+  const i=bookings.findIndex(x=>String(x.id)===String(id));
 
   if(i>=0){
    bookings[i]=item;
@@ -454,18 +549,26 @@ el("bookingForm").addEventListener("submit",function(e){
  saveData();
  resetForm();
 
- el("message").textContent=
- "बुकिंग सफलतापूर्वक सेव हो गई।";
+ el("message").textContent="बुकिंग सफलतापूर्वक सेव हो गई।";
 
 });
 
-/* EDIT BOOKING - FIXED */
+/* WORK NAME */
+
+function getWork(b){
+
+ if(b.category==="अन्य"){
+  return b.otherWork||"अन्य";
+ }
+
+ return b.category||"";
+}
+
+/* EDIT */
 
 function editBooking(id){
 
- const b=bookings.find(
-  x=>String(x.id)===String(id)
- );
+ const b=bookings.find(x=>String(x.id)===String(id));
 
  if(!b){
   alert("बुकिंग नहीं मिली।");
@@ -473,57 +576,49 @@ function editBooking(id){
  }
 
  [
-  "name",
-  "phone",
-  "category",
-  "address",
-  "date",
-  "endDate",
-  "time",
-  "amount",
-  "advance",
-  "reminder",
-  "status",
-  "notes"
+  "name","phone","category","address",
+  "date","endDate","time","amount",
+  "advance","reminder","status","notes"
  ].forEach(k=>{
   el(k).value=b[k]??"";
  });
 
  el("editId").value=String(b.id);
 
- el("saveBtn").textContent="बदलाव सेव करें";
+ if(b.category==="अन्य"){
+  el("otherWorkBox").classList.remove("hidden");
+  el("otherWork").required=true;
+  el("otherWork").value=b.otherWork||"";
+ }else{
+  el("otherWorkBox").classList.add("hidden");
+  el("otherWork").required=false;
+  el("otherWork").value="";
+ }
 
+ el("saveBtn").textContent="बदलाव सेव करें";
  el("message").textContent="अब आप जानकारी बदल सकते हैं।";
 
- window.scrollTo({
-  top:0,
-  behavior:"smooth"
- });
-
+ window.scrollTo({top:0,behavior:"smooth"});
 }
 
-/* DELETE BOOKING */
+/* DELETE */
 
 function deleteBooking(id){
 
  if(confirm("क्या आप यह बुकिंग डिलीट करना चाहते हैं?")){
 
-  bookings=bookings.filter(
-   x=>String(x.id)!==String(id)
-  );
+  bookings=bookings.filter(x=>String(x.id)!==String(id));
 
   saveData();
  }
 
 }
 
-/* COMPLETE BOOKING */
+/* COMPLETE */
 
 function completeBooking(id){
 
- const b=bookings.find(
-  x=>String(x.id)===String(id)
- );
+ const b=bookings.find(x=>String(x.id)===String(id));
 
  if(b){
   b.status="काम पूरा";
@@ -536,9 +631,7 @@ function completeBooking(id){
 
 function shareBooking(id){
 
- const b=bookings.find(
-  x=>String(x.id)===String(id)
- );
+ const b=bookings.find(x=>String(x.id)===String(id));
 
  if(!b)return;
 
@@ -546,7 +639,7 @@ function shareBooking(id){
 
 ग्राहक: ${b.name}
 मोबाइल: ${b.phone||"नहीं दिया"}
-काम: ${b.category}
+काम: ${getWork(b)}
 पता: ${b.address||"नहीं दिया"}
 तारीख: ${b.date}
 समाप्ति: ${b.endDate||"नहीं दी"}
@@ -554,17 +647,14 @@ function shareBooking(id){
 
 कुल रकम: ₹${b.amount}
 एडवांस: ₹${b.advance}
-बाकी: ₹${b.amount-b.advance}
+बाकी: ₹${Number(b.amount||0)-Number(b.advance||0)}
 स्थिति: ${b.status}
 
 नोट: ${b.notes||"कोई नहीं"}
 
 धन्यवाद!`;
 
- const url="https://wa.me/?text="+encodeURIComponent(msg);
-
- window.open(url,"_blank");
-
+ window.open("https://wa.me/?text="+encodeURIComponent(msg),"_blank");
 }
 
 /* HTML SECURITY */
@@ -578,6 +668,42 @@ function escapeHTML(s){
   '"':"&quot;",
   "'":"&#39;"
  }[c]));
+
+}
+
+/* DATE SORTING */
+
+function sortBookingsByDate(list){
+
+ const today=new Date().toISOString().slice(0,10);
+
+ return list.sort((a,b)=>{
+
+  const da=a.date||"9999-12-31";
+  const db=b.date||"9999-12-31";
+
+  const aPast=da<today;
+  const bPast=db<today;
+
+  if(!aPast&&bPast)return -1;
+  if(aPast&&!bPast)return 1;
+
+  if(!aPast&&!bPast)return da.localeCompare(db);
+
+  return db.localeCompare(da);
+
+ });
+}
+
+/* SHOW / HIDE DETAILS */
+
+function toggleDetails(id){
+
+ const box=el("details-"+id);
+
+ if(box){
+  box.classList.toggle("hidden");
+ }
 
 }
 
@@ -615,15 +741,13 @@ function render(){
 
  mf.value=months.includes(old)?old:"";
 
- const list=bookings.filter(b=>
-  (!q||(String(b.name||"")+" "+String(b.phone||"")).toLowerCase().includes(q))&&
+ let list=bookings.filter(b=>
+  (!q||(String(b.name||"")+" "+String(b.phone||"")+" "+getWork(b)).toLowerCase().includes(q))&&
   (!f||b.status===f)&&
   (!m||b.date?.startsWith(m))
-  ).sort((a,b)=>{
- const da=a.date||"9999-12-31";
- const db=b.date||"9999-12-31";
- return da.localeCompare(db);
-});
+ );
+
+ list=sortBookingsByDate(list);
 
  el("bookingList").innerHTML=list.length?
 
@@ -631,7 +755,15 @@ function render(){
 
  <div class="booking">
 
- <h4>${escapeHTML(b.name)} — ${escapeHTML(b.category)}</h4>
+ <button class="booking-title"
+ onclick="toggleDetails('${encodeURIComponent(String(b.id))}')">
+
+ ${escapeHTML(b.name)} — ${escapeHTML(getWork(b))}
+
+ </button>
+
+ <div class="booking-details hidden"
+ id="details-${escapeHTML(encodeURIComponent(String(b.id)))}">
 
  <div class="small">
 
@@ -663,17 +795,22 @@ function render(){
  ✏️ एडिट
  </button>
 
- <button class="whatsapp" onclick="shareBooking('${encodeURIComponent(String(b.id))}')">
+ <button class="whatsapp"
+ onclick="shareBooking('${encodeURIComponent(String(b.id))}')">
  📲 WhatsApp शेयर
  </button>
 
- <button class="orange" onclick="completeBooking('${encodeURIComponent(String(b.id))}')">
+ <button class="orange"
+ onclick="completeBooking('${encodeURIComponent(String(b.id))}')">
  काम पूरा
  </button>
 
- <button class="danger" onclick="deleteBooking('${encodeURIComponent(String(b.id))}')">
+ <button class="danger"
+ onclick="deleteBooking('${encodeURIComponent(String(b.id))}')">
  डिलीट
  </button>
+
+ </div>
 
  </div>
  </div>
@@ -692,37 +829,26 @@ function render(){
 
 }
 
-/* DECODE BUTTON IDS */
+/* DECODE IDS */
 
 function decodeId(id){
  return decodeURIComponent(String(id));
 }
 
-/* BUTTON ACTION WRAPPERS */
+const oldEdit=editBooking;
+editBooking=function(id){oldEdit(decodeId(id));};
 
-const originalEditBooking=editBooking;
+const oldShare=shareBooking;
+shareBooking=function(id){oldShare(decodeId(id));};
 
-editBooking=function(id){
- originalEditBooking(decodeId(id));
-};
+const oldComplete=completeBooking;
+completeBooking=function(id){oldComplete(decodeId(id));};
 
-const originalShareBooking=shareBooking;
+const oldDelete=deleteBooking;
+deleteBooking=function(id){oldDelete(decodeId(id));};
 
-shareBooking=function(id){
- originalShareBooking(decodeId(id));
-};
-
-const originalCompleteBooking=completeBooking;
-
-completeBooking=function(id){
- originalCompleteBooking(decodeId(id));
-};
-
-const originalDeleteBooking=deleteBooking;
-
-deleteBooking=function(id){
- originalDeleteBooking(decodeId(id));
-};
+const oldToggle=toggleDetails;
+toggleDetails=function(id){oldToggle(decodeId(id));};
 
 /* BACKUP */
 
@@ -734,10 +860,9 @@ function backup(){
  );
 
  download(blob,"Pandit-Ji-Booking-Backup.json");
-
 }
 
-/* RESTORE BACKUP */
+/* RESTORE */
 
 function restore(e){
 
@@ -762,7 +887,6 @@ function restore(e){
     saveData();
 
     alert("बैकअप सफलतापूर्वक वापस आ गया।");
-
    }
 
   }catch(err){
@@ -774,9 +898,7 @@ function restore(e){
  };
 
  reader.readAsText(file);
-
  e.target.value="";
-
 }
 
 /* CSV REPORT */
@@ -790,7 +912,7 @@ function exportCSV(){
  bookings.forEach(b=>rows.push([
   b.name,
   b.phone,
-  b.category,
+  getWork(b),
   b.address,
   b.date,
   b.time,
@@ -808,10 +930,9 @@ function exportCSV(){
   new Blob([csv],{type:"text/csv;charset=utf-8"}),
   "Pandit-Ji-Booking-Report.csv"
  );
-
 }
 
-/* DOWNLOAD FILE */
+/* DOWNLOAD */
 
 function download(blob,name){
 
@@ -823,7 +944,6 @@ function download(blob,name){
  a.click();
 
  setTimeout(()=>URL.revokeObjectURL(a.href),1000);
-
 }
 
 /* OFFLINE APP */
@@ -838,7 +958,7 @@ if("serviceWorker" in navigator){
 
 }
 
-/* START APP */
+/* START */
 
 loadTheme();
 render();
