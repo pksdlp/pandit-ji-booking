@@ -981,7 +981,7 @@ render();
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
 import {
-  getAuth, GoogleAuthProvider, signInWithRedirect, getRedirectResult,
+  getAuth, GoogleAuthProvider, signInWithPopup,
   onAuthStateChanged, signOut
 } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
 import {
@@ -1036,7 +1036,7 @@ function bookingsRef(uid) {
 loginBtn.addEventListener("click", async () => {
   try {
     setStatus("Google Login खोला जा रहा है...");
-    await signInWithRedirect(auth, provider);
+    await signInWithPopup(auth, provider);
   } catch (error) {
     console.error(error);
     setStatus("Login शुरू नहीं हो पाया: " + error.message, true);
@@ -1054,13 +1054,6 @@ logoutBtn.addEventListener("click", async () => {
     setStatus("Logout नहीं हो पाया: " + error.message, true);
   }
 });
-
-try {
-  await getRedirectResult(auth);
-} catch (error) {
-  console.error(error);
-  setStatus("Google Login में समस्या: " + error.message, true);
-}
 
 onAuthStateChanged(auth, async (user) => {
   if (unsubscribeBookings) {
