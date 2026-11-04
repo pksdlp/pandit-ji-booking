@@ -225,6 +225,15 @@ alt="बजरंग बली">
 
 <div class="container">
 
+  <div class="card" id="authCard">
+    <h3>🔐 Google Login और Cloud Sync</h3>
+    <p class="small" id="authStatus">बुकिंग देखने और सेव करने के लिए अपने Gmail से लॉगिन करें।</p>
+    <button type="button" id="googleLoginBtn">Google से Login करें</button>
+    <button type="button" class="secondary hidden" id="googleLogoutBtn">Logout</button>
+    <p class="small" id="syncStatus">आपका डेटा आपके Google अकाउंट के साथ सुरक्षित रहेगा।</p>
+  </div>
+
+
 <div class="card">
 <h3>📊 बुकिंग का हिसाब</h3>
 
@@ -467,8 +476,11 @@ function toggleOtherWork(){
 /* SAVE DATA */
 
 function saveData(){
- localStorage.setItem(KEY,JSON.stringify(bookings));
- render();
+  localStorage.setItem(KEY,JSON.stringify(bookings));
+  render();
+  if(window.firebaseSaveData){
+    window.firebaseSaveData(bookings);
+  }
 }
 
 /* RESET FORM */
@@ -963,6 +975,215 @@ if("serviceWorker" in navigator){
 loadTheme();
 render();
 
+</script>
+
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
+import {
+  getAuth, GoogleAuthProvider, signInWithRedirect, getRedirectResult,
+  onAuthStateChanged, signOut
+} from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
+import {
+  getFirestore, collection, doc, getDocs, writeBatch, onSnapshot
+} from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyBB41-2VwBwEwPzf8JqIcPBBRSUEljhYG4",
+  authDomain: "pandit-ji-booking.firebaseapp.com",
+  projectId: "pandit-ji-booking",
+  storageBucket: "pandit-ji-booking.firebasestorage.app",
+  messagingSenderId: "243861452271",
+  appId: "1:243861452271:web:6286ff35372a299ee4b21a",
+  measurementId: "G-Q2H88GJVHD"
+};
+
+const LEGACY_OWNER_EMAIL = "pk.sdlp@gmail.com";
+// पुराने डिवाइस का लोकल डेटा redirect/login के दौरान सुरक्षित रखने के लिए
+// उसे sessionStorage में अस्थायी रूप से रखा जाता है।
+const LEGACY_SESSION_KEY = "panditJiLegacyMigration";
+try {
+  const oldLocal = JSON.parse(localStorage.getItem("panditJiBookings") || "[]");
+  if (Array.isArray(oldLocal) && oldLocal.length &&
+      !sessionStorage.getItem(LEGACY_SESSION_KEY)) {
+    sessionStorage.setItem(LEGACY_SESSION_KEY, JSON.stringify(oldLocal));
+  }
+} catch {}
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+const provider = new GoogleAuthProvider();
+
+let activeUser = null;
+let syncReady = false;
+let unsubscribeBookings = null;
+let writingCloud = false;
+
+const loginBtn = document.getElementById("googleLoginBtn");
+const logoutBtn = document.getElementById("googleLogoutBtn");
+const authStatus = document.getElementById("authStatus");
+const syncStatus = document.getElementById("syncStatus");
+
+function setStatus(message, isError = false) {
+  syncStatus.textContent = message;
+  syncStatus.style.color = isError ? "#b91c1c" : "#166534";
+}
+
+function bookingsRef(uid) {
+  return collection(db, "users", uid, "bookings");
+}
+
+loginBtn.addEventListener("click", async () => {
+  try {
+    setStatus("Google Login खोला जा रहा है...");
+    await signInWithRedirect(auth, provider);
+  } catch (error) {
+    console.error(error);
+    setStatus("Login शुरू नहीं हो पाया: " + error.message, true);
+  }
+});
+
+logoutBtn.addEventListener("click", async () => {
+  try {
+    if (unsubscribeBookings) unsubscribeBookings();
+    unsubscribeBookings = null;
+    syncReady = false;
+    await signOut(auth);
+  } catch (error) {
+    console.error(error);
+    setStatus("Logout नहीं हो पाया: " + error.message, true);
+  }
+});
+
+try {
+  await getRedirectResult(auth);
+} catch (error) {
+  console.error(error);
+  setStatus("Google Login में समस्या: " + error.message, true);
+}
+
+onAuthStateChanged(auth, async (user) => {
+  if (unsubscribeBookings) {
+    unsubscribeBookings();
+    unsubscribeBookings = null;
+  }
+  syncReady = false;
+  activeUser = user || null;
+
+  if (!user) {
+    loginBtn.classList.remove("hidden");
+    logoutBtn.classList.add("hidden");
+    authStatus.textContent = "कृपया अपने Gmail से Login करें।";
+    bookings = [];
+    localStorage.removeItem(KEY);
+    render();
+    setStatus("Login करने के बाद आपकी Cloud बुकिंग दिखाई देंगी।");
+    return;
+  }
+
+  loginBtn.classList.add("hidden");
+  logoutBtn.classList.remove("hidden");
+  authStatus.textContent = "लॉगिन: " + (user.email || "Google अकाउंट");
+  setStatus("Cloud में आपका डेटा जाँचा जा रहा है...");
+
+  try {
+    const ref = bookingsRef(user.uid);
+    const snapshot = await getDocs(ref);
+    const remoteBookings = snapshot.docs.map(d => ({...d.data(), id: d.id}));
+
+    const localBookings = (() => {
+      try {
+        const saved = JSON.parse(sessionStorage.getItem(LEGACY_SESSION_KEY) || "[]");
+        return Array.isArray(saved) ? saved : [];
+      } catch {
+        return [];
+      }
+    })();
+
+    if (
+      user.email &&
+      user.email.toLowerCase() === LEGACY_OWNER_EMAIL.toLowerCase() &&
+      remoteBookings.length === 0 &&
+      localBookings.length > 0
+    ) {
+      setStatus("पुरानी बुकिंग आपके अकाउंट में सुरक्षित की जा रही हैं...");
+      await writeBookingsToCloud(user.uid, localBookings);
+      bookings = localBookings;
+      localStorage.setItem(KEY, JSON.stringify(bookings));
+      sessionStorage.removeItem(LEGACY_SESSION_KEY);
+      setStatus("पुरानी बुकिंग सफलतापूर्वक Cloud में सुरक्षित हो गईं।");
+    } else {
+      bookings = remoteBookings;
+      localStorage.setItem(KEY, JSON.stringify(bookings));
+      setStatus(remoteBookings.length
+        ? "आपकी " + remoteBookings.length + " बुकिंग Cloud से लोड हो गईं।"
+        : "यह नया अकाउंट है। अभी कोई बुकिंग नहीं है; आप नई बुकिंग जोड़ सकते हैं।");
+    }
+
+    render();
+    syncReady = true;
+
+    unsubscribeBookings = onSnapshot(ref, (snap) => {
+      if (!activeUser || activeUser.uid !== user.uid || writingCloud) return;
+      bookings = snap.docs.map(d => ({...d.data(), id: d.id}));
+      localStorage.setItem(KEY, JSON.stringify(bookings));
+      render();
+      setStatus("Cloud Sync चालू है। आपकी बुकिंग अपडेट हो रही हैं।");
+    }, (error) => {
+      console.error(error);
+      setStatus("Cloud से डेटा पढ़ने में समस्या: " + error.message, true);
+    });
+  } catch (error) {
+    console.error(error);
+    setStatus("डेटा लोड नहीं हुआ: " + error.message, true);
+  }
+});
+
+async function writeBookingsToCloud(uid, list) {
+  const ref = bookingsRef(uid);
+  const existing = await getDocs(ref);
+  const keepIds = new Set(list.map(b => String(b.id)));
+  let batch = writeBatch(db);
+  let count = 0;
+
+  for (const item of list) {
+    const id = String(item.id || Date.now());
+    batch.set(doc(ref, id), {...item, id});
+    count++;
+    if (count >= 450) {
+      await batch.commit();
+      batch = writeBatch(db);
+      count = 0;
+    }
+  }
+
+  for (const oldDoc of existing.docs) {
+    if (!keepIds.has(oldDoc.id)) {
+      batch.delete(oldDoc.ref);
+      count++;
+      if (count >= 450) {
+        await batch.commit();
+        batch = writeBatch(db);
+        count = 0;
+      }
+    }
+  }
+  if (count > 0) await batch.commit();
+}
+
+window.firebaseSaveData = async function(list) {
+  if (!activeUser || !syncReady || writingCloud) return;
+  writingCloud = true;
+  try {
+    await writeBookingsToCloud(activeUser.uid, list);
+    setStatus("बुकिंग Cloud में सुरक्षित हो गई।");
+  } catch (error) {
+    console.error(error);
+    setStatus("Cloud Sync असफल: " + error.message + " — इंटरनेट और Firestore Rules जाँचें।", true);
+  } finally {
+    writingCloud = false;
+  }
+};
 </script>
 
 </body>
