@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="theme-color" content="#166534">
 <link rel="manifest" href="./manifest.webmanifest">
-<title>पंडित जी बुकिंग मैनेजर</title>
+<title>WORK MANAGER | Smart Booking &amp; Management</title>
 
 <style>
 *{box-sizing:border-box}
@@ -150,6 +150,14 @@ button.shareapp{background:#0f766e}
 
 .hidden{display:none}
 
+footer{
+ text-align:center;
+ padding:18px 10px;
+ font-size:14px;
+ color:#64748b;
+ background:transparent;
+}
+
 body.dark{
  background:#121212;
  color:#eeeeee;
@@ -191,6 +199,8 @@ body.dark .stat{
 body.dark .stat strong,
 body.dark .amount{color:#86efac}
 
+body.dark footer{color:#cbd5e1}
+
 @media(max-width:380px){
  button{font-size:16px;padding:12px}
  .row{gap:6px}
@@ -207,11 +217,8 @@ body.dark .amount{color:#86efac}
 src="./hanuman-blessing.png"
 alt="बजरंग बली">
 
-<h2>☕ पंडित जी</h2>
-<div>चाय एवं कॉफी स्टॉल सर्विस</div>
-<small>बुकिंग मैनेजर</small>
-
-<br>
+<h2>WORK MANAGER</h2>
+<div>Smart Booking &amp; Management</div>
 
 <button class="theme" onclick="toggleTheme()" id="themeBtn">
 🌙 Dark Mode
@@ -221,6 +228,9 @@ alt="बजरंग बली">
 📲 ऐप शेयर करें
 </button>
 
+<button type="button" id="googleLoginBtn">Google से Login करें</button>
+<button type="button" class="secondary hidden" id="googleLogoutBtn">Logout</button>
+
 </header>
 
 <div class="container">
@@ -228,8 +238,6 @@ alt="बजरंग बली">
   <div class="card" id="authCard">
     <h3>🔐 Google Login और Cloud Sync</h3>
     <p class="small" id="authStatus">बुकिंग देखने और सेव करने के लिए अपने Gmail से लॉगिन करें।</p>
-    <button type="button" id="googleLoginBtn">Google से Login करें</button>
-    <button type="button" class="secondary hidden" id="googleLogoutBtn">Logout</button>
     <p class="small" id="syncStatus">आपका डेटा आपके Google अकाउंट के साथ सुरक्षित रहेगा।</p>
   </div>
 
@@ -384,6 +392,8 @@ Excel के लिए CSV रिपोर्ट
 
 </div>
 
+<footer>© 2026 WORK MANAGER | All Rights Reserved</footer>
+
 <script>
 
 const KEY="panditJiBookings";
@@ -438,8 +448,8 @@ function shareApp(){
  if(navigator.share){
 
   navigator.share({
-   title:"पंडित जी बुकिंग मैनेजर",
-   text:"पंडित जी – चाय एवं कॉफी स्टॉल सर्विस बुकिंग ऐप",
+   title:"WORK MANAGER",
+   text:"WORK MANAGER – Smart Booking & Management",
    url:url
   }).catch(()=>{});
 
@@ -647,7 +657,7 @@ function shareBooking(id){
 
  if(!b)return;
 
- const msg=`☕ पंडित जी – चाय एवं कॉफी स्टॉल सर्विस
+ const msg=`WORK MANAGER – Smart Booking & Management
 
 ग्राहक: ${b.name}
 मोबाइल: ${b.phone||"नहीं दिया"}
@@ -871,7 +881,7 @@ function backup(){
   {type:"application/json"}
  );
 
- download(blob,"Pandit-Ji-Booking-Backup.json");
+ download(blob,"WORK-Manager-Booking-Backup.json");
 }
 
 /* RESTORE */
@@ -940,7 +950,7 @@ function exportCSV(){
 
  download(
   new Blob([csv],{type:"text/csv;charset=utf-8"}),
-  "Pandit-Ji-Booking-Report.csv"
+  "WORK-Manager-Booking-Report.csv"
  );
 }
 
