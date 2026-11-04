@@ -235,13 +235,6 @@ alt="बजरंग बली">
 
 <div class="container">
 
-  <div class="card" id="authCard">
-    <h3>🔐 Google Login और Cloud Sync</h3>
-    <p class="small" id="authStatus">बुकिंग देखने और सेव करने के लिए अपने Gmail से लॉगिन करें।</p>
-    <p class="small" id="syncStatus">आपका डेटा आपके Google अकाउंट के साथ सुरक्षित रहेगा।</p>
-  </div>
-
-
 <div class="card">
 <h3>📊 बुकिंग का हिसाब</h3>
 
@@ -389,6 +382,12 @@ Excel के लिए CSV रिपोर्ट
 
 <p class="small" id="report"></p>
 </div>
+
+  <div class="card" id="authCard">
+    <h3>🔐 Google Login और Cloud Sync</h3>
+    <p class="small" id="authStatus">बुकिंग देखने और सेव करने के लिए अपने Gmail से लॉगिन करें。</p>
+    <p class="small" id="syncStatus">आपका डेटा आपके Google अकाउंट के साथ सुरक्षित रहेगा।</p>
+  </div>
 
 </div>
 
@@ -1009,8 +1008,6 @@ const firebaseConfig = {
 };
 
 const LEGACY_OWNER_EMAIL = "pk.sdlp@gmail.com";
-// पुराने डिवाइस का लोकल डेटा redirect/login के दौरान सुरक्षित रखने के लिए
-// उसे sessionStorage में अस्थायी रूप से रखा जाता है।
 const LEGACY_SESSION_KEY = "panditJiLegacyMigration";
 try {
   const oldLocal = JSON.parse(localStorage.getItem("panditJiBookings") || "[]");
