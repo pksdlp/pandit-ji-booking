@@ -1,4 +1,4 @@
-const CACHE_NAME = "pandit-ji-booking-v2";
+const CACHE_NAME = "work-manager-v3";
 
 const FILES_TO_CACHE = [
   "./",
