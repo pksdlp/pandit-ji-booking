@@ -1,18 +1,18 @@
 {
-"name": "Pandit Ji Booking Manager",
-"short_name": "Pandit Ji Booking",
-"description": "पंडित जी चाय, कॉफी और कच्ची रसोई बुकिंग मैनेजर",
-"start_url": "./index.html",
-"scope": "./",
-"display": "standalone",
-"background_color": "#ffffff",
-"theme_color": "#166534",
-"icons": [
-{
-"src": "./icon.svg",
-"sizes": "any",
-"type": "image/svg+xml",
-"purpose": "any"
-}
-]
+  "name": "WORK MANAGER — Smart Booking & Management",
+  "short_name": "WORK MANAGER",
+  "description": "बुकिंग, ग्राहक और काम का हिसाब-किताब मैनेजमेंट",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#166534",
+  "icons": [
+    {
+      "src": "./icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ]
 }

@@ -121,6 +121,11 @@ button.shareapp{background:#0f766e}
  overflow:hidden;
 }
 
+.booking-complete{border:2px solid #16a34a;background:#f0fdf4}
+.booking-complete .booking-title{background:#dcfce7;color:#14532d}
+body.dark .booking-complete{background:#183323;border-color:#22c55e}
+body.dark .booking-complete .booking-title{background:#244b32;color:#bbf7d0}
+
 .booking-title{
  width:100%;
  text-align:left;
@@ -247,6 +252,31 @@ alt="बजरंग बली">
 </div>
 
 <div class="card">
+<h3>📋 बुकिंग की सूची</h3>
+
+<input id="search"
+placeholder="नाम, मोबाइल या गांव/शहर से खोजें..."
+oninput="showAllBookings=false;render()">
+
+<div class="row">
+<select id="filter" onchange="showAllBookings=false;render()">
+<option value="">सभी बुकिंग</option>
+<option>पक्की</option>
+<option>बातचीत जारी</option>
+<option>काम पूरा</option>
+<option>रद्द</option>
+</select>
+
+<select id="monthFilter" onchange="showAllBookings=false;render()">
+<option value="">सभी महीने</option>
+</select>
+</div>
+
+<div id="bookingList"></div>
+</div>
+
+
+<div class="card">
 <h3>➕ नई बुकिंग जोड़ें</h3>
 
 <form id="bookingForm">
@@ -259,15 +289,19 @@ alt="बजरंग बली">
 <label>मोबाइल नंबर</label>
 <input id="phone" type="tel" placeholder="मोबाइल नंबर">
 
+<label>ग्राहक का गांव / शहर</label>
+<input id="customerCity" placeholder="ग्राहक का गांव / शहर">
+
 <label>बुकिंग का काम</label>
 
 <select id="category" onchange="toggleOtherWork()">
-<option>चाय स्टॉल</option>
-<option>कॉफी स्टॉल</option>
-<option>रोटी बनाना</option>
+<option>शादी पार्टी</option>
 <option>कच्ची रसोई</option>
-<option>शादी / पार्टी</option>
-<option value="अन्य">अपना काम लिखें</option>
+<option>रोटी बनाना</option>
+<option>कॉफी स्टॉल</option>
+<option>चाय स्टॉल</option>
+<option>जूस स्टॉल</option>
+<option value="अन्य">अन्य काम (लिखें)</option>
 </select>
 
 <div id="otherWorkBox" class="hidden">
@@ -336,29 +370,6 @@ alt="बजरंग बली">
 </form>
 </div>
 
-<div class="card">
-<h3>📋 बुकिंग की सूची</h3>
-
-<input id="search"
-placeholder="नाम या मोबाइल से खोजें..."
-oninput="render()">
-
-<div class="row">
-<select id="filter" onchange="render()">
-<option value="">सभी बुकिंग</option>
-<option>पक्की</option>
-<option>बातचीत जारी</option>
-<option>काम पूरा</option>
-<option>रद्द</option>
-</select>
-
-<select id="monthFilter" onchange="render()">
-<option value="">सभी महीने</option>
-</select>
-</div>
-
-<div id="bookingList"></div>
-</div>
 
 <div class="card">
 <h3>📅 रिपोर्ट और बैकअप</h3>
@@ -537,6 +548,7 @@ el("bookingForm").addEventListener("submit",function(e){
   id:id||String(Date.now()),
   name:el("name").value.trim(),
   phone:el("phone").value.trim(),
+  customerCity:el("customerCity").value.trim(),
   category:category,
   otherWork:otherWork,
   address:el("address").value.trim(),
@@ -597,12 +609,15 @@ function editBooking(id){
  }
 
  [
-  "name","phone","category","address",
+  "name","phone","customerCity","category","address",
   "date","endDate","time","amount",
   "advance","reminder","status","notes"
  ].forEach(k=>{
   el(k).value=b[k]??"";
  });
+
+ // पुराने वर्जन की शादी / पार्टी कैटेगरी को नए नाम से दिखाएं।
+ if(b.category==="शादी / पार्टी") el("category").value="शादी पार्टी";
 
  el("editId").value=String(b.id);
 
@@ -730,6 +745,13 @@ function toggleDetails(id){
 
 /* DISPLAY BOOKINGS */
 
+let showAllBookings = false;
+
+function showMoreBookings(){
+ showAllBookings = true;
+ render();
+}
+
 function render(){
 
  const q=el("search").value.toLowerCase();
@@ -763,23 +785,27 @@ function render(){
  mf.value=months.includes(old)?old:"";
 
  let list=bookings.filter(b=>
-  (!q||(String(b.name||"")+" "+String(b.phone||"")+" "+getWork(b)).toLowerCase().includes(q))&&
+  (!q||(String(b.name||"")+" "+String(b.phone||"")+" "+String(b.customerCity||"")+" "+getWork(b)).toLowerCase().includes(q))&&
   (!f||b.status===f)&&
   (!m||b.date?.startsWith(m))
  );
 
  list=sortBookingsByDate(list);
 
+ const visibleList = showAllBookings ? list : list.slice(0,5);
+
  el("bookingList").innerHTML=list.length?
 
- list.map(b=>`
+ visibleList.map(b=>`
 
- <div class="booking">
+ <div class="booking ${b.status==="काम पूरा"?"booking-complete":""}">
 
  <button class="booking-title"
  onclick="toggleDetails('${encodeURIComponent(String(b.id))}')">
 
- ${escapeHTML(b.name)} — ${escapeHTML(getWork(b))}
+ ${escapeHTML(b.date||"तारीख नहीं")}
+ — ${escapeHTML(b.name)}
+ — ${escapeHTML(b.customerCity||b.address||"गांव/शहर नहीं दिया")}
 
  </button>
 
@@ -790,7 +816,8 @@ function render(){
 
  📞 ${escapeHTML(b.phone||"नंबर नहीं दिया")}<br>
 
- 📍 ${escapeHTML(b.address||"पता नहीं दिया")}<br>
+ 🏙️ ${escapeHTML(b.customerCity||"गांव/शहर नहीं दिया")}<br>
+ 📍 कार्यक्रम का पता: ${escapeHTML(b.address||"पता नहीं दिया")}<br>
 
  📅 ${escapeHTML(b.date||"-")}
  ${escapeHTML(b.time||"")}
@@ -839,6 +866,12 @@ function render(){
  `).join(""):
 
  "<p class='small'>अभी कोई बुकिंग नहीं है।</p>";
+
+ if(list.length>5){
+  el("bookingList").innerHTML += showAllBookings
+   ? '<button type="button" class="secondary" onclick="showAllBookings=false;render()">कम दिखाएं</button>'
+   : '<button type="button" class="secondary" onclick="showMoreBookings()">और देखें ('+list.length+')</button>';
+ }
 
  const due=total.reduce(
   (s,b)=>s+Number(b.amount||0)-Number(b.advance||0),0
