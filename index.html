@@ -337,9 +337,13 @@ body.dark footer{color:#cbd5e1}
   <button class="menu-item" onclick="toggleMenu(); openItemsModal()">📦 सामान की सूची (Inventory)</button>
   <button class="menu-item" onclick="toggleMenu(); toggleTheme()" id="themeBtn">🌙 Dark Mode</button>
   <button class="menu-item" onclick="toggleMenu(); shareApp()">📲 ऐप शेयर करें</button>
-  <button class="menu-item" onclick="toggleMenu(); backup()">📥 बैकअप डाउनलोड</button>
+  <button class="menu-item" onclick="toggleMenu(); backup()">📥 बैकअप डाउनलोड करें</button>
+  <button class="menu-item" onclick="toggleMenu(); el('restoreFile').click()">📤 बैकअप वापस डालें (Restore)</button>
   <button class="menu-item" onclick="toggleMenu(); exportCSV()">📊 Excel रिपोर्ट (CSV)</button>
 </div>
+
+<!-- हिडन फाइल इनपुट रीस्टोर के लिए -->
+<input type="file" id="restoreFile" accept=".json" hidden onchange="restore(event)">
 
 <!-- सामान की सूची मॉडेल -->
 <div class="modal" id="itemsModal">
@@ -529,6 +533,34 @@ function resetLogo(){
  alert("डिफ़ॉल्ट लोगो वापस आ गया है।");
 }
 
+/* बैकअप डाउनलोड और रीस्टोर (अपडेट) फंक्शन्स */
+function backup(){
+ const blob = new Blob([JSON.stringify(bookings, null, 2)], {type:"application/json"});
+ download(blob, "WORK-Manager-Backup.json");
+}
+
+function restore(e){
+ const file = e.target.files[0];
+ if(!file) return;
+ const reader = new FileReader();
+ reader.onload = () => {
+  try{
+   const data = JSON.parse(reader.result);
+   if(!Array.isArray(data)) throw Error();
+   if(confirm("क्या आप बैकअप फाइल से डेटा वापस डालना चाहते हैं?")){
+    bookings = data;
+    localStorage.setItem(KEY, JSON.stringify(bookings));
+    alert("बैकअप सफलतापूर्वक वापस आ गया है!");
+    location.reload();
+   }
+  }catch(err){
+   alert("यह सही बैकअप फाइल नहीं है।");
+  }
+ };
+ reader.readAsText(file);
+ e.target.value = "";
+}
+
 function saveItem(e){
  e.preventDefault();
  const name = el("itemName").value.trim();
@@ -649,7 +681,6 @@ el("bookingForm").addEventListener("submit", function(e){
 
 function toggleTheme(){ document.body.classList.toggle("dark"); }
 function shareApp(){ alert("लिंक कॉपी हो गया!"); }
-function backup(){ download(new Blob([JSON.stringify(bookings)], {type:"application/json"}), "backup.json"); }
 function exportCSV(){ alert("CSV एक्सपोर्ट हो गया!"); }
 function download(blob, name){
  const a=document.createElement("a"); a.href=URL.createObjectURL(blob); a.download=name; a.click();
