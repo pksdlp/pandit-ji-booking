@@ -187,6 +187,7 @@ button.secondary{background:#475569}
 button.danger{background:#b91c1c}
 button.orange{background:#c66b0b}
 button.whatsapp{background:#25D366;color:white}
+button.pdfbtn{background:#0284c7;color:white}
 button.theme{background:#334155;margin-top:12px}
 button.shareapp{background:#0f766e}
 
@@ -359,6 +360,7 @@ oninput="showAllBookings=false;render()">
 <option value="">सभी बुकिंग</option>
 <option>पक्की</option>
 <option>बातचीत जारी</option>
+<option>बाकी पेमेंट वाले</option>
 <option>काम पूरा</option>
 <option>रद्द</option>
 </select>
@@ -543,6 +545,9 @@ function loadLogo(){
  const saved=localStorage.getItem(LOGO_KEY);
  if(saved){
   applyLogo(saved);
+ }else{
+  // डिफ़ॉल्ट लोगो बेस64 या पाथ
+  applyLogo("./hanuman-blessing.png");
  }
 }
 
@@ -684,6 +689,7 @@ el("bookingForm").addEventListener("submit",function(e){
   time:el("time").value.trim(),
   amount:amount,
   advance:advance,
+  extraPaid: (id ? (bookings.find(x=>String(x.id)===String(id))?.extraPaid||0) : 0),
   payMethod:el("payMethod").value,
   reminder:el("reminder").value,
   status:el("status").value,
@@ -713,6 +719,34 @@ el("bookingForm").addEventListener("submit",function(e){
  el("message").textContent="बुकिंग सफलतापूर्वक सेव हो गई।";
 
 });
+
+/* ADD EXTRA PAYMENT / INSTALLMENT */
+
+function addInstallment(id){
+ const b=bookings.find(x=>String(x.id)===String(id));
+ if(!b) return;
+
+ const totalPaid = Number(b.advance||0) + Number(b.extraPaid||0);
+ const due = Number(b.amount||0) - totalPaid;
+
+ const input = prompt("प्राप्त हुई नई रकम (किस्त) दर्ज करें:\nबकाया बाकी रकम: ₹" + due, "");
+ if(input === null || input.trim() === "") return;
+
+ const addAmount = Number(input);
+ if(isNaN(addAmount) || addAmount <= 0){
+  alert("कृपया सही राशि दर्ज करें।");
+  return;
+ }
+
+ if(addAmount > due){
+  alert("यह राशि बकाया बाकी रकम (₹" + due + ") से अधिक नहीं हो सकती।");
+  return;
+ }
+
+ b.extraPaid = Number(b.extraPaid||0) + addAmount;
+ saveData();
+ alert("₹" + addAmount + " सफलतापूर्वक जोड़ दिए गए हैं!");
+}
 
 /* WORK NAME */
 
@@ -798,6 +832,9 @@ function shareBooking(id){
 
  if(!b)return;
 
+ const totalPaid = Number(b.advance||0) + Number(b.extraPaid||0);
+ const due = Number(b.amount||0) - totalPaid;
+
  const msg=`WORK MANAGER – Smart Booking & Management
 
 ग्राहक: ${b.name}
@@ -805,12 +842,11 @@ function shareBooking(id){
 काम: ${getWork(b)}
 पता: ${b.address||"नहीं दिया"}
 तारीख: ${b.date}
-समाप्ति: ${b.endDate||"नहीं दी"}
 समय/शिफ्ट: ${b.time||"नहीं दिया"}
 
 कुल रकम: ₹${b.amount}
-एडवांस: ₹${b.advance} (${b.payMethod||"नकद"})
-बाकी: ₹${Number(b.amount||0)-Number(b.advance||0)}
+कुल जमा: ₹${totalPaid} (${b.payMethod||"नकद"})
+बाकी: ₹${due}
 स्थिति: ${b.status}
 
 नोट: ${b.notes||"कोई नहीं"}
@@ -818,6 +854,69 @@ function shareBooking(id){
 धन्यवाद!`;
 
  window.open("https://wa.me/?text="+encodeURIComponent(msg),"_blank");
+}
+
+/* GENERATE PDF INVOICE RECEIPT */
+
+function downloadPDFReceipt(id){
+ const b=bookings.find(x=>String(x.id)===String(id));
+ if(!b) return;
+
+ const totalPaid = Number(b.advance||0) + Number(b.extraPaid||0);
+ const due = Number(b.amount||0) - totalPaid;
+ const logoSrc = localStorage.getItem(LOGO_KEY) || "./hanuman-blessing.png";
+
+ const win = window.open("", "_blank");
+ win.document.write(`
+  <!DOCTYPE html>
+  <html lang="hi">
+  <head>
+  <meta charset="UTF-8">
+  <title>Receipt - ${b.name}</title>
+  <style>
+   body{ font-family: Arial, sans-serif; padding: 20px; color: #222; max-width: 600px; margin: auto; }
+   .receipt-box{ border: 2px solid #166534; padding: 25px; border-radius: 10px; background: #fff; }
+   .header{ text-align: center; border-bottom: 2px solid #166534; padding-bottom: 15px; margin-bottom: 20px; }
+   .header img{ width: 80px; height: 80px; object-fit: cover; border-radius: 50%; border: 2px solid #166534; }
+   h2{ color: #166534; margin: 10px 0 5px; }
+   table{ width: 100%; border-collapse: collapse; margin-top: 15px; font-size: 18px; }
+   th, td{ border: 1px solid #ddd; padding: 10px; text-align: left; }
+   th{ background: #e8f5e9; color: #166534; }
+   .total-row{ font-weight: bold; background: #f8fafc; }
+   .footer-note{ text-align: center; margin-top: 25px; font-size: 14px; color: #666; }
+   @media print{ button{ display: none; } }
+  </style>
+  </head>
+  <body>
+   <div class="receipt-box">
+    <div class="header">
+     <img src="${logoSrc}" alt="Logo">
+     <h2>WORK MANAGER</h2>
+     <div>बुकिंग एवं भुगतान रसीद (Booking Receipt)</div>
+    </div>
+    <table>
+     <tr><th>ग्राहक का नाम</th><td>${b.name}</td></tr>
+     <tr><th>मोबाइल नंबर</th><td>${b.phone || "नहीं दिया"}</td></tr>
+     <tr><th>गांव / शहर</th><td>${b.customerCity || "नहीं दिया"}</td></tr>
+     <tr><th>काम का विवरण</th><td>${getWork(b)}</td></tr>
+     <tr><th>कार्यक्रम का पता</th><td>${b.address || "पता नहीं दिया"}</td></tr>
+     <tr><th>तारीख व समय</th><td>${b.date} ${b.time ? "("+b.time+")" : ""}</td></tr>
+     <tr><th>कुल रकम</th><td>₹${b.amount}</td></tr>
+     <tr><th>कुल जमा (Paid)</th><td>₹${totalPaid} (${b.payMethod || "नकद"})</td></tr>
+     <tr class="total-row"><th>बकाया बाकी (Due)</th><td>₹${due}</td></tr>
+     <tr><th>बुकिंग स्थिति</th><td>${b.status}</td></tr>
+    </table>
+    ${b.notes ? "<p><b>नोट:</b> "+b.notes+"</p>" : ""}
+    <div class="footer-note">धन्यवाद! आपके व्यवसाय के लिए सदैव तत्पर।</div>
+    <br>
+    <div style="text-align:center;">
+     <button onclick="window.print()" style="background:#166534; color:white; border:none; padding:12px 20px; font-size:18px; border-radius:6px; cursor:pointer;">रसीद प्रिंट / सेव करें (PDF)</button>
+    </div>
+   </div>
+  </body>
+  </html>
+ `);
+ win.document.close();
 }
 
 /* HTML SECURITY */
@@ -892,11 +991,11 @@ function render(){
  el("totalAmount").textContent=
  money(total.reduce((s,b)=>s+Number(b.amount||0),0));
 
- el("totalAdvance").textContent=
- money(total.reduce((s,b)=>s+Number(b.advance||0),0));
+ const totalAdvSum = total.reduce((s,b)=>s+Number(b.advance||0)+Number(b.extraPaid||0),0);
+ el("totalAdvance").textContent=money(totalAdvSum);
 
- el("totalDue").textContent=
- money(total.reduce((s,b)=>s+Number(b.amount||0)-Number(b.advance||0),0));
+ const totalDueSum = total.reduce((s,b)=>s+Number(b.amount||0)-(Number(b.advance||0)+Number(b.extraPaid||0)),0);
+ el("totalDue").textContent=money(totalDueSum);
 
  const months=[...new Set(
   bookings.map(b=>b.date?.slice(0,7)).filter(Boolean)
@@ -911,11 +1010,23 @@ function render(){
 
  mf.value=months.includes(old)?old:"";
 
- let list=bookings.filter(b=>
-  (!q||(String(b.name||"")+" "+String(b.phone||"")+" "+String(b.customerCity||"")+" "+getWork(b)).toLowerCase().includes(q))&&
-  (!f||b.status===f)&&
-  (!m||b.date?.startsWith(m))
- );
+ let list=bookings.filter(b=>{
+  const paid = Number(b.advance||0) + Number(b.extraPaid||0);
+  const due = Number(b.amount||0) - paid;
+  
+  const matchesSearch = (!q||(String(b.name||"")+" "+String(b.phone||"")+" "+String(b.customerCity||"")+" "+getWork(b)).toLowerCase().includes(q));
+  
+  let matchesFilter = true;
+  if(f === "बाकी पेमेंट वाले"){
+   matchesFilter = (due > 0 && b.status !== "रद्द");
+  } else if(f){
+   matchesFilter = (b.status === f);
+  }
+
+  const matchesMonth = (!m || b.date?.startsWith(m));
+
+  return matchesSearch && matchesFilter && matchesMonth;
+ });
 
  list=sortBookingsByDate(list);
 
@@ -923,7 +1034,11 @@ function render(){
 
  el("bookingList").innerHTML=list.length?
 
- visibleList.map(b=>`
+ visibleList.map(b=>{
+  const paid = Number(b.advance||0) + Number(b.extraPaid||0);
+  const due = Number(b.amount||0) - paid;
+
+  return `
 
  <div class="booking ${b.status==="काम पूरा"?"booking-complete":""}">
 
@@ -933,6 +1048,7 @@ function render(){
  ${escapeHTML(b.date||"तारीख नहीं")}
  — ${escapeHTML(b.name)}
  — ${escapeHTML(b.customerCity||b.address||"गांव/शहर नहीं दिया")}
+ ${due > 0 ? " (बाकी: ₹"+due+")" : ""}
 
  </button>
 
@@ -953,8 +1069,8 @@ function render(){
  कुल रकम:
  <span class="amount">${money(b.amount)}</span><br>
 
- एडवांस: ${money(b.advance)} (${escapeHTML(b.payMethod||"नकद")})
- | बाकी: <b>${money(Number(b.amount||0)-Number(b.advance||0))}</b><br>
+ कुल जमा: ${money(paid)} (${escapeHTML(b.payMethod||"नकद")})
+ | बाकी: <b style="color:${due>0?'#b91c1c':'#166534'}">${money(due)}</b><br>
 
  स्थिति: <b>${escapeHTML(b.status)}</b>
 
@@ -970,9 +1086,17 @@ function render(){
  ✏️ एडिट
  </button>
 
+ <button class="secondary" onclick="addInstallment('${encodeURIComponent(String(b.id))}')">
+ ➕ किस्त जोड़ें
+ </button>
+
+ <button class="pdfbtn" onclick="downloadPDFReceipt('${encodeURIComponent(String(b.id))}')">
+ 🖨️ PDF रसीद
+ </button>
+
  <button class="whatsapp"
  onclick="shareBooking('${encodeURIComponent(String(b.id))}')">
- 📲 WhatsApp शेयर
+ 📲 WhatsApp
  </button>
 
  <button class="orange"
@@ -990,7 +1114,8 @@ function render(){
  </div>
  </div>
 
- `).join(""):
+ `;
+ }).join(""):
 
  "<p class='small'>अभी कोई बुकिंग नहीं है।</p>";
 
@@ -1079,22 +1204,25 @@ function restore(e){
 function exportCSV(){
 
  const rows=[
-  ["नाम","मोबाइल","काम","पता","तारीख","समय/शिफ्ट","कुल रकम","एडवांस","भुगतान माध्यम","बाकी","स्थिति"]
+  ["नाम","मोबाइल","काम","पता","तारीख","समय/शिफ्ट","कुल रकम","कुल जमा","बाकी","स्थिति"]
  ];
 
- bookings.forEach(b=>rows.push([
-  b.name,
-  b.phone,
-  getWork(b),
-  b.address,
-  b.date,
-  b.time,
-  b.amount,
-  b.advance,
-  b.payMethod,
-  Number(b.amount||0)-Number(b.advance||0),
-  b.status
- ]));
+ bookings.forEach(b=>{
+  const paid = Number(b.advance||0) + Number(b.extraPaid||0);
+  const due = Number(b.amount||0) - paid;
+  rows.push([
+   b.name,
+   b.phone,
+   getWork(b),
+   b.address,
+   b.date,
+   b.time,
+   b.amount,
+   paid,
+   due,
+   b.status
+  ]);
+ });
 
  const csv="\uFEFF"+rows.map(r=>
   r.map(x=>'"'+String(x??"").replace(/"/g,'""')+'"').join(",")
