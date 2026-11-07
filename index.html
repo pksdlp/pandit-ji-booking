@@ -7,6 +7,9 @@
 <link rel="manifest" href="./manifest.webmanifest">
 <title>WORK MANAGER | Smart Booking &amp; Management</title>
 
+<!-- html2pdf.js लाइब्रेरी PDF जनरेट करने के लिए -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+
 <style>
 *{box-sizing:border-box}
 
@@ -353,13 +356,13 @@ alt="बिजनेस लोगो">
       <button class="danger" style="padding:6px 12px; font-size:14px;" onclick="closeItemsModal()">बंद करें</button>
     </div>
 
-    <!-- केवल नया सामान जोड़ने या एडिट करने का फॉर्म -->
+    <!-- सामान जोड़ने या एडिट करने का फॉर्म -->
     <form id="itemForm" onsubmit="saveItem(event)">
       <input type="hidden" id="editItemId">
       <label id="itemFormTitle">नया सामान जोड़ें *</label>
       <input id="itemName" required placeholder="जैसे: टेंट, कुर्सी, चीनी...">
       
-      <label>मात्रा / क्वांटिटी (ग्राहक से मंगाने हेतु)</label>
+      <label>मात्रा / क्वांटिटी</label>
       <input id="itemQty" placeholder="जैसे: 5 बोरियां / 50 पीस">
 
       <button type="submit" id="saveItemBtn" style="margin-top:10px;">सामान सेव करें</button>
@@ -379,11 +382,41 @@ alt="बिजनेस लोगो">
 
     <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
       <h4 style="color:#166534; margin:0;">📋 कुल सामान (<span id="totalItemsCount">0</span>)</h4>
-      <button class="whatsapp" style="padding:6px 12px; font-size:14px; margin:0;" onclick="shareSelectedItemsWhatsApp()">📲 टिक किया सामान WhatsApp करें</button>
+      <button class="whatsapp" style="padding:6px 12px; font-size:14px; margin:0;" onclick="downloadAndShareItemsPDF()">📥 PDF डाउनलोड कर WhatsApp करें</button>
     </div>
 
     <input id="searchItem" placeholder="सामान खोजें..." oninput="renderItemsList()" style="margin-bottom:10px; font-size:16px; padding:10px;">
     <div id="itemsListContainer" style="max-height:250px; overflow-y:auto;"></div>
+  </div>
+</div>
+
+<!-- हिडन डिव जो PDF जनरेट करने के लिए इस्तेमाल होगा -->
+<div id="pdfInvoiceTemplate" style="display:none; background:#ffffff; padding:25px; color:#222; font-family:Arial,sans-serif; width:600px;">
+  <div style="text-align:center; border-bottom:3px solid #166534; padding-bottom:15px; margin-bottom:20px;">
+    <img id="pdfLogoImg" src="./hanuman-blessing.png" style="width:80px; height:80px; object-fit:cover; border-radius:50%; border:2px solid #166534;">
+    <h2 id="pdfBizName" style="color:#166534; margin:10px 0 5px; font-size:26px;">WORK MANAGER</h2>
+    <div id="pdfBizSub" style="font-size:16px; color:#555;">संचालक | पता</div>
+    <div id="pdfBizPhone" style="font-size:16px; color:#555; margin-top:3px;">मोबाइल नंबर</div>
+  </div>
+
+  <h3 style="text-align:center; color:#166534; margin-bottom:15px; font-size:22px;">📦 मंगवाने वाले सामान की सूची</h3>
+  
+  <table style="width:100%; border-collapse:collapse; margin-top:10px; font-size:16px;">
+    <thead>
+      <tr style="background:#e8f5e9; color:#166534;">
+        <th style="border:1px solid #ddd; padding:10px; width:10%; text-align:center;">क्र.</th>
+        <th style="border:1px solid #ddd; padding:10px; width:55%;">सामान का नाम</th>
+        <th style="border:1px solid #ddd; padding:10px; width:35%;">मात्रा (Quantity)</th>
+      </tr>
+    </thead>
+    <tbody id="pdfTableBody">
+      <!-- जावास्क्रिप्ट से डायनामिक रो भरेंगी -->
+    </tbody>
+  </table>
+
+  <div style="margin-top:30px; text-align:center; font-size:16px; color:#333; border-top:1px dashed #ccc; padding-top:15px;">
+    <p><b>नोट:</b> कृपया उपरोक्त सामान समय पर मंगवा कर रखें।</p>
+    <p style="color:#666; font-size:14px; margin-top:5px;">धन्यवाद!</p>
   </div>
 </div>
 
@@ -591,7 +624,7 @@ function closeItemsModal(){
  el("itemsModal").classList.remove("show");
 }
 
-/* SAVE SINGLE ITEM */
+/* SAVE SINGLE ITEM (ADD OR EDIT) */
 function saveItem(e){
  e.preventDefault();
  const id = el("editItemId").value;
@@ -610,7 +643,7 @@ function saveItem(e){
    id: String(Date.now() + Math.random()),
    name: name,
    qty: qty,
-   selected: true // डिफ़ॉल्ट रूप से सिलेक्टेड रहेगा
+   selected: true
   });
  }
 
@@ -632,11 +665,11 @@ function editItem(id){
  if(!item) return;
  el("editItemId").value = item.id;
  el("itemName").value = item.name;
- el("itemName").readOnly = true; // नाम लॉक रहेगा, सिर्फ क्वांटिटी बदल सकेंगे
+ el("itemName").readOnly = false;
  el("itemQty").value = item.qty || "";
- el("saveItemBtn").textContent = "मात्रा सेव करें";
- el("itemFormTitle").textContent = "✏️ सामान की मात्रा बदलें: " + item.name;
- el("itemQty").focus();
+ el("saveItemBtn").textContent = "बदलाव सेव करें";
+ el("itemFormTitle").textContent = "✏️ सामान एडिट करें: " + item.name;
+ el("itemName").focus();
 }
 
 function deleteItem(id){
@@ -686,26 +719,65 @@ function saveBulkItems(){
  alert(addedCount + " नए सामान सफलतापूर्वक सूची में जुड़ गए हैं!");
 }
 
-/* SHARE SELECTED ITEMS VIA WHATSAPP */
-function shareSelectedItemsWhatsApp(){
- // जो टिक किए हुए हैं और जिनकी मात्रा भरी है, उन्हें छांटें
+/* GENERATE PROFESSIONAL PDF & CLEAR LIST AFTER SHARE */
+function downloadAndShareItemsPDF(){
  const itemsToRequest = businessItems.filter(item => item.selected !== false && item.qty && item.qty.trim() !== "");
 
  if(itemsToRequest.length === 0){
-  alert("शेयर करने के लिए कोई सामान नहीं चुना गया है या किसी भी सामान में मात्रा (Quantity) नहीं भरी गई है। कृपया मात्रा भरें।");
+  alert("PDF बनाने के लिए कोई सामान नहीं चुना गया है या किसी भी सामान में मात्रा (Quantity) नहीं भरी गई है। कृपया मात्रा भरें।");
   return;
  }
 
  const savedBiz = JSON.parse(localStorage.getItem(BIZ_PROFILE_KEY)||"{}");
  const bizName = savedBiz.bizName || "WORK MANAGER";
+ const ownerName = savedBiz.ownerName ? "संचालक: " + savedBiz.ownerName : "";
+ const bizPhone = savedBiz.bizPhone ? "मोबाइल: " + savedBiz.bizPhone : "";
+ const bizAddress = savedBiz.bizAddress || "";
+ const logoSrc = localStorage.getItem(LOGO_KEY) || "./hanuman-blessing.png";
 
- let msg = `📦 *${bizName} - मंगवाने वाले सामान की सूची* 📦\n\n`;
+ // PDF टेम्पलेट में वैल्यू सेट करें
+ el("pdfBizName").textContent = bizName;
+ el("pdfBizSub").textContent = (ownerName ? ownerName + " " : "") + (ownerName && bizAddress ? "| " : "") + bizAddress;
+ el("pdfBizPhone").textContent = bizPhone;
+ el("pdfLogoImg").src = logoSrc;
+
+ let tableHTML = "";
  itemsToRequest.forEach((item, index) => {
-  msg += `${index + 1}. ${item.name} — *${item.qty}*\n`;
+  tableHTML += `
+    <tr>
+      <td style="border:1px solid #ddd; padding:10px; text-align:center;">${index + 1}</td>
+      <td style="border:1px solid #ddd; padding:10px;"><b>${escapeHTML(item.name)}</b></td>
+      <td style="border:1px solid #ddd; padding:10px; color:#166534; font-weight:bold;">${escapeHTML(item.qty)}</td>
+    </tr>
+  `;
  });
- msg += `\nकृपया उपरोक्त सामान जल्द भिजवाने की कृपा करें। धन्यवाद!`;
+ el("pdfTableBody").innerHTML = tableHTML;
 
- window.open("https://wa.me/?text=" + encodeURIComponent(msg), "_blank");
+ const element = el("pdfInvoiceTemplate");
+ element.style.display = "block";
+
+ const opt = {
+  margin:       10,
+  filename:     'Saman-List-Receipt.pdf',
+  image:        { type: 'jpeg', quality: 0.98 },
+  html2canvas:  { scale: 2, useCORS: true },
+  jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
+ };
+
+ html2pdf().from(element).set(opt).save().then(() => {
+  element.style.display = "none";
+
+  // शेयर होने के बाद सामान की लिस्ट और मात्रा को खाली (रीसेट) करना
+  businessItems.forEach(item => {
+   item.qty = "";
+   item.selected = true;
+  });
+  localStorage.setItem(ITEMS_KEY, JSON.stringify(businessItems));
+  renderItemsList();
+
+  alert("PDF फाइल सफलतापूर्वक डाउनलोड हो गई है! अब आप इसे WhatsApp पर भेज सकते हैं और सूची अगली बार के लिए खाली हो गई है।");
+  window.open("https://wa.me/?text=" + encodeURIComponent("नमस्ते, सामान की PDF रसीद संलग्न है। कृपया इसे देखकर समय पर सामान मंगवा कर रखें। धन्यवाद!"), "_blank");
+ });
 }
 
 function renderItemsList(){
@@ -727,7 +799,7 @@ function renderItemsList(){
       </div>
     </div>
     <div>
-      <button class="secondary" style="padding:6px 10px; font-size:14px; margin:0 2px;" onclick="editItem('${item.id}')">✏️ मात्रा लिखें</button>
+      <button class="secondary" style="padding:6px 10px; font-size:14px; margin:0 2px;" onclick="editItem('${item.id}')">✏️ एडिट</button>
       <button class="danger" style="padding:6px 10px; font-size:14px; margin:0 2px;" onclick="deleteItem('${item.id}')">🗑️</button>
     </div>
   </div>
@@ -1466,7 +1538,7 @@ try {
   const oldLocal = JSON.parse(localStorage.getItem("panditJiBookings") || "[]");
   if (Array.isArray(oldLocal) && oldLocal.length &&
       !sessionStorage.getItem(LEGACY_SESSION_KEY)) {
-    sessionStorage.getItem(LEGACY_SESSION_KEY, JSON.stringify(oldLocal));
+    sessionStorage.setItem(LEGACY_SESSION_KEY, JSON.stringify(oldLocal));
   }
 } catch {}
 const app = initializeApp(firebaseConfig);
