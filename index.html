@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="theme-color" content="#166534">
+<meta name="theme-color" content="#9b1515">
 <title>WORK MANAGER | Smart Booking &amp; Management</title>
 <link rel="manifest" href="./manifest.webmanifest">
 <script>
@@ -22,68 +22,106 @@ if(window.caches){caches.keys().then(function(k){k.forEach(function(n){caches.de
 <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore-compat.js"></script>
 <style>
-:root{--primary:#166534;--primary-d:#0f4a26;--accent:#15803d;--bg:#f3f6f4;--card:#fff;--text:#1f2937;--muted:#64748b;--border:#e3e9e5;--soft:#f1f5f2;--input:#fff;--shadow:0 1px 2px rgba(16,24,40,.06),0 4px 14px rgba(16,24,40,.06)}
-body.dark{--bg:#0f1713;--card:#1a2420;--text:#e8efe9;--muted:#9fb0a5;--border:#2c3a33;--soft:#22302a;--input:#24312b;--shadow:0 1px 2px rgba(0,0,0,.4)}
+:root{--primary:#b71c1c;--primary-d:#9b1515;--accent:#b71c1c;--bg:#fff8ea;--card:#fff3d6;--tile:#fdd891;--text:#4a2a0a;--muted:#7a5a35;--border:#ecc77a;--soft:#fde7b0;--input:#fff;--shadow:0 2px 5px rgba(0,0,0,.18)}
+body.dark{--bg:#1c1210;--card:#2a1c18;--tile:#3a2620;--text:#f3e3d0;--muted:#c9a98a;--border:#4a322a;--soft:#33221d;--input:#3a2a24;--shadow:0 1px 2px rgba(0,0,0,.5)}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-body{margin:0;background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,"Segoe UI",Roboto,"Noto Sans Devanagari","Mangal",Arial,sans-serif;font-size:17px;line-height:1.45}
-header{background:linear-gradient(135deg,#0f4a26 0%,#166534 55%,#15803d 100%);color:#fff;padding:22px 12px 30px;text-align:center;position:relative;border-radius:0 0 26px 26px;box-shadow:0 6px 18px rgba(22,101,52,.25)}
-.menu-btn,.lang-btn{position:absolute;top:14px;background:rgba(255,255,255,.16);color:#fff;border:1px solid rgba(255,255,255,.55);border-radius:20px;padding:7px 14px;font-size:15px;margin:0;backdrop-filter:blur(4px)}
-.menu-btn{left:14px}.lang-btn{right:14px;font-weight:bold;min-width:52px}
-.header-photo{width:96px;height:96px;object-fit:cover;border-radius:50%;border:3px solid rgba(255,255,255,.9);background:#fff;box-shadow:0 4px 12px rgba(0,0,0,.25)}
-header h2{font-size:25px;margin:10px 0 2px;letter-spacing:.5px}header div{font-size:15px;opacity:.92}
-.side-menu{position:fixed;top:0;left:-320px;width:300px;height:100%;background:var(--card);box-shadow:2px 0 14px #0005;transition:.3s;z-index:1000;padding:20px;overflow-y:auto;text-align:left;color:var(--text)}
+body{margin:0;padding-bottom:72px;background:var(--bg);color:var(--text);font-family:"Noto Sans Devanagari","Mangal",system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;font-size:17px;line-height:1.5}
+
+/* ---------- ऊपर की लाल पट्टी ---------- */
+header{position:sticky;top:0;z-index:900;background:#b71c1c;color:#fff;padding:10px 12px;display:flex;align-items:center;gap:10px;box-shadow:0 2px 6px rgba(0,0,0,.35)}
+.menu-btn,.lang-btn,.back-btn{background:rgba(255,255,255,.14);color:#fff;border:1px solid rgba(255,255,255,.5);border-radius:8px;padding:6px 11px;font-size:14px;margin:0;box-shadow:none}
+.lang-btn{font-weight:bold;min-width:46px}
+.back-btn{font-size:18px;padding:3px 12px;display:none}
+body:not([data-view=home]) .back-btn{display:block}
+.header-photo{width:42px;height:42px;object-fit:cover;border-radius:50%;border:2px solid rgba(255,255,255,.9);background:#fff}
+.hd-text{flex:1;min-width:0}
+header h2{font-size:21px;font-weight:800;margin:0;line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+header .hd-text div{font-size:12px;opacity:.9;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+
+/* ---------- साइड मेनू ---------- */
+.side-menu{position:fixed;top:0;left:-320px;width:300px;height:100%;background:var(--bg);box-shadow:2px 0 14px #0006;transition:.3s;z-index:1000;padding:20px;overflow-y:auto;text-align:left;color:var(--text)}
 .side-menu.open{left:0}.side-menu h3{margin-top:0;border-bottom:2px solid var(--primary);padding-bottom:10px}
-.menu-close{background:#b91c1c;float:right;padding:5px 10px;font-size:14px;margin:0}
-.menu-item{display:block;width:100%;text-align:left;background:var(--soft);color:var(--text);padding:12px;margin:8px 0;border-radius:10px;font-size:16px;border:1px solid var(--border)}
-.profile-box{margin:15px 0;background:var(--soft);padding:10px;border-radius:10px;border:1px solid var(--border)}
+.menu-close{background:#9b1515;float:right;padding:5px 10px;font-size:14px;margin:0}
+.menu-item{display:block;width:100%;text-align:left;background:var(--tile);color:var(--text);padding:12px;margin:8px 0;border-radius:6px;font-size:16px;font-weight:600;border:0;box-shadow:var(--shadow)}
+.profile-box{margin:15px 0;background:var(--soft);padding:10px;border-radius:6px;border:1px solid var(--border)}
 .overlay{position:fixed;inset:0;background:#0007;display:none;z-index:999}.overlay.show{display:block}
-.container{padding:14px;max-width:760px;margin:-14px auto 0;position:relative}
-.card{background:var(--card);padding:16px;border-radius:16px;margin-bottom:14px;box-shadow:var(--shadow);border:1px solid var(--border)}
+
+/* ---------- होम के कार्ड (पंचांग जैसे) ---------- */
+.container{padding:10px;max-width:760px;margin:0 auto}
+.home-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px}
+.home-card{background:var(--tile);border-radius:6px;padding:14px;box-shadow:var(--shadow);cursor:pointer;min-height:150px}
+.home-card:active{transform:scale(.98)}
+.home-card .ic{font-size:34px;line-height:1}
+.home-card h4{margin:6px 0 8px;color:var(--primary);font-size:22px;font-weight:800;line-height:1.25}
+body.dark .home-card h4{color:#ff8a80}
+.home-card p{margin:0;font-size:16px;font-weight:600;line-height:1.55;color:var(--text)}
+
+/* ---------- बाकी स्क्रीन के कार्ड ---------- */
+.card{background:var(--card);padding:16px;border-radius:6px;margin-bottom:12px;box-shadow:var(--shadow);border:1px solid var(--border)}
 .stats{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-.stat{background:var(--soft);padding:12px;border-radius:12px;text-align:center;font-size:14px;color:var(--muted);border-left:4px solid var(--primary)}
+.stat{background:var(--tile);padding:12px;border-radius:6px;text-align:center;font-size:15px;font-weight:600;color:var(--text);border-left:5px solid var(--primary)}
 .stat.due{border-left-color:#d97706}.stat.due strong{color:#b45309}
-.stat strong{display:block;font-size:22px;color:var(--primary);margin-top:4px}
-body.dark .stat strong{color:#4ade80}
-h3{margin:0 0 12px;color:var(--primary);font-size:20px}body.dark h3{color:#4ade80}
-label{display:block;font-size:15px;margin:12px 0 6px;color:var(--muted);font-weight:600}
-input,select,textarea{width:100%;padding:12px;border:1px solid var(--border);border-radius:10px;font-size:16px;background:var(--input);color:var(--text);font-family:inherit}
-input:focus,select:focus,textarea:focus{outline:2px solid rgba(22,101,52,.35);border-color:var(--primary)}
-input[type=checkbox]{-webkit-appearance:none;appearance:none;width:26px;height:26px;min-width:26px;padding:0;margin:0;border:2px solid #94a3b8;border-radius:7px;background:#fff;cursor:pointer;position:relative}
-input[type=checkbox]:checked{background:#16a34a;border-color:#16a34a}
+.stat strong{display:block;font-size:24px;color:var(--primary);margin-top:4px;font-weight:800}
+body.dark .stat strong{color:#ff8a80}
+h3{margin:0 0 12px;color:var(--primary);font-size:21px;font-weight:800}body.dark h3{color:#ff8a80}
+label{display:block;font-size:15px;margin:12px 0 6px;color:var(--muted);font-weight:700}
+input,select,textarea{width:100%;padding:12px;border:1px solid var(--border);border-radius:6px;font-size:16px;background:var(--input);color:var(--text);font-family:inherit}
+input:focus,select:focus,textarea:focus{outline:2px solid rgba(183,28,28,.35);border-color:var(--primary)}
+input[type=checkbox]{-webkit-appearance:none;appearance:none;width:26px;height:26px;min-width:26px;padding:0;margin:0;border:2px solid #94a3b8;border-radius:6px;background:#fff;cursor:pointer;position:relative}
+input[type=checkbox]:checked{background:#b71c1c;border-color:#b71c1c}
 input[type=checkbox]:checked::after{content:"";position:absolute;left:7px;top:2px;width:6px;height:12px;border:solid #fff;border-width:0 3px 3px 0;transform:rotate(45deg)}
-.qty-input{width:130px!important;padding:6px 9px!important;font-size:14px!important;margin-top:4px;border-radius:8px!important}
+.qty-input{width:130px!important;padding:6px 9px!important;font-size:14px!important;margin-top:4px;border-radius:6px!important}
 textarea{min-height:70px;resize:vertical}
-button{border:0;border-radius:10px;padding:11px 14px;background:var(--primary);color:#fff;font-size:15px;margin:5px 3px 0 0;cursor:pointer;font-family:inherit;box-shadow:0 1px 2px rgba(0,0,0,.15);transition:transform .08s}
+button{border:0;border-radius:6px;padding:11px 14px;background:var(--primary);color:#fff;font-size:15px;font-weight:600;margin:5px 3px 0 0;cursor:pointer;font-family:inherit;box-shadow:0 1px 2px rgba(0,0,0,.2);transition:transform .08s}
 button:active{transform:scale(.97)}
-button.secondary{background:#475569}button.danger{background:#b91c1c}button.orange{background:#c66b0b}button.whatsapp{background:#25D366;color:#fff}
+button.secondary{background:#6b4a2b}button.danger{background:#7f1010}button.orange{background:#c66b0b}button.whatsapp{background:#25D366;color:#fff}
 .row{display:grid;grid-template-columns:1fr 1fr;gap:9px}.small{font-size:14px;color:var(--muted);line-height:1.6}.hidden{display:none!important}
-.booking{border:1px solid var(--border);border-left:5px solid var(--primary);border-radius:12px;padding:12px;margin:10px 0;background:var(--card);cursor:pointer;box-shadow:0 1px 2px rgba(16,24,40,.05)}
+
+/* ---------- बुकिंग की सूची ---------- */
+.booking{border:1px solid var(--border);border-left:5px solid var(--primary);border-radius:6px;padding:12px;margin:10px 0;background:var(--tile);cursor:pointer;box-shadow:var(--shadow)}
 .booking.completed{border-left-color:#94a3b8;background:var(--soft)}
 .booking-top{display:flex;justify-content:space-between;align-items:baseline;gap:8px}
-.booking-top strong{color:var(--primary);font-size:18px}body.dark .booking-top strong{color:#4ade80}
+.booking-top strong{color:var(--primary);font-size:19px;font-weight:800}body.dark .booking-top strong{color:#ff8a80}
 .booking.completed .booking-top strong{color:var(--muted)}
-.booking-date{white-space:nowrap;font-size:14px;color:var(--muted)}
+.booking-date{white-space:nowrap;font-size:14px;color:var(--muted);font-weight:600}
 .booking-meta{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:6px}
-.pill{display:inline-block;padding:3px 11px;border-radius:20px;font-size:13px;font-weight:600}
+.pill{display:inline-block;padding:3px 11px;border-radius:20px;font-size:13px;font-weight:700}
 .pill.ok{background:#dcfce7;color:#166534}.pill.wait{background:#fef3c7;color:#92400e}.pill.done{background:#e2e8f0;color:#334155}.pill.no{background:#fee2e2;color:#991b1b}
 .booking-actions{display:flex;flex-wrap:wrap;gap:5px;margin-top:8px}.booking-actions button{font-size:13px;padding:8px 11px}
-.item-row{display:flex;justify-content:space-between;align-items:center;gap:7px;background:var(--soft);border:1px solid var(--border);padding:8px;margin:6px 0;border-radius:10px}
+.item-row{display:flex;justify-content:space-between;align-items:center;gap:7px;background:var(--soft);border:1px solid var(--border);padding:8px;margin:6px 0;border-radius:6px}
 footer{text-align:center;padding:18px 10px;font-size:13px;color:var(--muted)}
+
+/* ---------- मोडल ---------- */
 .modal,.sub-modal{position:fixed;inset:0;background:#0009;display:none;z-index:2000;justify-content:center;align-items:center;padding:15px}
-.modal.show,.sub-modal.show{display:flex}.modal-content{background:var(--card);color:var(--text);width:100%;max-width:600px;max-height:90vh;border-radius:16px;padding:20px;overflow-y:auto}
-.sub-modal{z-index:2500}.sub-modal-content{background:var(--card);color:var(--text);width:100%;max-width:400px;border-radius:16px;padding:20px}
-.serial{display:inline-block;min-width:30px;text-align:center;background:var(--primary);color:#fff;border-radius:8px;padding:1px 7px;font-size:13px;margin-right:7px}
+.modal.show,.sub-modal.show{display:flex}.modal-content{background:var(--bg);color:var(--text);width:100%;max-width:600px;max-height:90vh;border-radius:8px;padding:20px;overflow-y:auto}
+.sub-modal{z-index:2500}.sub-modal-content{background:var(--bg);color:var(--text);width:100%;max-width:400px;border-radius:8px;padding:20px}
+.serial{display:inline-block;min-width:30px;text-align:center;background:var(--primary);color:#fff;border-radius:6px;padding:1px 7px;font-size:13px;margin-right:7px}
 #pdfTableBody tr{page-break-inside:avoid}
 #pdfInvoiceTemplate{display:none;background:#fff;padding:25px;color:#222;width:600px;font-family:"Noto Sans Devanagari","Mangal",Arial,sans-serif}
-@media(max-width:420px){body{font-size:16px}.container{padding:10px}.card{padding:13px}.row{grid-template-columns:1fr}.menu-btn,.lang-btn{font-size:14px;padding:6px 11px}header h2{font-size:22px}}
+
+/* ---------- स्क्रीन बदलना (होम / बुकिंग / सूची / हिसाब / सिंक) ---------- */
+body:not([data-view=home]) #homeGrid{display:none}
+body:not([data-view=home]):not([data-view=stats]) #statsCard{display:none}
+body:not([data-view=form]) #formCard{display:none}
+body:not([data-view=list]) #listCard{display:none}
+body:not([data-view=sync]) #authCard{display:none}
+
+/* ---------- नीचे का नेविगेशन ---------- */
+.bottom-nav{position:fixed;left:0;right:0;bottom:0;z-index:950;background:#9b1515;display:flex;box-shadow:0 -2px 8px rgba(0,0,0,.3)}
+.bottom-nav button{flex:1;margin:0;border-radius:0;background:transparent;box-shadow:none;color:#ffd9d0;font-size:12px;padding:8px 2px;display:flex;flex-direction:column;align-items:center;gap:2px}
+.bottom-nav button{text-transform:capitalize}.bottom-nav button span{font-size:22px;line-height:1.1}
+.bottom-nav button.active{color:#fff;background:rgba(255,255,255,.15);font-weight:800}
+
+@media(max-width:420px){body{font-size:16px}.container{padding:8px}.card{padding:13px}.row{grid-template-columns:1fr}.home-card h4{font-size:20px}.home-card p{font-size:15px}header h2{font-size:19px}}
 </style>
 </head>
-<body>
+<body data-view="home">
 <header>
 <button class="menu-btn" onclick="toggleMenu()">☰ मेनू</button>
-<button class="lang-btn" id="langHeaderBtn" onclick="toggleLang()">EN</button>
+<button class="back-btn" onclick="showView('home')" aria-label="वापस">←</button>
 <img class="header-photo" id="headerLogoImg" src="./hanuman-blessing.png" alt="Logo">
-<h2 id="headerBusinessName">WORK MANAGER</h2><div id="headerBusinessSub">Smart Booking &amp; Management</div>
+<div class="hd-text"><h2 id="headerBusinessName">WORK MANAGER</h2><div id="headerBusinessSub">Smart Booking &amp; Management</div></div>
+<button class="lang-btn" id="langHeaderBtn" onclick="toggleLang()">EN</button>
 </header>
 
 <div class="overlay" id="menuOverlay" onclick="toggleMenu()"></div>
@@ -143,26 +181,37 @@ footer{text-align:center;padding:18px 10px;font-size:13px;color:var(--muted)}
 </div></div>
 
 <div id="pdfInvoiceTemplate">
-<div style="text-align:center;border-bottom:3px solid #166534;padding-bottom:15px;margin-bottom:20px">
-<img id="pdfLogoImg" src="./hanuman-blessing.png" style="width:80px;height:80px;object-fit:cover;border-radius:50%;border:2px solid #166534">
-<h2 id="pdfBizName" style="color:#166534;margin:10px 0 5px">WORK MANAGER</h2>
+<div style="text-align:center;border-bottom:3px solid #b71c1c;padding-bottom:15px;margin-bottom:20px">
+<img id="pdfLogoImg" src="./hanuman-blessing.png" style="width:80px;height:80px;object-fit:cover;border-radius:50%;border:2px solid #b71c1c">
+<h2 id="pdfBizName" style="color:#b71c1c;margin:10px 0 5px">WORK MANAGER</h2>
 <div id="pdfBizSub" style="font-size:15px;color:#555"></div><div id="pdfBizPhone" style="font-size:15px;color:#555"></div></div>
-<h3 style="text-align:center;color:#166534">📦 मंगवाने वाले सामान की सूची</h3>
+<h3 style="text-align:center;color:#b71c1c">📦 मंगवाने वाले सामान की सूची</h3>
 <table style="width:100%;border-collapse:collapse;margin-top:10px;font-size:15px">
-<thead><tr style="background:#e8f5e9;color:#166534"><th style="border:1px solid #ddd;padding:9px">क्र.</th><th style="border:1px solid #ddd;padding:9px">सामान का नाम</th><th style="border:1px solid #ddd;padding:9px">मात्रा</th></tr></thead>
+<thead><tr style="background:#fdd891;color:#b71c1c"><th style="border:1px solid #ddd;padding:9px">क्र.</th><th style="border:1px solid #ddd;padding:9px">सामान का नाम</th><th style="border:1px solid #ddd;padding:9px">मात्रा</th></tr></thead>
 <tbody id="pdfTableBody"></tbody></table>
 <p style="margin-top:30px;text-align:center;border-top:1px dashed #ccc;padding-top:15px"><b>नोट:</b> कृपया उपरोक्त सामान समय पर मंगवा कर रखें। धन्यवाद!</p>
 </div>
 
 <div class="container">
-<div class="card">
+
+<!-- होम: 2 कॉलम के कार्ड -->
+<div class="home-grid" id="homeGrid">
+<div class="home-card" onclick="openNewBooking()"><div class="ic">➕</div><h4>नई बुकिंग</h4><p>ग्राहक, तारीख, रकम और एडवांस के साथ बुकिंग दर्ज करें</p></div>
+<div class="home-card" onclick="showView('list')"><div class="ic">📋</div><h4>बुकिंग सूची</h4><p>सभी बुकिंग खोजें, फ़िल्टर करें और एडिट करें</p></div>
+<div class="home-card" onclick="openItemsModal()"><div class="ic">📦</div><h4>सामान सूची</h4><p>टेंट, कुर्सी आदि की सूची, PDF और WhatsApp शेयर</p></div>
+<div class="home-card" onclick="showView('stats')"><div class="ic">📊</div><h4>हिसाब</h4><p>कुल रकम, एडवांस और बाकी का पूरा हिसाब</p></div>
+<div class="home-card" onclick="showView('sync')"><div class="ic">☁️</div><h4>क्लाउड सिंक</h4><p>Google Login से डेटा सुरक्षित रखें और सिंक करें</p></div>
+<div class="home-card" onclick="toggleMenu()"><div class="ic">⚙️</div><h4>सेटिंग्स</h4><p>बिजनेस प्रोफाइल, लोगो, बैकअप, Dark Mode और भाषा</p></div>
+</div>
+
+<div class="card" id="statsCard">
 <h3>📊 बुकिंग का हिसाब</h3><div class="stats">
 <div class="stat">कुल बुकिंग<strong id="totalCount">0</strong></div>
 <div class="stat">कुल रकम<strong id="totalAmount">₹0</strong></div>
 <div class="stat">कुल एडवांस<strong id="totalAdvance">₹0</strong></div>
 <div class="stat due">बाकी रकम<strong id="totalDue">₹0</strong></div></div></div>
 
-<div class="card">
+<div class="card" id="formCard">
 <button type="button" id="newBookingBtn" onclick="toggleBookingForm()" style="width:100%;font-size:18px;padding:14px;margin:0">➕ नई बुकिंग जोड़ें</button>
 <div id="bookingFormPanel" class="hidden" style="margin-top:14px">
 <h3>📝 बुकिंग की जानकारी</h3><form id="bookingForm">
@@ -179,7 +228,7 @@ footer{text-align:center;padding:18px 10px;font-size:13px;color:var(--muted)}
 <button type="submit" id="saveBtn">बुकिंग सेव करें</button><button type="button" class="secondary" onclick="resetBookingForm()">रद्द करें</button>
 </form></div></div>
 
-<div class="card">
+<div class="card" id="listCard">
 <h3>📋 बुकिंग की सूची</h3>
 <input id="searchInput" placeholder="🔎 ग्राहक का नाम खोजें..." oninput="renderBookings()">
 <div class="row"><div><label>स्टेटस फ़िल्टर</label><select id="statusFilter" onchange="renderBookings()"><option value="">सभी</option><option value="पक्की">पक्की</option><option value="बातचीत जारी">बातचीत जारी</option><option value="काम पूरा">काम पूरा</option><option value="रद्द">रद्द</option></select></div>
@@ -197,6 +246,40 @@ footer{text-align:center;padding:18px 10px;font-size:13px;color:var(--muted)}
 </div>
 <footer>WORK MANAGER • Smart Booking &amp; Management</footer>
 
+<!-- नीचे का नेविगेशन बार -->
+<nav class="bottom-nav" id="bottomNav">
+<button data-v="home" onclick="showView('home')"><span>🏠</span>होम</button>
+<button data-v="form" onclick="openNewBooking()"><span>➕</span>बुकिंग</button>
+<button data-v="list" onclick="showView('list')"><span>📋</span>सूची</button>
+<button onclick="openItemsModal()"><span>📦</span>सामान</button>
+<button data-v="stats" onclick="showView('stats')"><span>📊</span>हिसाब</button>
+</nav>
+
+<!-- स्क्रीन बदलने की छोटी स्क्रिप्ट (आपकी मुख्य स्क्रिप्ट के फ़ंक्शन ही इस्तेमाल करती है) -->
+<script>
+function showView(v){
+ document.body.setAttribute("data-view",v);
+ var b=document.querySelectorAll("#bottomNav button[data-v]");
+ for(var i=0;i<b.length;i++){b[i].classList.toggle("active",b[i].getAttribute("data-v")===v)}
+ window.scrollTo(0,0);
+}
+function openNewBooking(){
+ showView("form");
+ var p=document.getElementById("bookingFormPanel");
+ if(p&&p.classList.contains("hidden")&&typeof toggleBookingForm==="function")toggleBookingForm();
+}
+(function(){
+ var p=document.getElementById("bookingFormPanel");
+ if(!p||!window.MutationObserver)return;
+ new MutationObserver(function(){
+  var v=document.body.getAttribute("data-view");
+  if(!p.classList.contains("hidden")&&v!=="form")showView("form");   // एडिट दबाने पर फ़ॉर्म वाली स्क्रीन खुले
+  else if(p.classList.contains("hidden")&&v==="form")showView("list"); // सेव / रद्द के बाद सूची दिखे
+ }).observe(p,{attributes:true,attributeFilter:["class"]});
+ showView("home");
+})();
+</script>
+
 <script>
 const KEY="panditJiBookings", ITEMS_KEY="workManagerItems", BIZ_PROFILE_KEY="workManagerBizProfile", LOGO_KEY="workManagerLogo", THEME_KEY="workManagerDark", LANG_KEY="workManagerLang";
 const DEFAULT_LOGO="./hanuman-blessing.png";
@@ -213,6 +296,14 @@ const firebaseConfig={
 /* ---------- भाषा (हिंदी / English) ---------- */
 // ऐप का डेटा (स्टेटस, काम आदि) हमेशा हिंदी में सेव होता है; सिर्फ़ स्क्रीन पर भाषा बदलती है।
 const EN={
+"नई बुकिंग":"New booking","बुकिंग सूची":"Booking list","सामान सूची":"Items list","हिसाब":"Accounts","क्लाउड सिंक":"Cloud Sync","सेटिंग्स":"Settings",
+"ग्राहक, तारीख, रकम और एडवांस के साथ बुकिंग दर्ज करें":"Record a booking with customer, date, amount and advance",
+"सभी बुकिंग खोजें, फ़िल्टर करें और एडिट करें":"Search, filter and edit all bookings",
+"टेंट, कुर्सी आदि की सूची, PDF और WhatsApp शेयर":"List of tents, chairs etc., with PDF and WhatsApp share",
+"कुल रकम, एडवांस और बाकी का पूरा हिसाब":"Full account of total, advance and balance",
+"Google Login से डेटा सुरक्षित रखें और सिंक करें":"Keep your data safe and synced with Google Login",
+"बिजनेस प्रोफाइल, लोगो, बैकअप, Dark Mode और भाषा":"Business profile, logo, backup, Dark Mode and language",
+"होम":"Home","सूची":"List","सामान":"Items",
 "☰ मेनू":"☰ Menu","✕ बंद करें":"✕ Close","⚙️ सेटिंग्स और मेनू":"⚙️ Settings & Menu","🏢 बिजनेस प्रोफाइल":"🏢 Business Profile",
 "दुकान / बिजनेस का नाम":"Shop / Business name","संचालक का नाम":"Owner name","मोबाइल नंबर":"Mobile number","पूरा पता":"Full address",
 "प्रोफाइल सेव करें":"Save profile","🖼️ बिजनेस लोगो बदलें":"🖼️ Change business logo","डिफ़ॉल्ट लोगो वापस लाएं":"Restore default logo",
