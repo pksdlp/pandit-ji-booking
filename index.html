@@ -30,7 +30,7 @@ textarea{min-height:70px;resize:vertical}
 button{border:0;border-radius:8px;padding:11px 13px;background:#166534;color:white;font-size:15px;margin:5px 3px 0 0;cursor:pointer}
 button.secondary{background:#475569}button.danger{background:#b91c1c}button.orange{background:#c66b0b}button.whatsapp{background:#25D366;color:white}button.pdfbtn{background:#0284c7}
 .row{display:grid;grid-template-columns:1fr 1fr;gap:9px}.small{font-size:14px;color:#555;line-height:1.7}.amount{font-weight:bold;color:#166534}.hidden{display:none!important}
-.booking{border:1px solid #dbe5dc;border-radius:9px;padding:12px;margin:10px 0;background:#fff}.booking h4{margin:0 0 6px;color:#166534;font-size:18px}
+.booking{border:1px solid #dbe5dc;border-radius:9px;padding:12px;margin:10px 0;background:#fff;cursor:pointer}.booking.completed{background:#fff0f0;border-color:#f2b8b8}.booking-row{display:grid;grid-template-columns:1.2fr 1.4fr auto;gap:8px;align-items:center}.booking-row strong{color:#166534}.booking.completed .booking-row strong{color:#a33}.booking-date{white-space:nowrap;font-size:14px;color:#475569}@media(max-width:420px){.booking-row{grid-template-columns:1fr 1.2fr auto;gap:5px}.booking-date{font-size:12px}}.booking h4{margin:0 0 6px;color:#166534;font-size:18px}
 .booking-actions{display:flex;flex-wrap:wrap;gap:5px;margin-top:8px}.booking-actions button{font-size:13px;padding:8px}
 footer{text-align:center;padding:18px 10px;font-size:13px;color:#64748b}
 .modal,.sub-modal{position:fixed;inset:0;background:#0009;display:none;z-index:2000;justify-content:center;align-items:center;padding:15px}
@@ -94,6 +94,13 @@ body.dark .small{color:#ccc}body.dark .stat{background:#203526}body.dark .bookin
 <div style="display:flex;gap:8px;margin-top:12px"><button type="submit" style="flex:1">सेव करें</button><button type="button" class="danger" style="flex:1" onclick="closeEditModal()">रद्द</button></div>
 </form></div></div>
 
+<div class="modal" id="bookingDetailModal"><div class="modal-content">
+<div style="display:flex;justify-content:space-between;align-items:center">
+<h3 style="margin:0">📄 बुकिंग की पूरी जानकारी</h3>
+<button class="danger" onclick="closeBookingDetails()">बंद करें</button></div>
+<div id="bookingDetailContent" style="margin-top:15px"></div>
+</div></div>
+
 <div id="pdfInvoiceTemplate">
 <div style="text-align:center;border-bottom:3px solid #166534;padding-bottom:15px;margin-bottom:20px">
 <img id="pdfLogoImg" src="./hanuman-blessing.png" style="width:80px;height:80px;object-fit:cover;border-radius:50%;border:2px solid #166534">
@@ -115,7 +122,9 @@ body.dark .small{color:#ccc}body.dark .stat{background:#203526}body.dark .bookin
 <div class="stat">बाकी रकम<strong id="totalDue">₹0</strong></div></div></div>
 
 <div class="card">
-<h3>➕ नई बुकिंग जोड़ें</h3><form id="bookingForm">
+<button type="button" id="newBookingBtn" onclick="toggleBookingForm()" style="width:100%;font-size:18px;padding:14px">➕ नई बुकिंग जोड़ें</button>
+<div id="bookingFormPanel" class="hidden" style="margin-top:14px">
+<h3>📝 बुकिंग की जानकारी</h3><form id="bookingForm">
 <input type="hidden" id="editId">
 <label>ग्राहक का नाम *</label><input id="name" required placeholder="नाम">
 <label>मोबाइल नंबर</label><input id="phone" type="tel" placeholder="नंबर">
@@ -126,8 +135,15 @@ body.dark .small{color:#ccc}body.dark .stat{background:#203526}body.dark .bookin
 <div><label>एडवांस ₹</label><input id="advance" type="number" min="0" value="0" placeholder="0"></div></div>
 <label>स्टेटस</label><select id="status"><option>पक्की</option><option>बातचीत जारी</option><option>काम पूरा</option><option>रद्द</option></select>
 <label>नोट</label><textarea id="notes" placeholder="अतिरिक्त जानकारी"></textarea>
-<button type="submit" id="saveBtn">बुकिंग सेव करें</button><button type="button" class="secondary hidden" id="cancelEditBtn" onclick="resetBookingForm()">एडिट रद्द करें</button>
-</form></div>
+<button type="submit" id="saveBtn">बुकिंग सेव करें</button><button type="button" class="secondary" id="cancelEditBtn" onclick="resetBookingForm()">रद्द करें</button>
+</form></div></div>
+
+<div class="card">
+<h3>📋 बुकिंग की सूची</h3>
+<input id="searchInput" placeholder="🔎 ग्राहक का नाम खोजें..." oninput="renderBookings()">
+<div class="row"><div><label>स्टेटस फ़िल्टर</label><select id="statusFilter" onchange="renderBookings()"><option value="">सभी</option><option>पक्की</option><option>बातचीत जारी</option><option>काम पूरा</option><option>रद्द</option></select></div>
+<div><label>महीना फ़िल्टर</label><input id="monthFilter" type="month" onchange="renderBookings()"></div></div>
+<div id="bookingList"></div></div>
 
 <div class="card" id="authCard">
 <h3>🔐 Google Login और Cloud Sync</h3>
@@ -135,13 +151,8 @@ body.dark .small{color:#ccc}body.dark .stat{background:#203526}body.dark .bookin
 <p class="small" id="syncStatus">अभी डेटा इस मोबाइल में सेव है। लॉगिन के बाद Cloud Sync चालू होगा।</p>
 <button id="googleLoginBtn" type="button">Google से Login करें</button>
 <button id="googleLogoutBtn" type="button" class="secondary hidden">Logout</button>
+<button id="manualSyncBtn" type="button" class="orange" onclick="manualSync()">🔄 अभी Sync करें</button>
 </div>
-
-<div class="card"><h3>📋 बुकिंग की सूची</h3>
-<input id="searchInput" placeholder="नाम, मोबाइल या काम खोजें..." oninput="renderBookings()">
-<div class="row"><div><label>स्टेटस फ़िल्टर</label><select id="statusFilter" onchange="renderBookings()"><option value="">सभी</option><option>पक्की</option><option>बातचीत जारी</option><option>काम पूरा</option><option>रद्द</option></select></div>
-<div><label>महीना फ़िल्टर</label><input id="monthFilter" type="month" onchange="renderBookings()"></div></div>
-<div id="bookingList"></div></div>
 </div>
 <footer>WORK MANAGER • Smart Booking &amp; Management</footer>
 
@@ -299,11 +310,36 @@ async function downloadAndShareItemsPDF(){
  }catch(e){alert("PDF नहीं बन पाई। कृपया दोबारा प्रयास करें।")}finally{box.style.display="none"}
 }
 
-function resetBookingForm(){el("bookingForm").reset();el("editId").value="";el("advance").value="0";el("saveBtn").textContent="बुकिंग सेव करें";el("cancelEditBtn").classList.add("hidden")}
+function toggleBookingForm(show){
+ const panel=el("bookingFormPanel");
+ const shouldShow=typeof show==="boolean"?show:panel.classList.contains("hidden");
+ panel.classList.toggle("hidden",!shouldShow);
+ el("newBookingBtn").textContent=shouldShow?"✕ फॉर्म बंद करें":"➕ नई बुकिंग जोड़ें";
+ if(shouldShow)el("name").focus();
+}
+function resetBookingForm(){
+ el("bookingForm").reset();el("editId").value="";el("advance").value="0";
+ el("saveBtn").textContent="बुकिंग सेव करें";toggleBookingForm(false)
+}
+function closeBookingDetails(){el("bookingDetailModal").classList.remove("show")}
+function showBookingDetails(id){
+ const b=bookings.find(x=>String(x.id)===String(id));if(!b)return;
+ const due=(+b.amount||0)-(+b.advance||0);
+ el("bookingDetailContent").innerHTML=`
+ <h2 style="color:#166534;margin:0 0 10px">${esc(b.name||"ग्राहक")}</h2>
+ <p><b>पता:</b> ${esc(b.address||"-")}</p><p><b>तारीख:</b> ${esc(b.date||"-")}</p>
+ <p><b>मोबाइल:</b> ${esc(b.phone||"-")}</p><p><b>काम:</b> ${esc(b.category||"-")}</p>
+ <p><b>कुल रकम:</b> ${money(b.amount)}</p><p><b>एडवांस:</b> ${money(b.advance||0)}</p>
+ <p><b>बाकी रकम:</b> ${money(due)}</p><p><b>स्टेटस:</b> ${esc(b.status||"-")}</p>
+ <p><b>नोट:</b> ${esc(b.notes||"-")}</p>
+ <button onclick="closeBookingDetails();editBooking('${esc(b.id)}')">✏️ एडिट करें</button>
+ <button class="whatsapp" onclick="shareBooking('${esc(b.id)}')">WhatsApp</button>`;
+ el("bookingDetailModal").classList.add("show")
+}
 function editBooking(id){
  const b=bookings.find(x=>String(x.id)===String(id));if(!b)return;
  el("editId").value=b.id;el("name").value=b.name||"";el("phone").value=b.phone||"";el("category").value=b.category||"शादी / पार्टी";el("date").value=b.date||"";el("address").value=b.address||"";el("amount").value=b.amount??"";el("advance").value=b.advance||0;el("status").value=b.status||"पक्की";el("notes").value=b.notes||"";
- el("saveBtn").textContent="बदलाव सेव करें";el("cancelEditBtn").classList.remove("hidden");window.scrollTo({top:0,behavior:"smooth"})
+ el("saveBtn").textContent="बदलाव सेव करें";toggleBookingForm(true);window.scrollTo({top:0,behavior:"smooth"})
 }
 function deleteBooking(id){
  if(!confirm("इस बुकिंग को हमेशा के लिए डिलीट करें?"))return;
@@ -316,14 +352,22 @@ function shareBooking(id){
 }
 function renderBookings(){
  const q=el("searchInput").value.trim().toLowerCase(),st=el("statusFilter").value,mo=el("monthFilter").value;
- let list=bookings.filter(b=>(!st||b.status===st)&&(!mo||String(b.date||"").startsWith(mo))&&(!q||[b.name,b.phone,b.category,b.address].join(" ").toLowerCase().includes(q)));
- list.sort((a,b)=>String(b.date||"").localeCompare(String(a.date||"")));
- el("bookingList").innerHTML=list.length?list.map(b=>`<div class="booking">
- <h4>${esc(b.name||"बिना नाम")}</h4><div class="small">${esc(b.category||"काम")} • तारीख: ${esc(b.date||"-")} • ${esc(b.status||"पक्की")}</div>
- <div class="small">मोबाइल: ${esc(b.phone||"-")}<br>पता: ${esc(b.address||"-")}</div>
- <div>कुल: <span class="amount">${money(b.amount)}</span> | एडवांस: ${money(b.advance||0)} | बाकी: <b>${money((+b.amount||0)-(+b.advance||0))}</b></div>
- ${b.notes?`<div class="small">नोट: ${esc(b.notes)}</div>`:""}
- <div class="booking-actions"><button class="secondary" onclick="editBooking('${esc(b.id)}')">✏️ एडिट</button><button class="whatsapp" onclick="shareBooking('${esc(b.id)}')">WhatsApp</button><button class="danger" onclick="deleteBooking('${esc(b.id)}')">डिलीट</button></div></div>`).join(""):"<p class='small'>अभी कोई बुकिंग नहीं है।</p>"
+ let list=bookings.filter(b=>(!st||b.status===st)&&(!mo||String(b.date||"").startsWith(mo))&&(!q||String(b.name||"").toLowerCase().includes(q)));
+ list.sort((a,b)=>String(a.date||"").localeCompare(String(b.date||"")));
+ el("bookingList").innerHTML=list.length?list.map(b=>`
+ <div class="booking ${b.status==="काम पूरा"?"completed":""}" onclick="showBookingDetails('${esc(b.id)}')">
+  <div class="booking-row">
+   <strong>${esc(b.name||"बिना नाम")}</strong>
+   <span class="small">${esc(b.address||"पता उपलब्ध नहीं")}</span>
+   <span class="booking-date">${esc(b.date||"-")}</span>
+  </div>
+  <div class="small" style="margin-top:5px">${esc(b.status||"पक्की")} • पूरी जानकारी देखने के लिए दबाएँ</div>
+  <div class="booking-actions" onclick="event.stopPropagation()">
+   <button class="secondary" onclick="editBooking('${esc(b.id)}')">✏️ एडिट</button>
+   <button class="whatsapp" onclick="shareBooking('${esc(b.id)}')">WhatsApp</button>
+   <button class="danger" onclick="deleteBooking('${esc(b.id)}')">डिलीट</button>
+  </div>
+ </div>`).join(""):"<p class='small'>कोई बुकिंग नहीं मिली।</p>"
 }
 function renderStats(){
  const active=bookings.filter(b=>b.status!=="रद्द");const total=active.reduce((s,b)=>s+(+b.amount||0),0),adv=active.reduce((s,b)=>s+(+b.advance||0),0);
@@ -338,6 +382,12 @@ el("bookingForm").addEventListener("submit",async e=>{
  localStorage.setItem(KEY,JSON.stringify(bookings));saveBookingCloud(b);resetBookingForm();renderBookings();renderStats();alert("बुकिंग सेव हो गई।")
 });
 
+async function manualSync(){
+ if(!currentUser||!db){alert("पहले Google से Login करें।");return}
+ setSync("डेटा Cloud पर Sync किया जा रहा है...");
+ await syncAllToCloud();
+ setSync("✅ Sync अनुरोध पूरा हुआ। इंटरनेट चालू रखें।")
+}
 async function syncAllToCloud(){
  if(!currentUser||!db)return;
  const base=db.collection("users").doc(currentUser.uid),batch=db.batch();
