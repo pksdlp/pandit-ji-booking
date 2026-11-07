@@ -328,6 +328,12 @@ body.dark footer{color:#cbd5e1}
     <button type="button" style="font-size:14px; padding:8px; width:100%;" onclick="saveBusinessProfile()">प्रोफाइल सेव करें</button>
   </div>
 
+  <div style="margin: 15px 0;">
+    <label style="font-size: 15px; margin-bottom: 5px; font-weight:bold;">🖼️ बिजनेस लोगो बदलें</label>
+    <input type="file" id="logoInput" accept="image/*" onchange="uploadLogo(event)" style="font-size: 13px; padding: 4px;">
+    <button type="button" class="secondary" style="margin-top:6px; font-size:13px; padding:6px; width:100%;" onclick="resetLogo()">डिफ़ॉल्ट लोगो वापस लाएं</button>
+  </div>
+
   <button class="menu-item" onclick="toggleMenu(); openItemsModal()">📦 सामान की सूची (Inventory)</button>
   <button class="menu-item" onclick="toggleMenu(); toggleTheme()" id="themeBtn">🌙 Dark Mode</button>
   <button class="menu-item" onclick="toggleMenu(); shareApp()">📲 ऐप शेयर करें</button>
@@ -454,6 +460,75 @@ function toggleMenu(){ el("sideMenu").classList.toggle("open"); el("menuOverlay"
 function openItemsModal(){ el("itemsModal").classList.add("show"); renderItemsList(); }
 function closeItemsModal(){ el("itemsModal").classList.remove("show"); }
 
+/* बिजनेस प्रोफाइल सेव और लोड करने के फंक्शन्स */
+function saveBusinessProfile(){
+ const profile = {
+  bizName: el("bizNameInput").value.trim() || "WORK MANAGER",
+  ownerName: el("ownerNameInput").value.trim(),
+  bizPhone: el("bizPhoneInput").value.trim(),
+  bizAddress: el("bizAddressInput").value.trim()
+ };
+ localStorage.setItem(BIZ_PROFILE_KEY, JSON.stringify(profile));
+ applyBusinessProfile(profile);
+ alert("बिजनेस प्रोफाइल सफलतापूर्वक सेव हो गई!");
+ toggleMenu();
+}
+
+function loadBusinessProfile(){
+ const saved = localStorage.getItem(BIZ_PROFILE_KEY);
+ if(saved){
+  try{
+   const profile = JSON.parse(saved);
+   el("bizNameInput").value = profile.bizName || "";
+   el("ownerNameInput").value = profile.ownerName || "";
+   el("bizPhoneInput").value = profile.bizPhone || "";
+   el("bizAddressInput").value = profile.bizAddress || "";
+   applyBusinessProfile(profile);
+  }catch(e){}
+ }
+}
+
+function applyBusinessProfile(profile){
+ el("headerBusinessName").textContent = profile.bizName || "WORK MANAGER";
+ let subText = profile.ownerName ? "संचालक: " + profile.ownerName : "";
+ if(profile.bizAddress) subText += (subText ? " | " : "") + profile.bizAddress;
+ el("headerBusinessSub").textContent = subText || "Smart Booking & Management";
+}
+
+/* लोगो अपलोड और रीसेट करने के फंक्शन्स */
+function uploadLogo(event){
+ const file = event.target.files[0];
+ if(!file) return;
+ const reader = new FileReader();
+ reader.onload = function(e){
+  const base64Img = e.target.result;
+  localStorage.setItem(LOGO_KEY, base64Img);
+  applyLogo(base64Img);
+  alert("बिजनेस लोगो सफलतापूर्वक अपडेट हो गया!");
+ };
+ reader.readAsDataURL(file);
+}
+
+function applyLogo(src){
+ const img = el("headerLogoImg");
+ if(img) img.src = src;
+}
+
+function loadLogo(){
+ const saved = localStorage.getItem(LOGO_KEY);
+ if(saved){
+  applyLogo(saved);
+ }else{
+  applyLogo("./hanuman-blessing.png");
+ }
+}
+
+function resetLogo(){
+ localStorage.removeItem(LOGO_KEY);
+ applyLogo("./hanuman-blessing.png");
+ alert("डिफ़ॉल्ट लोगो वापस आ गया है।");
+}
+
 function saveItem(e){
  e.preventDefault();
  const name = el("itemName").value.trim();
@@ -527,6 +602,8 @@ function downloadAndShareItemsPDF(){
  el("pdfBizName").textContent = savedBiz.bizName || "WORK MANAGER";
  el("pdfBizSub").textContent = (savedBiz.ownerName ? "संचालक: "+savedBiz.ownerName+" " : "") + (savedBiz.bizAddress ? "| "+savedBiz.bizAddress : "");
  el("pdfBizPhone").textContent = savedBiz.bizPhone ? "मोबाइल: "+savedBiz.bizPhone : "";
+ const logoSrc = localStorage.getItem(LOGO_KEY) || "./hanuman-blessing.png";
+ el("pdfLogoImg").src = logoSrc;
 
  el("pdfTableBody").innerHTML = itemsToRequest.map((item, i) => `
   <tr>
@@ -555,17 +632,6 @@ function downloadAndShareItemsPDF(){
  });
 }
 
-function saveBusinessProfile(){
- localStorage.setItem(BIZ_PROFILE_KEY, JSON.stringify({
-  bizName: el("bizNameInput").value.trim(),
-  ownerName: el("ownerNameInput").value.trim(),
-  bizPhone: el("bizPhoneInput").value.trim(),
-  bizAddress: el("bizAddressInput").value.trim()
- }));
- alert("प्रोफाइल सेव हो गई!");
- toggleMenu();
-}
-
 el("bookingForm").addEventListener("submit", function(e){
  e.preventDefault();
  bookings.push({
@@ -588,6 +654,10 @@ function exportCSV(){ alert("CSV एक्सपोर्ट हो गया!")
 function download(blob, name){
  const a=document.createElement("a"); a.href=URL.createObjectURL(blob); a.download=name; a.click();
 }
+
+// शुरुआत में प्रोफाइल और लोगो लोड करें
+loadBusinessProfile();
+loadLogo();
 </script>
 
 <!-- Firebase Script -->
