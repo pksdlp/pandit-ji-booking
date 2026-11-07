@@ -23,6 +23,20 @@ header{
  color:white;
  padding:18px 12px;
  text-align:center;
+ position: relative;
+}
+
+.menu-btn{
+ position: absolute;
+ top: 15px;
+ left: 15px;
+ background: rgba(255,255,255,0.2);
+ color: white;
+ border: 1px solid #fff;
+ border-radius: 6px;
+ padding: 8px 12px;
+ font-size: 18px;
+ cursor: pointer;
 }
 
 .header-photo{
@@ -36,6 +50,74 @@ header{
 
 header h2{font-size:29px;margin:8px 0}
 header div{font-size:19px}
+
+/* SIDE MENU DRAWER */
+.side-menu{
+ position: fixed;
+ top: 0;
+ left: -280px;
+ width: 280px;
+ height: 100%;
+ background: white;
+ box-shadow: 2px 0 10px rgba(0,0,0,0.3);
+ transition: 0.3s ease;
+ z-index: 1000;
+ padding: 20px;
+ overflow-y: auto;
+ text-align: left;
+ color: #222;
+}
+
+.side-menu.open{
+ left: 0;
+}
+
+.side-menu h3{
+ margin-top: 0;
+ border-bottom: 2px solid #166534;
+ padding-bottom: 10px;
+}
+
+.menu-close{
+ background: #b91c1c;
+ float: right;
+ padding: 5px 10px;
+ font-size: 16px;
+ margin: 0;
+}
+
+.menu-item{
+ display: block;
+ width: 100%;
+ text-align: left;
+ background: #f1f5f2;
+ color: #222;
+ padding: 12px;
+ margin: 8px 0;
+ border-radius: 6px;
+ font-size: 17px;
+ border: 1px solid #ddd;
+ cursor: pointer;
+}
+
+.menu-item:hover{
+ background: #e2e8f0;
+}
+
+.overlay{
+ position: fixed;
+ top: 0;
+ left: 0;
+ width: 100%;
+ height: 100%;
+ background: rgba(0,0,0,0.5);
+ display: none;
+ z-index: 999;
+}
+
+.overlay.show{
+ display: block;
+}
 
 .container{
  padding:12px;
@@ -168,9 +250,15 @@ body.dark{
  color:#eeeeee;
 }
 
-body.dark .card{
+body.dark .card, body.dark .side-menu{
  background:#242424;
  color:#eeeeee;
+}
+
+body.dark .menu-item{
+ background:#333;
+ color:#fff;
+ border-color:#555;
 }
 
 body.dark .booking{border-color:#555}
@@ -217,6 +305,7 @@ body.dark footer{color:#cbd5e1}
 <body>
 
 <header>
+<button class="menu-btn" onclick="toggleMenu()">☰ मेनू</button>
 
 <img class="header-photo" id="headerLogoImg"
 src="./hanuman-blessing.png"
@@ -224,28 +313,28 @@ alt="बिजनेस लोगो">
 
 <h2>WORK MANAGER</h2>
 <div>Smart Booking &amp; Management</div>
-
-<button class="theme" onclick="toggleTheme()" id="themeBtn">
-🌙 Dark Mode
-</button>
-
-<button class="shareapp" onclick="shareApp()">
-📲 ऐप शेयर करें
-</button>
-
-<button type="button" id="googleLoginBtn">Google से Login करें</button>
-<button type="button" class="secondary hidden" id="googleLogoutBtn">Logout</button>
-
 </header>
 
-<div class="container">
+<!-- साइड मेनू ड्रावर -->
+<div class="overlay" id="menuOverlay" onclick="toggleMenu()"></div>
+<div class="side-menu" id="sideMenu">
+  <button class="menu-close" onclick="toggleMenu()">✕ बंद करें</button>
+  <h3>⚙️ सेटिंग्स और मेनू</h3>
+  
+  <div style="margin: 15px 0;">
+    <label style="font-size: 16px; margin-bottom: 5px;">🖼️ बिजनेस लोगो बदलें</label>
+    <input type="file" id="logoInput" accept="image/*" onchange="uploadLogo(event)" style="font-size: 14px; padding: 6px;">
+    <button type="button" class="secondary" style="margin-top:6px; font-size:14px; padding:8px;" onclick="resetLogo()">डिफ़ॉल्ट लोगो</button>
+  </div>
 
-<div class="card">
-<h3>🖼️ बिजनेस लोगो सेट करें</h3>
-<p class="small">आप यहाँ अपना या अपने बिजनेस का लोगो अपलोड कर सकते हैं, जो ऊपर हेडर में दिखाई देगा।</p>
-<input type="file" id="logoInput" accept="image/*" onchange="uploadLogo(event)">
-<button type="button" class="secondary" style="margin-top:10px;" onclick="resetLogo()">डिफ़ॉल्ट लोगो वापस लाएं</button>
+  <button class="menu-item" onclick="toggleMenu(); toggleTheme()" id="themeBtn">🌙 Dark Mode</button>
+  <button class="menu-item" onclick="toggleMenu(); shareApp()">📲 ऐप शेयर करें</button>
+  <button class="menu-item" onclick="toggleMenu(); backup()">📥 बैकअप डाउनलोड करें</button>
+  <button class="menu-item" onclick="toggleMenu(); el('restoreFile').click()">📤 बैकअप वापस डालें</button>
+  <button class="menu-item" onclick="toggleMenu(); exportCSV()">📊 Excel रिपोर्ट (CSV)</button>
 </div>
+
+<div class="container">
 
 <div class="card">
 <h3>📊 बुकिंग का हिसाब</h3>
@@ -377,34 +466,16 @@ oninput="showAllBookings=false;render()">
 </form>
 </div>
 
-
-<div class="card">
-<h3>📅 रिपोर्ट और बैकअप</h3>
-
-<p class="small">
-अपना डेटा सुरक्षित रखने के लिए समय-समय पर बैकअप डाउनलोड करें।
-</p>
-
-<button onclick="backup()">बैकअप डाउनलोड करें</button>
-
-<button class="secondary" onclick="el('restoreFile').click()">
-बैकअप वापस डालें
-</button>
-
-<input type="file" id="restoreFile"
-accept=".json" hidden onchange="restore(event)">
-
-<button class="orange" onclick="exportCSV()">
-Excel के लिए CSV रिपोर्ट
-</button>
-
-<p class="small" id="report"></p>
-</div>
+<input type="file" id="restoreFile" accept=".json" hidden onchange="restore(event)">
 
   <div class="card" id="authCard">
     <h3>🔐 Google Login और Cloud Sync</h3>
     <p class="small" id="authStatus">बुकिंग देखने और सेव करने के लिए अपने Gmail से लॉगिन करें。</p>
     <p class="small" id="syncStatus">आपका डेटा आपके Google अकाउंट के साथ सुरक्षित रहेगा।</p>
+    <div style="margin-top: 10px;">
+      <button type="button" id="googleLoginBtn">Google से Login करें</button>
+      <button type="button" class="secondary hidden" id="googleLogoutBtn">Logout</button>
+    </div>
   </div>
 
 </div>
@@ -431,6 +502,12 @@ function el(id){
 
 function money(n){
  return "₹"+Number(n||0).toLocaleString("en-IN");
+}
+
+/* SIDE MENU TOGGLE */
+function toggleMenu(){
+ el("sideMenu").classList.toggle("open");
+ el("menuOverlay").classList.toggle("show");
 }
 
 /* LOGO MANAGEMENT */
@@ -913,14 +990,6 @@ function render(){
    ? '<button type="button" class="secondary" onclick="showAllBookings=false;render()">कम दिखाएं</button>'
    : '<button type="button" class="secondary" onclick="showMoreBookings()">और देखें ('+list.length+')</button>';
  }
-
- const due=total.reduce(
-  (s,b)=>s+Number(b.amount||0)-Number(b.advance||0),0
- );
-
- el("report").textContent=
- "कुल सक्रिय बुकिंग: "+total.length+
- " | कुल बाकी रकम: "+money(due);
 
 }
 
