@@ -5,13 +5,14 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="theme-color" content="#166534">
 <title>WORK MANAGER | Smart Booking &amp; Management</title>
+<link rel="manifest" href="./manifest.webmanifest">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore-compat.js"></script>
 <style>
 *{box-sizing:border-box}
-body{margin:0;background:#f1f5f2;color:#222;font-family:Arial,sans-serif;font-size:18px}
+body{margin:0;background:#f1f5f2;color:#222;font-family:"Noto Sans Devanagari","Mangal",Arial,sans-serif;font-size:18px}
 header{background:#166534;color:white;padding:18px 12px;text-align:center;position:relative}
 .menu-btn{position:absolute;top:15px;left:15px;background:rgba(255,255,255,.2);color:white;border:1px solid #fff;border-radius:6px;padding:8px 12px;font-size:16px}
 .header-photo{width:105px;height:105px;object-fit:cover;border-radius:50%;border:3px solid #fff;background:#fff}
@@ -20,29 +21,38 @@ header h2{font-size:26px;margin:8px 0}header div{font-size:16px}
 .side-menu.open{left:0}.side-menu h3{margin-top:0;border-bottom:2px solid #166534;padding-bottom:10px}
 .menu-close{background:#b91c1c;float:right;padding:5px 10px;font-size:14px;margin:0}
 .menu-item{display:block;width:100%;text-align:left;background:#f1f5f2;color:#222;padding:12px;margin:8px 0;border-radius:6px;font-size:16px;border:1px solid #ddd}
+.profile-box{margin:15px 0;background:#f8fafc;padding:10px;border-radius:6px;border:1px solid #ddd}
 .overlay{position:fixed;inset:0;background:#0008;display:none;z-index:999}.overlay.show{display:block}
 .container{padding:12px;max-width:760px;margin:auto}.card{background:white;padding:16px;border-radius:12px;margin-bottom:14px;box-shadow:0 2px 7px #0001}
 .stats{display:grid;grid-template-columns:1fr 1fr;gap:10px}.stat{background:#e8f5e9;padding:13px;border-radius:9px;text-align:center;font-size:15px}
 .stat strong{display:block;font-size:23px;color:#166534;margin-top:5px}
 h3{margin:0 0 12px;color:#166534;font-size:21px}label{display:block;font-size:16px;margin:12px 0 6px}
 input,select,textarea{width:100%;padding:12px;border:1px solid #ccc;border-radius:7px;font-size:16px;background:white;color:#222}
+input[type=checkbox]{width:20px;height:20px;padding:0}
 textarea{min-height:70px;resize:vertical}
 button{border:0;border-radius:8px;padding:11px 13px;background:#166534;color:white;font-size:15px;margin:5px 3px 0 0;cursor:pointer}
-button.secondary{background:#475569}button.danger{background:#b91c1c}button.orange{background:#c66b0b}button.whatsapp{background:#25D366;color:white}button.pdfbtn{background:#0284c7}
-.row{display:grid;grid-template-columns:1fr 1fr;gap:9px}.small{font-size:14px;color:#555;line-height:1.7}.amount{font-weight:bold;color:#166534}.hidden{display:none!important}
-.booking{border:1px solid #dbe5dc;border-radius:9px;padding:12px;margin:10px 0;background:#fff;cursor:pointer}.booking.completed{background:#fff0f0;border-color:#f2b8b8}.booking-row{display:grid;grid-template-columns:1.2fr 1.4fr auto;gap:8px;align-items:center}.booking-row strong{color:#166534}.booking.completed .booking-row strong{color:#a33}.booking-date{white-space:nowrap;font-size:14px;color:#475569}@media(max-width:420px){.booking-row{grid-template-columns:1fr 1.2fr auto;gap:5px}.booking-date{font-size:12px}}.booking h4{margin:0 0 6px;color:#166534;font-size:18px}
+button.secondary{background:#475569}button.danger{background:#b91c1c}button.orange{background:#c66b0b}button.whatsapp{background:#25D366;color:white}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:9px}.small{font-size:14px;color:#555;line-height:1.7}.hidden{display:none!important}
+.booking{border:1px solid #dbe5dc;border-radius:9px;padding:12px;margin:10px 0;background:#fff;cursor:pointer}
+.booking.completed{background:#fff0f0;border-color:#f2b8b8}
+.booking-row{display:grid;grid-template-columns:1.2fr 1.4fr auto;gap:8px;align-items:center}
+.booking-row strong{color:#166534}.booking.completed .booking-row strong{color:#a33}
+.booking-date{white-space:nowrap;font-size:14px;color:#475569}
 .booking-actions{display:flex;flex-wrap:wrap;gap:5px;margin-top:8px}.booking-actions button{font-size:13px;padding:8px}
+.item-row{display:flex;justify-content:space-between;align-items:center;gap:7px;background:#f8fafc;border:1px solid #ddd;padding:8px;margin:6px 0;border-radius:6px}
 footer{text-align:center;padding:18px 10px;font-size:13px;color:#64748b}
 .modal,.sub-modal{position:fixed;inset:0;background:#0009;display:none;z-index:2000;justify-content:center;align-items:center;padding:15px}
 .modal.show,.sub-modal.show{display:flex}.modal-content{background:white;width:100%;max-width:600px;max-height:90vh;border-radius:12px;padding:20px;overflow-y:auto}
 .sub-modal{z-index:2500}.sub-modal-content{background:white;width:100%;max-width:400px;border-radius:12px;padding:20px}
-body.dark{background:#121212;color:#eee}body.dark .card,body.dark .side-menu,body.dark .modal-content,body.dark .sub-modal-content,body.dark .booking{background:#242424;color:#eee}
-body.dark .menu-item{background:#333;color:#fff;border-color:#555}body.dark input,body.dark select,body.dark textarea{background:#333;color:white;border-color:#666}
-body.dark .small{color:#ccc}body.dark .stat{background:#203526}body.dark .booking{border-color:#555}
-#pdfInvoiceTemplate{display:none;background:#fff;padding:25px;color:#222;width:600px}
-@media(max-width:420px){body{font-size:16px}.container{padding:9px}.card{padding:13px}.row{grid-template-columns:1fr}.menu-btn{font-size:14px;padding:7px}header h2{font-size:22px}}
+body.dark{background:#121212;color:#eee}
+body.dark .card,body.dark .side-menu,body.dark .modal-content,body.dark .sub-modal-content,body.dark .booking{background:#242424;color:#eee}
+body.dark .menu-item{background:#333;color:#fff;border-color:#555}
+body.dark input,body.dark select,body.dark textarea{background:#333;color:white;border-color:#666}
+body.dark .small,body.dark .booking-date{color:#ccc}body.dark .stat{background:#203526}body.dark .booking{border-color:#555}
+body.dark .profile-box,body.dark .item-row{background:#2e2e2e;border-color:#555;color:#eee}
+#pdfInvoiceTemplate{display:none;background:#fff;padding:25px;color:#222;width:600px;font-family:"Noto Sans Devanagari","Mangal",Arial,sans-serif}
+@media(max-width:420px){body{font-size:16px}.container{padding:9px}.card{padding:13px}.row{grid-template-columns:1fr}.menu-btn{font-size:14px;padding:7px}header h2{font-size:22px}.booking-row{grid-template-columns:1fr 1.2fr auto;gap:5px}.booking-date{font-size:12px}}
 </style>
- <link rel="manifest" href="./manifest.webmanifest">
 </head>
 <body>
 <header>
@@ -54,7 +64,7 @@ body.dark .small{color:#ccc}body.dark .stat{background:#203526}body.dark .bookin
 <div class="overlay" id="menuOverlay" onclick="toggleMenu()"></div>
 <div class="side-menu" id="sideMenu">
 <button class="menu-close" onclick="toggleMenu()">✕ बंद करें</button><h3>⚙️ सेटिंग्स और मेनू</h3>
-<div style="margin:15px 0;background:#f8fafc;padding:10px;border-radius:6px;border:1px solid #ddd">
+<div class="profile-box">
 <label style="font-size:14px;font-weight:bold">🏢 बिजनेस प्रोफाइल</label>
 <input id="bizNameInput" placeholder="दुकान / बिजनेस का नाम" style="font-size:14px;padding:8px;margin-bottom:6px">
 <input id="ownerNameInput" placeholder="संचालक का नाम" style="font-size:14px;padding:8px;margin-bottom:6px">
@@ -136,7 +146,7 @@ body.dark .small{color:#ccc}body.dark .stat{background:#203526}body.dark .bookin
 <div><label>एडवांस ₹</label><input id="advance" type="number" min="0" value="0" placeholder="0"></div></div>
 <label>स्टेटस</label><select id="status"><option>पक्की</option><option>बातचीत जारी</option><option>काम पूरा</option><option>रद्द</option></select>
 <label>नोट</label><textarea id="notes" placeholder="अतिरिक्त जानकारी"></textarea>
-<button type="submit" id="saveBtn">बुकिंग सेव करें</button><button type="button" class="secondary" id="cancelEditBtn" onclick="resetBookingForm()">रद्द करें</button>
+<button type="submit" id="saveBtn">बुकिंग सेव करें</button><button type="button" class="secondary" onclick="resetBookingForm()">रद्द करें</button>
 </form></div></div>
 
 <div class="card">
@@ -159,6 +169,7 @@ body.dark .small{color:#ccc}body.dark .stat{background:#203526}body.dark .bookin
 
 <script>
 const KEY="panditJiBookings", ITEMS_KEY="workManagerItems", BIZ_PROFILE_KEY="workManagerBizProfile", LOGO_KEY="workManagerLogo", THEME_KEY="workManagerDark";
+const DEFAULT_LOGO="./hanuman-blessing.png";
 const firebaseConfig={
  apiKey:"AIzaSyBB41-2VwBwEwPzf8JqIcPBBRSUEljhYG4",
  authDomain:"pandit-ji-booking.firebaseapp.com",
@@ -168,12 +179,16 @@ const firebaseConfig={
  appId:"1:243861452271:web:6286ff35372a299ee4b21a",
  measurementId:"G-Q2H88GJVHD"
 };
-let bookings=safeParse(localStorage.getItem(KEY),[]), businessItems=safeParse(localStorage.getItem(ITEMS_KEY),[]);
-let profile=safeParse(localStorage.getItem(BIZ_PROFILE_KEY),{});
-let auth=null, db=null, currentUser=null, cloudReady=false, unsubBookings=null, unsubItems=null, unsubProfile=null;
-let applyingCloud=false;
 
 function safeParse(s,fallback){try{return s?JSON.parse(s):fallback}catch(e){return fallback}}
+let bookings=safeParse(localStorage.getItem(KEY),[]);
+let businessItems=safeParse(localStorage.getItem(ITEMS_KEY),[]);
+let profile=safeParse(localStorage.getItem(BIZ_PROFILE_KEY),{});
+if(!Array.isArray(bookings))bookings=[];
+if(!Array.isArray(businessItems))businessItems=[];
+if(!profile||typeof profile!=="object"||Array.isArray(profile))profile={};
+let auth=null, fdb=null, currentUser=null, cloudReady=false, unsubBookings=null, unsubItems=null, unsubProfile=null;
+
 function el(id){return document.getElementById(id)}
 function esc(v){return String(v??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]))}
 function money(v){return "₹"+(Number(v)||0).toLocaleString("en-IN")}
@@ -183,29 +198,36 @@ function toggleMenu(){el("sideMenu").classList.toggle("open");el("menuOverlay").
 function openItemsModal(){el("itemsModal").classList.add("show");renderItemsList()}
 function closeItemsModal(){el("itemsModal").classList.remove("show")}
 function closeEditModal(){el("editItemModal").classList.remove("show")}
+function cleanProfile(p){const o={};Object.keys(p||{}).forEach(k=>{if(p[k]!==undefined)o[k]=p[k]});return o}
 
 function saveLocal(){
- localStorage.setItem(KEY,JSON.stringify(bookings));
- localStorage.setItem(ITEMS_KEY,JSON.stringify(businessItems));
- localStorage.setItem(BIZ_PROFILE_KEY,JSON.stringify(profile));
+ try{
+  localStorage.setItem(KEY,JSON.stringify(bookings));
+  localStorage.setItem(ITEMS_KEY,JSON.stringify(businessItems));
+  localStorage.setItem(BIZ_PROFILE_KEY,JSON.stringify(profile));
+ }catch(e){console.error(e);alert("मोबाइल की मेमोरी भर गई है, डेटा सेव नहीं हो पाया।")}
 }
+
+/* ---------- Cloud helpers ---------- */
+function userBase(){return fdb.collection("users").doc(currentUser.uid)}
 async function cloudSave(collection,id,data){
- if(!currentUser||!db||!cloudReady)return;
- try{await db.collection("users").doc(currentUser.uid).collection(collection).doc(String(id)).set(data)}
+ if(!currentUser||!fdb||!cloudReady)return;
+ try{await userBase().collection(collection).doc(String(id)).set(data)}
  catch(e){console.error(e);setSync("Cloud Sync में समस्या: "+(e.message||"कृपया इंटरनेट और Firestore Rules जांचें।"))}
 }
 async function cloudDelete(collection,id){
- if(!currentUser||!db||!cloudReady)return;
- try{await db.collection("users").doc(currentUser.uid).collection(collection).doc(String(id)).delete()}
+ if(!currentUser||!fdb||!cloudReady)return;
+ try{await userBase().collection(collection).doc(String(id)).delete()}
  catch(e){console.error(e);setSync("Cloud से हटाने में समस्या: "+e.message)}
 }
 function saveBookingCloud(b){cloudSave("bookings",b.id,b)}
 function saveItemCloud(item){cloudSave("inventory",item.id,item)}
-function saveProfileCloud(){cloudSave("profile","main",profile)}
+function saveProfileCloud(){cloudSave("profile","main",cleanProfile(profile))}
 
+/* ---------- Business profile & logo ---------- */
 function saveBusinessProfile(){
- profile={bizName:el("bizNameInput").value.trim()||"WORK MANAGER",ownerName:el("ownerNameInput").value.trim(),bizPhone:el("bizPhoneInput").value.trim(),bizAddress:el("bizAddressInput").value.trim()};
- localStorage.setItem(BIZ_PROFILE_KEY,JSON.stringify(profile));applyBusinessProfile(profile);saveProfileCloud();alert("बिजनेस प्रोफाइल सेव हो गई।");toggleMenu()
+ profile={...profile,bizName:el("bizNameInput").value.trim()||"WORK MANAGER",ownerName:el("ownerNameInput").value.trim(),bizPhone:el("bizPhoneInput").value.trim(),bizAddress:el("bizAddressInput").value.trim()};
+ saveLocal();applyBusinessProfile(profile);saveProfileCloud();alert("बिजनेस प्रोफाइल सेव हो गई।");toggleMenu()
 }
 function applyBusinessProfile(p){
  el("headerBusinessName").textContent=p.bizName||"WORK MANAGER";
@@ -213,45 +235,65 @@ function applyBusinessProfile(p){
  el("headerBusinessSub").textContent=s||"Smart Booking & Management";
  el("bizNameInput").value=p.bizName||"";el("ownerNameInput").value=p.ownerName||"";
  el("bizPhoneInput").value=p.bizPhone||"";el("bizAddressInput").value=p.bizAddress||"";
+ if(p.logo){try{localStorage.setItem(LOGO_KEY,p.logo)}catch(e){}}
+ loadLogo();
 }
-function loadBusinessProfile(){applyBusinessProfile(profile)}
 function uploadLogo(event){
  const file=event.target.files[0];if(!file)return;
  if(!file.type.startsWith("image/")){alert("कृपया इमेज फाइल चुनें।");return}
  const reader=new FileReader();reader.onload=e=>{
   const img=new Image();img.onload=()=>{
-   const canvas=document.createElement("canvas"),scale=Math.min(1,600/Math.max(img.width,img.height));
+   const canvas=document.createElement("canvas"),scale=Math.min(1,400/Math.max(img.width,img.height));
    canvas.width=Math.round(img.width*scale);canvas.height=Math.round(img.height*scale);
    canvas.getContext("2d").drawImage(img,0,0,canvas.width,canvas.height);
-   const data=canvas.toDataURL("image/jpeg",.82);
-   try{localStorage.setItem(LOGO_KEY,data);applyLogo(data);alert("लोगो अपडेट हो गया।")}catch(err){alert("यह फोटो बहुत बड़ी है। छोटी फोटो चुनें।")}
+   const data=canvas.toDataURL("image/jpeg",.75);
+   try{
+    localStorage.setItem(LOGO_KEY,data);profile.logo=data;saveLocal();applyLogo(data);saveProfileCloud();
+    alert("लोगो अपडेट हो गया।")
+   }catch(err){alert("यह फोटो बहुत बड़ी है। छोटी फोटो चुनें।")}
   };img.src=e.target.result;
  };reader.readAsDataURL(file);event.target.value=""
 }
 function applyLogo(src){el("headerLogoImg").src=src;el("pdfLogoImg").src=src}
-function loadLogo(){applyLogo(localStorage.getItem(LOGO_KEY)||"./hanuman-blessing.png")}
-function resetLogo(){localStorage.removeItem(LOGO_KEY);loadLogo();alert("डिफ़ॉल्ट लोगो वापस आ गया।")}
+function loadLogo(){applyLogo(localStorage.getItem(LOGO_KEY)||profile.logo||DEFAULT_LOGO)}
+function resetLogo(){localStorage.removeItem(LOGO_KEY);delete profile.logo;saveLocal();saveProfileCloud();applyLogo(DEFAULT_LOGO);alert("डिफ़ॉल्ट लोगो वापस आ गया।")}
 
+/* ---------- Backup / Restore / CSV ---------- */
 function backup(){
- const data={app:"WORK MANAGER",version:2,exportedAt:new Date().toISOString(),bookings,businessItems,profile,logo:localStorage.getItem(LOGO_KEY)||""};
+ const data={app:"WORK MANAGER",version:3,exportedAt:new Date().toISOString(),bookings,businessItems,profile:cleanProfile(profile),logo:localStorage.getItem(LOGO_KEY)||""};
  downloadBlob(new Blob([JSON.stringify(data,null,2)],{type:"application/json"}),"WORK-Manager-Full-Backup.json")
 }
 function restore(e){
  const file=e.target.files[0];if(!file)return;
- const reader=new FileReader();reader.onload=()=>{
+ const reader=new FileReader();reader.onload=async()=>{
+  let d;
   try{
-   const d=JSON.parse(reader.result);
-   if(!Array.isArray(d))throw Error("bad");
-   if(!confirm("बैकअप से बुकिंग, सामान और प्रोफाइल बदलें?"))return;
-   if(Array.isArray(d.bookings)){bookings=d.bookings;businessItems=Array.isArray(d.businessItems)?d.businessItems:[];profile=d.profile||{};if(d.logo)localStorage.setItem(LOGO_KEY,d.logo);else localStorage.removeItem(LOGO_KEY)}
-   else {bookings=d;businessItems=[]}
-   saveLocal();applyBusinessProfile(profile);loadLogo();renderBookings();renderStats();renderItemsList();
-   if(currentUser){syncAllToCloud().then(()=>setSync("Restore किया गया डेटा Cloud पर भी सेव हो गया।"))}
-   alert("बैकअप Restore हो गया।")
-  }catch(err){alert("यह सही WORK MANAGER बैकअप फाइल नहीं है।")}
+   d=JSON.parse(reader.result);
+   // पुराना बैकअप = सिर्फ बुकिंग की array, नया बैकअप = object
+   const isOld=Array.isArray(d), isNew=d&&typeof d==="object"&&Array.isArray(d.bookings);
+   if(!isOld&&!isNew)throw Error("bad");
+  }catch(err){alert("यह सही WORK MANAGER बैकअप फाइल नहीं है।");return}
+  if(!confirm("बैकअप से बुकिंग, सामान और प्रोफाइल बदलें? अभी का डेटा हट जाएगा।"))return;
+  if(Array.isArray(d)){bookings=d;businessItems=[];profile={}}
+  else{
+   bookings=d.bookings;
+   businessItems=Array.isArray(d.businessItems)?d.businessItems:[];
+   profile=(d.profile&&typeof d.profile==="object")?d.profile:{};
+   if(d.logo){profile.logo=d.logo;try{localStorage.setItem(LOGO_KEY,d.logo)}catch(x){}}else{localStorage.removeItem(LOGO_KEY)}
+  }
+  // हर बुकिंग/सामान में id जरूर हो
+  bookings=bookings.filter(b=>b&&typeof b==="object").map(b=>({...b,id:String(b.id||uid())}));
+  businessItems=businessItems.filter(i=>i&&typeof i==="object").map(i=>({...i,id:String(i.id||uid())}));
+  saveLocal();applyBusinessProfile(profile);renderBookings();renderStats();renderItemsList();
+  if(currentUser&&fdb){
+   setSync("Restore किया गया डेटा Cloud पर भेजा जा रहा है...");
+   const ok=await syncAllToCloud(true);
+   if(ok)setSync("✅ Restore किया गया डेटा Cloud पर भी सेव हो गया।")
+  }
+  alert("बैकअप Restore हो गया।")
  };reader.readAsText(file);e.target.value=""
 }
-function downloadBlob(blob,name){const a=document.createElement("a"),url=URL.createObjectURL(blob);a.href=url;a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(url),1500)}
+function downloadBlob(blob,name){const a=document.createElement("a"),url=URL.createObjectURL(blob);a.href=url;a.download=name;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1500)}
 function exportCSV(){
  const rows=[["ग्राहक","मोबाइल","काम","तारीख","पता","कुल रकम","एडवांस","बाकी","स्टेटस","नोट"]];
  bookings.forEach(b=>rows.push([b.name,b.phone,b.category,b.date,b.address,b.amount,b.advance||0,Math.max(0,(+b.amount||0)-(+b.advance||0)),b.status,b.notes]));
@@ -267,9 +309,10 @@ function shareApp(){
 function toggleTheme(){document.body.classList.toggle("dark");localStorage.setItem(THEME_KEY,document.body.classList.contains("dark")?"1":"0");el("themeBtn").textContent=document.body.classList.contains("dark")?"☀️ Light Mode":"🌙 Dark Mode"}
 function loadTheme(){if(localStorage.getItem(THEME_KEY)==="1")document.body.classList.add("dark");el("themeBtn").textContent=document.body.classList.contains("dark")?"☀️ Light Mode":"🌙 Dark Mode"}
 
+/* ---------- Inventory ---------- */
 function saveItem(e){
  e.preventDefault();const name=el("itemName").value.trim(),qty=el("itemQty").value.trim();if(!name)return;
- const item={id:uid(),name,qty,selected:true};businessItems.push(item);localStorage.setItem(ITEMS_KEY,JSON.stringify(businessItems));saveItemCloud(item);el("itemForm").reset();renderItemsList()
+ const item={id:uid(),name,qty,selected:true};businessItems.push(item);saveLocal();saveItemCloud(item);el("itemForm").reset();renderItemsList()
 }
 function editItem(id){
  const item=businessItems.find(x=>String(x.id)===String(id));if(!item)return;
@@ -277,22 +320,23 @@ function editItem(id){
 }
 function updateSingleItem(e){
  e.preventDefault();const id=el("modalEditId").value,item=businessItems.find(x=>String(x.id)===String(id));if(!item)return;
- item.name=el("modalEditName").value.trim();item.qty=el("modalEditQty").value.trim();localStorage.setItem(ITEMS_KEY,JSON.stringify(businessItems));saveItemCloud(item);closeEditModal();renderItemsList()
+ item.name=el("modalEditName").value.trim();item.qty=el("modalEditQty").value.trim();saveLocal();saveItemCloud(item);closeEditModal();renderItemsList()
 }
 function deleteItem(id){
  if(!confirm("इस सामान को डिलीट करें?"))return;
- businessItems=businessItems.filter(x=>String(x.id)!==String(id));localStorage.setItem(ITEMS_KEY,JSON.stringify(businessItems));cloudDelete("inventory",id);renderItemsList()
+ businessItems=businessItems.filter(x=>String(x.id)!==String(id));saveLocal();cloudDelete("inventory",id);renderItemsList()
 }
 function toggleItemCheck(id){
- const item=businessItems.find(x=>String(x.id)===String(id));if(item){item.selected=!item.selected;localStorage.setItem(ITEMS_KEY,JSON.stringify(businessItems));saveItemCloud(item)}
+ const item=businessItems.find(x=>String(x.id)===String(id));
+ if(item){item.selected=!(item.selected!==false);saveLocal();saveItemCloud(item)}
 }
 function renderItemsList(){
  if(!el("itemsListContainer"))return;el("totalItemsCount").textContent=businessItems.length;
  el("itemsListContainer").innerHTML=businessItems.length?businessItems.map((it,i)=>`
- <div style="display:flex;justify-content:space-between;align-items:center;gap:7px;background:#f8fafc;border:1px solid #ddd;padding:8px;margin:6px 0;border-radius:6px">
- <div style="display:flex;align-items:center;gap:8px;min-width:0"><input type="checkbox" ${it.selected!==false?"checked":""} onchange="toggleItemCheck('${esc(it.id)}')" style="width:20px;height:20px">
+ <div class="item-row">
+ <div style="display:flex;align-items:center;gap:8px;min-width:0"><input type="checkbox" ${it.selected!==false?"checked":""} data-check="${esc(it.id)}">
  <div><b>${i+1}. ${esc(it.name)}</b><br><small>मात्रा: ${esc(it.qty||"नहीं भरी")}</small></div></div>
- <div style="white-space:nowrap"><button class="secondary" onclick="editItem('${esc(it.id)}')">✏️</button><button class="danger" onclick="deleteItem('${esc(it.id)}')">🗑️</button></div></div>`).join(""):"<p class='small'>कोई सामान नहीं है।</p>"
+ <div style="white-space:nowrap"><button class="secondary" data-act="item-edit" data-id="${esc(it.id)}">✏️</button><button class="danger" data-act="item-del" data-id="${esc(it.id)}">🗑️</button></div></div>`).join(""):"<p class='small'>कोई सामान नहीं है।</p>"
 }
 async function downloadAndShareItemsPDF(){
  const list=businessItems.filter(i=>i.selected!==false&&String(i.qty||"").trim());
@@ -301,16 +345,18 @@ async function downloadAndShareItemsPDF(){
  el("pdfBizName").textContent=profile.bizName||"WORK MANAGER";
  el("pdfBizSub").textContent=(profile.ownerName?"संचालक: "+profile.ownerName+" ":"")+(profile.bizAddress||"");
  el("pdfBizPhone").textContent=profile.bizPhone?"मोबाइल: "+profile.bizPhone:"";
- el("pdfLogoImg").src=localStorage.getItem(LOGO_KEY)||"./hanuman-blessing.png";
+ el("pdfLogoImg").src=localStorage.getItem(LOGO_KEY)||profile.logo||DEFAULT_LOGO;
  el("pdfTableBody").innerHTML=list.map((it,i)=>`<tr><td style="border:1px solid #ddd;padding:8px;text-align:center">${i+1}</td><td style="border:1px solid #ddd;padding:8px">${esc(it.name)}</td><td style="border:1px solid #ddd;padding:8px">${esc(it.qty)}</td></tr>`).join("");
  const box=el("pdfInvoiceTemplate");box.style.display="block";
- try{await html2pdf().from(box).set({margin:10,filename:"Saman-List.pdf",image:{type:"jpeg",quality:.98},html2canvas:{scale:2,useCORS:true},jsPDF:{unit:"mm",format:"a4",orientation:"portrait"}}).save();
- alert("PDF डाउनलोड हो गई। अब WhatsApp में PDF फाइल खुद अटैच करके भेजें।");
- const msg="नमस्ते, सामान की सूची की PDF संलग्न है। कृपया समय पर सामान मंगवा कर रखें। धन्यवाद!";
- window.open("https://wa.me/?text="+encodeURIComponent(msg),"_blank")
- }catch(e){alert("PDF नहीं बन पाई। कृपया दोबारा प्रयास करें।")}finally{box.style.display="none"}
+ try{
+  await html2pdf().from(box).set({margin:10,filename:"Saman-List.pdf",image:{type:"jpeg",quality:.98},html2canvas:{scale:2,useCORS:true},jsPDF:{unit:"mm",format:"a4",orientation:"portrait"}}).save();
+  alert("PDF डाउनलोड हो गई। अब WhatsApp में PDF फाइल खुद अटैच करके भेजें।");
+  const msg="नमस्ते, सामान की सूची की PDF संलग्न है। कृपया समय पर सामान मंगवा कर रखें। धन्यवाद!";
+  window.open("https://wa.me/?text="+encodeURIComponent(msg),"_blank")
+ }catch(e){console.error(e);alert("PDF नहीं बन पाई। कृपया दोबारा प्रयास करें।")}finally{box.style.display="none"}
 }
 
+/* ---------- Bookings ---------- */
 function toggleBookingForm(show){
  const panel=el("bookingFormPanel");
  const shouldShow=typeof show==="boolean"?show:panel.classList.contains("hidden");
@@ -333,8 +379,8 @@ function showBookingDetails(id){
  <p><b>कुल रकम:</b> ${money(b.amount)}</p><p><b>एडवांस:</b> ${money(b.advance||0)}</p>
  <p><b>बाकी रकम:</b> ${money(due)}</p><p><b>स्टेटस:</b> ${esc(b.status||"-")}</p>
  <p><b>नोट:</b> ${esc(b.notes||"-")}</p>
- <button onclick="closeBookingDetails();editBooking('${esc(b.id)}')">✏️ एडिट करें</button>
- <button class="whatsapp" onclick="shareBooking('${esc(b.id)}')">WhatsApp</button>`;
+ <button data-act="edit-close" data-id="${esc(b.id)}">✏️ एडिट करें</button>
+ <button class="whatsapp" data-act="share" data-id="${esc(b.id)}">WhatsApp</button>`;
  el("bookingDetailModal").classList.add("show")
 }
 function editBooking(id){
@@ -344,55 +390,55 @@ function editBooking(id){
 }
 function deleteBooking(id){
  if(!confirm("इस बुकिंग को हमेशा के लिए डिलीट करें?"))return;
- bookings=bookings.filter(x=>String(x.id)!==String(id));localStorage.setItem(KEY,JSON.stringify(bookings));cloudDelete("bookings",id);renderBookings();renderStats()
+ bookings=bookings.filter(x=>String(x.id)!==String(id));saveLocal();cloudDelete("bookings",id);renderBookings();renderStats()
 }
 function shareBooking(id){
  const b=bookings.find(x=>String(x.id)===String(id));if(!b)return;
  const text=`नमस्ते ${b.name}, आपकी ${b.category||"बुकिंग"} की जानकारी:\nतारीख: ${b.date||"-"}\nकुल रकम: ${money(b.amount)}\nएडवांस: ${money(b.advance||0)}\nबाकी: ${money((+b.amount||0)-(+b.advance||0))}\nधन्यवाद।`;
  const phone=String(b.phone||"").replace(/\D/g,"");window.open("https://wa.me/"+(phone.length>=10?phone.slice(-10):"")+"?text="+encodeURIComponent(text),"_blank")
 }
+function dateValue(b){
+ const d=new Date(String(b.date||"")+"T00:00:00");return Number.isNaN(d.getTime())?null:d
+}
+function compareDates(a,b,fn){
+ const x=dateValue(a),y=dateValue(b);
+ if(!x&&!y)return 0;if(!x)return 1;if(!y)return -1;
+ return fn(x,y)
+}
 function renderBookings(){
  const today=new Date();today.setHours(0,0,0,0);
  const todayKey=[today.getFullYear(),String(today.getMonth()+1).padStart(2,"0"),String(today.getDate()).padStart(2,"0")].join("-");
- // तारीख निकल जाने पर (और रद्द न होने पर) बुकिंग अपने-आप काम पूरा सूची में चली जाएगी।
+ // तारीख निकल जाने पर (और रद्द न होने पर) बुकिंग अपने-आप "काम पूरा" हो जाएगी।
  let autoCompleted=false;
  bookings.forEach(b=>{
   if(b.status!=="काम पूरा"&&b.status!=="रद्द"&&b.date&&b.date<todayKey){
    b.status="काम पूरा";b.updatedAt=new Date().toISOString();autoCompleted=true;
-   if(currentUser&&db)saveBookingCloud(b);
+   saveBookingCloud(b); // cloudReady न हो तो अपने-आप रुक जाता है
   }
  });
- if(autoCompleted)localStorage.setItem(KEY,JSON.stringify(bookings));
+ if(autoCompleted)saveLocal();
  const q=el("searchInput").value.trim().toLowerCase(),st=el("statusFilter").value,mo=el("monthFilter").value;
  const filtered=bookings.filter(b=>(!st||b.status===st)&&(!mo||String(b.date||"").startsWith(mo))&&(!q||String(b.name||"").toLowerCase().includes(q)));
- const dateValue=b=>{const d=new Date(String(b.date||"")+"T00:00:00");return Number.isNaN(d.getTime())?null:d;};
  const upcoming=filtered.filter(b=>b.status!=="काम पूरा");
  const completed=filtered.filter(b=>b.status==="काम पूरा");
- // नजदीकी आने वाली तारीखें पहले; बीती हुई तारीखें उसके बाद, हाल की बीती तारीख पहले।
- upcoming.sort((a,b)=>{
-  const da=dateValue(a),db=dateValue(b);
-  if(!da)return 1;if(!db)return -1;
-  const af=da>=today,bf=db>=today;
-  if(af!==bf)return af?-1:1;
-  return af?da-db:db-da;
- });
- // काम पूरा बुकिंग नीचे अलग सूची में तारीख के क्रम में।
- completed.sort((a,b)=>{
-  const da=dateValue(a),db=dateValue(b);
-  if(!da)return 1;if(!db)return -1;
-  return da-db;
- });
- const card=b=>`<div class="booking ${b.status==="काम पूरा"?"completed":""}" onclick="showBookingDetails('${esc(b.id)}')">
+ // आने वाली तारीखें पहले (नजदीकी पहले); फिर बीती हुई (हाल की पहले)
+ upcoming.sort((a,b)=>compareDates(a,b,(dA,dB)=>{
+  const aFuture=dA>=today,bFuture=dB>=today;
+  if(aFuture!==bFuture)return aFuture?-1:1;
+  return aFuture?dA-dB:dB-dA
+ }));
+ completed.sort((a,b)=>compareDates(a,b,(dA,dB)=>dA-dB));
+ const card=b=>`<div class="booking ${b.status==="काम पूरा"?"completed":""}" data-act="details" data-id="${esc(b.id)}">
   <div class="booking-row">
    <strong>${esc(b.name||"बिना नाम")}</strong>
    <span class="small">${esc(b.address||"पता उपलब्ध नहीं")}</span>
    <span class="booking-date">${esc(b.date||"-")}</span>
   </div>
   <div class="small" style="margin-top:5px">${esc(b.status||"पक्की")} • पूरी जानकारी देखने के लिए दबाएँ</div>
-  <div class="booking-actions" onclick="event.stopPropagation()">
-   <button class="secondary" onclick="editBooking('${esc(b.id)}')">✏️ एडिट</button>
-   <button class="whatsapp" onclick="shareBooking('${esc(b.id)}')">WhatsApp</button>
-   <button class="danger" onclick="deleteBooking('${esc(b.id)}')">डिलीट</button>
+  <div class="booking-actions">
+   <button class="secondary" data-act="edit" data-id="${esc(b.id)}">✏️ एडिट</button>
+   <button class="whatsapp" data-act="share" data-id="${esc(b.id)}">WhatsApp</button>
+   <button class="danger" data-act="del" data-id="${esc(b.id)}">डिलीट</button>
   </div>
  </div>`;
  let html="";
@@ -401,59 +447,103 @@ function renderBookings(){
  el("bookingList").innerHTML=html||"<p class='small'>कोई बुकिंग नहीं मिली।</p>";
 }
 function renderStats(){
- const active=bookings.filter(b=>b.status!=="रद्द");const total=active.reduce((s,b)=>s+(+b.amount||0),0),adv=active.reduce((s,b)=>s+(+b.advance||0),0);
+ const active=bookings.filter(b=>b.status!=="रद्द");
+ const total=active.reduce((s,b)=>s+(+b.amount||0),0),adv=active.reduce((s,b)=>s+(+b.advance||0),0);
  el("totalCount").textContent=active.length;el("totalAmount").textContent=money(total);el("totalAdvance").textContent=money(adv);el("totalDue").textContent=money(total-adv)
 }
-el("bookingForm").addEventListener("submit",async e=>{
+el("bookingForm").addEventListener("submit",e=>{
  e.preventDefault();const amount=Number(el("amount").value),advance=Number(el("advance").value||0);
  if(advance>amount){alert("एडवांस रकम कुल रकम से अधिक नहीं हो सकती।");return}
  const id=el("editId").value||uid();
  const b={id,name:el("name").value.trim(),phone:el("phone").value.trim(),category:el("category").value,date:el("date").value,address:el("address").value.trim(),amount,advance,status:el("status").value,notes:el("notes").value.trim(),updatedAt:new Date().toISOString()};
  const ix=bookings.findIndex(x=>String(x.id)===String(id));if(ix>=0)bookings[ix]=b;else bookings.push(b);
- localStorage.setItem(KEY,JSON.stringify(bookings));saveBookingCloud(b);resetBookingForm();renderBookings();renderStats();alert("बुकिंग सेव हो गई।")
+ saveLocal();saveBookingCloud(b);resetBookingForm();renderBookings();renderStats();alert("बुकिंग सेव हो गई।")
 });
 
+/* ---------- बटन क्लिक (id को onclick स्ट्रिंग में डालने की जगह data-attributes) ---------- */
+document.addEventListener("click",e=>{
+ const t=e.target.closest("[data-act]");if(!t)return;
+ const id=t.dataset.id;
+ switch(t.dataset.act){
+  case "details":showBookingDetails(id);break;
+  case "edit":editBooking(id);break;
+  case "edit-close":closeBookingDetails();editBooking(id);break;
+  case "share":shareBooking(id);break;
+  case "del":deleteBooking(id);break;
+  case "item-edit":editItem(id);break;
+  case "item-del":deleteItem(id);break;
+ }
+});
+document.addEventListener("change",e=>{
+ const id=e.target.dataset&&e.target.dataset.check;
+ if(id!==undefined&&id!=="")toggleItemCheck(id)
+});
+
+/* ---------- Cloud Sync ---------- */
 async function manualSync(){
- if(!currentUser||!db){alert("पहले Google से Login करें।");return}
+ if(!currentUser||!fdb){alert("पहले Google से Login करें।");return}
  setSync("डेटा Cloud पर Sync किया जा रहा है...");
- await syncAllToCloud();
- setSync("✅ Sync अनुरोध पूरा हुआ। इंटरनेट चालू रखें।")
+ cloudReady=true;
+ const ok=await syncAllToCloud(false);
+ if(ok)setSync("✅ Sync पूरा हुआ। इंटरनेट चालू रखें।")
 }
-async function syncAllToCloud(){
- if(!currentUser||!db)return;
- const base=db.collection("users").doc(currentUser.uid),batch=db.batch();
- bookings.forEach(b=>batch.set(base.collection("bookings").doc(String(b.id)),b));
- businessItems.forEach(i=>batch.set(base.collection("inventory").doc(String(i.id)),i));
- if(Object.keys(profile).length)batch.set(base.collection("profile").doc("main"),profile);
- try{await batch.commit()}catch(e){console.error(e);setSync("Cloud पर डेटा भेजने में समस्या: "+e.message)}
+// replaceAll=true: Cloud पर वही रहेगा जो इस मोबाइल में है (Cloud का पुराना बचा हुआ डेटा हट जाएगा)
+async function syncAllToCloud(replaceAll){
+ if(!currentUser||!fdb)return false;
+ const base=userBase();
+ try{
+  const ops=[];
+  bookings.forEach(b=>ops.push({t:"set",ref:base.collection("bookings").doc(String(b.id)),d:b}));
+  businessItems.forEach(i=>ops.push({t:"set",ref:base.collection("inventory").doc(String(i.id)),d:i}));
+  ops.push({t:"set",ref:base.collection("profile").doc("main"),d:cleanProfile(profile)});
+  if(replaceAll){
+   const [bs,is]=await Promise.all([base.collection("bookings").get(),base.collection("inventory").get()]);
+   const bIds=new Set(bookings.map(b=>String(b.id))),iIds=new Set(businessItems.map(i=>String(i.id)));
+   bs.docs.forEach(d=>{if(!bIds.has(d.id))ops.push({t:"del",ref:d.ref})});
+   is.docs.forEach(d=>{if(!iIds.has(d.id))ops.push({t:"del",ref:d.ref})});
+  }
+  // Firestore batch में अधिकतम 500 काम; इसलिए 400-400 के हिस्सों में भेजें
+  for(let i=0;i<ops.length;i+=400){
+   const batch=fdb.batch();
+   ops.slice(i,i+400).forEach(o=>o.t==="set"?batch.set(o.ref,o.d):batch.delete(o.ref));
+   await batch.commit();
+  }
+  return true;
+ }catch(e){console.error(e);setSync("Cloud पर डेटा भेजने में समस्या: "+e.message);return false}
 }
 async function migrateOrLoadCloud(){
- const base=db.collection("users").doc(currentUser.uid);
+ const base=userBase();
  try{
   setSync("Cloud से डेटा मिलाया जा रहा है...");
   const [bs,is,ps]=await Promise.all([base.collection("bookings").get(),base.collection("inventory").get(),base.collection("profile").doc("main").get()]);
-  if(bs.empty&&bookings.length){const batch=db.batch();bookings.forEach(b=>batch.set(base.collection("bookings").doc(String(b.id)),b));await batch.commit()}
-  else if(!bs.empty){bookings=bs.docs.map(d=>({...d.data(),id:d.id}));localStorage.setItem(KEY,JSON.stringify(bookings))}
-  if(is.empty&&businessItems.length){const batch=db.batch();businessItems.forEach(i=>batch.set(base.collection("inventory").doc(String(i.id)),i));await batch.commit()}
-  else if(!is.empty){businessItems=is.docs.map(d=>({...d.data(),id:d.id}));localStorage.setItem(ITEMS_KEY,JSON.stringify(businessItems))}
-  if(ps.exists){profile=ps.data();localStorage.setItem(BIZ_PROFILE_KEY,JSON.stringify(profile))}
-  else if(Object.keys(profile).length){await base.collection("profile").doc("main").set(profile)}
+  // Cloud खाली हो तभी इस मोबाइल का डेटा पहली बार ऊपर भेजें; वरना Cloud का डेटा ही सही माना जाएगा।
+  if(bs.empty&&is.empty&&!ps.exists&&(bookings.length||businessItems.length||Object.keys(profile).length)){
+   cloudReady=true;
+   await syncAllToCloud(false);
+  }else{
+   bookings=bs.docs.map(d=>({...d.data(),id:d.id}));
+   businessItems=is.docs.map(d=>({...d.data(),id:d.id}));
+   if(ps.exists)profile=ps.data();
+   saveLocal();
+  }
   cloudReady=true;renderBookings();renderStats();renderItemsList();applyBusinessProfile(profile);
-  if(unsubBookings)unsubBookings();if(unsubItems)unsubItems();if(unsubProfile)unsubProfile();
-  unsubBookings=base.collection("bookings").onSnapshot(s=>{if(!cloudReady)return;bookings=s.docs.map(d=>({...d.data(),id:d.id}));localStorage.setItem(KEY,JSON.stringify(bookings));renderBookings();renderStats()},e=>setSync("बुकिंग Sync समस्या: "+e.message));
-  unsubItems=base.collection("inventory").onSnapshot(s=>{if(!cloudReady)return;businessItems=s.docs.map(d=>({...d.data(),id:d.id}));localStorage.setItem(ITEMS_KEY,JSON.stringify(businessItems));renderItemsList()},e=>setSync("सामान Sync समस्या: "+e.message));
-  unsubProfile=base.collection("profile").doc("main").onSnapshot(s=>{if(s.exists){profile=s.data();localStorage.setItem(BIZ_PROFILE_KEY,JSON.stringify(profile));applyBusinessProfile(profile)}});
+  stopListeners();
+  unsubBookings=base.collection("bookings").onSnapshot(s=>{if(!cloudReady)return;bookings=s.docs.map(d=>({...d.data(),id:d.id}));saveLocal();renderBookings();renderStats()},e=>setSync("बुकिंग Sync समस्या: "+e.message));
+  unsubItems=base.collection("inventory").onSnapshot(s=>{if(!cloudReady)return;businessItems=s.docs.map(d=>({...d.data(),id:d.id}));saveLocal();renderItemsList()},e=>setSync("सामान Sync समस्या: "+e.message));
+  unsubProfile=base.collection("profile").doc("main").onSnapshot(s=>{if(s.exists){profile=s.data();saveLocal();applyBusinessProfile(profile)}},e=>setSync("प्रोफाइल Sync समस्या: "+e.message));
   setSync("✅ Cloud Sync चालू है। इस Google अकाउंट से दूसरे मोबाइल पर लॉगिन करें।")
  }catch(e){console.error(e);cloudReady=false;setSync("Cloud Sync शुरू नहीं हुआ: "+e.message+" | Firestore Rules जांचें।")}
 }
-function stopCloud(){
- cloudReady=false;if(unsubBookings)unsubBookings();if(unsubItems)unsubItems();if(unsubProfile)unsubProfile();
+function stopListeners(){
+ if(unsubBookings)unsubBookings();if(unsubItems)unsubItems();if(unsubProfile)unsubProfile();
  unsubBookings=unsubItems=unsubProfile=null
 }
+function stopCloud(){cloudReady=false;stopListeners()}
 function initFirebase(){
  try{
+  if(!window.firebase){el("authStatus").textContent="Firebase लोड नहीं हुआ। इंटरनेट जांचें। ऐप अभी इस मोबाइल के डेटा से चलेगा।";return}
   if(!firebase.apps.length)firebase.initializeApp(firebaseConfig);
-  auth=firebase.auth();db=firebase.firestore();
+  auth=firebase.auth();fdb=firebase.firestore();
   auth.onAuthStateChanged(async user=>{
    currentUser=user;stopCloud();
    if(user){
@@ -467,16 +557,22 @@ function initFirebase(){
    }
   });
   el("googleLoginBtn").onclick=async()=>{
-   try{const provider=new firebase.auth.GoogleAuthProvider();await auth.signInWithPopup(provider)}
-   catch(e){if(e.code==="auth/popup-blocked"||e.code==="auth/popup-closed-by-user"){try{await auth.signInWithRedirect(new firebase.auth.GoogleAuthProvider())}catch(x){alert("Login समस्या: "+x.message)}}else alert("Google Login समस्या: "+e.message)}
+   try{await auth.signInWithPopup(new firebase.auth.GoogleAuthProvider())}
+   catch(e){
+    if(e.code==="auth/popup-blocked"||e.code==="auth/popup-closed-by-user"||e.code==="auth/operation-not-supported-in-this-environment"){
+     try{await auth.signInWithRedirect(new firebase.auth.GoogleAuthProvider())}catch(x){alert("Login समस्या: "+x.message)}
+    }else if(e.code!=="auth/cancelled-popup-request")alert("Google Login समस्या: "+e.message)
+   }
   };
   el("googleLogoutBtn").onclick=()=>{if(confirm("क्या Logout करना चाहते हैं?"))auth.signOut()}
  }catch(e){console.error(e);el("authStatus").textContent="Firebase शुरू नहीं हो पाया: "+e.message}
 }
 
-loadBusinessProfile();loadLogo();loadTheme();renderBookings();renderStats();renderItemsList();initFirebase();
-// ऐप खुला रहने पर भी तारीख बदलते ही पुरानी बुकिंग अपने-आप काम पूरा सूची में चली जाए।
-setInterval(()=>{renderBookings();renderStats();},60*1000);
+loadBusinessProfile();
+function loadBusinessProfile(){applyBusinessProfile(profile)}
+loadTheme();renderBookings();renderStats();renderItemsList();initFirebase();
+// ऐप खुला रहने पर भी तारीख बदलते ही पुरानी बुकिंग अपने-आप "काम पूरा" सूची में चली जाए।
+setInterval(()=>{renderBookings();renderStats()},60*1000);
 </script>
 </body>
 </html>
