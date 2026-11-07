@@ -338,7 +338,7 @@ body.dark footer{color:#cbd5e1}
   <button class="menu-item" onclick="toggleMenu(); toggleTheme()" id="themeBtn">🌙 Dark Mode</button>
   <button class="menu-item" onclick="toggleMenu(); shareApp()">📲 ऐप शेयर करें</button>
   <button class="menu-item" onclick="toggleMenu(); backup()">📥 बैकअप डाउनलोड करें</button>
-  <button class="menu-item" onclick="toggleMenu(); el('restoreFile').click()">📤 बैकअप वापस डालें (Restore)</button>
+  <button class="menu-item" onclick="toggleMenu(); document.getElementById('restoreFile').click()">📤 बैकअप वापस डालें (Restore)</button>
   <button class="menu-item" onclick="toggleMenu(); exportCSV()">📊 Excel रिपोर्ट (CSV)</button>
 </div>
 
@@ -533,7 +533,7 @@ function resetLogo(){
  alert("डिफ़ॉल्ट लोगो वापस आ गया है।");
 }
 
-/* बैकअप डाउनलोड और रीस्टोर (अपडेट) फंक्शन्स */
+/* बैकअप डाउनलोड और रीस्टोर फंक्शन्स */
 function backup(){
  const blob = new Blob([JSON.stringify(bookings, null, 2)], {type:"application/json"});
  download(blob, "WORK-Manager-Backup.json");
