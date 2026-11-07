@@ -353,22 +353,23 @@ alt="बिजनेस लोगो">
       <button class="danger" style="padding:6px 12px; font-size:14px;" onclick="closeItemsModal()">बंद करें</button>
     </div>
 
+    <!-- केवल नया सामान जोड़ने या एडिट करने का फॉर्म -->
     <form id="itemForm" onsubmit="saveItem(event)">
       <input type="hidden" id="editItemId">
-      <label>सामान का नाम *</label>
-      <input id="itemName" required placeholder="जैसे: टेंट, कुर्सी, बर्तन...">
+      <label id="itemFormTitle">नया सामान जोड़ें *</label>
+      <input id="itemName" required placeholder="जैसे: टेंट, कुर्सी, चीनी...">
       
-      <label>मात्रा / विवरण (ग्राहक से मंगाने हेतु)</label>
-      <input id="itemQty" placeholder="जैसे: 50 पीस / 1 सेट (मात्रा डालते ही यह शेयर लिस्ट में आ जाएगा)">
+      <label>मात्रा / क्वांटिटी (ग्राहक से मंगाने हेतु)</label>
+      <input id="itemQty" placeholder="जैसे: 5 बोरियां / 50 पीस">
 
-      <button type="submit" id="saveItemBtn" style="margin-top:10px;">सामान जोड़ें</button>
+      <button type="submit" id="saveItemBtn" style="margin-top:10px;">सामान सेव करें</button>
       <button type="button" class="secondary" onclick="resetItemForm()">साफ करें</button>
     </form>
 
     <hr style="margin:20px 0; border:0; border-top:1px solid #ddd;">
 
     <div>
-      <h4 style="color:#166534; margin:0 0 10px;">⚡ एक साथ कई सामान जोड़ें (युट्यूब टैग या कॉमा की तरह)</h4>
+      <h4 style="color:#166534; margin:0 0 10px;">⚡ एक साथ कई सामान जोड़ें (YouTube टैग या कॉमा की तरह)</h4>
       <p class="small" style="margin-bottom:8px;">सामान के नाम कॉमा (,) लगाकर या नई लाइन में लिखकर एक साथ जोड़ सकते हैं:</p>
       <textarea id="bulkItemsInput" rows="3" placeholder="जैसे: कुर्सी, टेबल, तंबू, जनरेटर, लाइट..."></textarea>
       <button type="button" class="secondary" style="margin-top:8px; width:100%;" onclick="saveBulkItems()">एक साथ सभी सामान जोड़ें</button>
@@ -378,7 +379,7 @@ alt="बिजनेस लोगो">
 
     <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
       <h4 style="color:#166534; margin:0;">📋 कुल सामान (<span id="totalItemsCount">0</span>)</h4>
-      <button class="whatsapp" style="padding:6px 12px; font-size:14px; margin:0;" onclick="shareFilteredItemsWhatsApp()">📲 मंगाने वाला सामान WhatsApp करें</button>
+      <button class="whatsapp" style="padding:6px 12px; font-size:14px; margin:0;" onclick="shareSelectedItemsWhatsApp()">📲 टिक किया सामान WhatsApp करें</button>
     </div>
 
     <input id="searchItem" placeholder="सामान खोजें..." oninput="renderItemsList()" style="margin-bottom:10px; font-size:16px; padding:10px;">
@@ -608,7 +609,8 @@ function saveItem(e){
   businessItems.push({
    id: String(Date.now() + Math.random()),
    name: name,
-   qty: qty
+   qty: qty,
+   selected: true // डिफ़ॉल्ट रूप से सिलेक्टेड रहेगा
   });
  }
 
@@ -620,7 +622,9 @@ function saveItem(e){
 function resetItemForm(){
  el("itemForm").reset();
  el("editItemId").value = "";
- el("saveItemBtn").textContent = "सामान जोड़ें";
+ el("saveItemBtn").textContent = "सामान सेव करें";
+ el("itemFormTitle").textContent = "नया सामान जोड़ें *";
+ el("itemName").readOnly = false;
 }
 
 function editItem(id){
@@ -628,9 +632,11 @@ function editItem(id){
  if(!item) return;
  el("editItemId").value = item.id;
  el("itemName").value = item.name;
+ el("itemName").readOnly = true; // नाम लॉक रहेगा, सिर्फ क्वांटिटी बदल सकेंगे
  el("itemQty").value = item.qty || "";
- el("saveItemBtn").textContent = "बदलाव सेव करें";
- el("itemName").focus();
+ el("saveItemBtn").textContent = "मात्रा सेव करें";
+ el("itemFormTitle").textContent = "✏️ सामान की मात्रा बदलें: " + item.name;
+ el("itemQty").focus();
 }
 
 function deleteItem(id){
@@ -638,6 +644,15 @@ function deleteItem(id){
   businessItems = businessItems.filter(x => String(x.id) !== String(id));
   localStorage.setItem(ITEMS_KEY, JSON.stringify(businessItems));
   renderItemsList();
+ }
+}
+
+/* TOGGLE ITEM CHECKBOX */
+function toggleItemCheck(id){
+ const item = businessItems.find(x => String(x.id) === String(id));
+ if(item){
+  item.selected = !item.selected;
+  localStorage.setItem(ITEMS_KEY, JSON.stringify(businessItems));
  }
 }
 
@@ -658,7 +673,8 @@ function saveBulkItems(){
    businessItems.push({
     id: String(Date.now() + Math.random() + addedCount),
     name: cleanName,
-    qty: ""
+    qty: "",
+    selected: true
    });
    addedCount++;
   }
@@ -670,12 +686,13 @@ function saveBulkItems(){
  alert(addedCount + " नए सामान सफलतापूर्वक सूची में जुड़ गए हैं!");
 }
 
-/* SHARE ONLY ITEMS THAT HAVE QUANTITY/EDITED VIA WHATSAPP */
-function shareFilteredItemsWhatsApp(){
- const itemsToRequest = businessItems.filter(item => item.qty && item.qty.trim() !== "");
+/* SHARE SELECTED ITEMS VIA WHATSAPP */
+function shareSelectedItemsWhatsApp(){
+ // जो टिक किए हुए हैं और जिनकी मात्रा भरी है, उन्हें छांटें
+ const itemsToRequest = businessItems.filter(item => item.selected !== false && item.qty && item.qty.trim() !== "");
 
  if(itemsToRequest.length === 0){
-  alert("मंगाने के लिए किसी भी सामान में मात्रा (Quantity) दर्ज नहीं की गई है। कृपया पहले किसी सामान में मात्रा भरें।");
+  alert("शेयर करने के लिए कोई सामान नहीं चुना गया है या किसी भी सामान में मात्रा (Quantity) नहीं भरी गई है। कृपया मात्रा भरें।");
   return;
  }
 
@@ -686,7 +703,7 @@ function shareFilteredItemsWhatsApp(){
  itemsToRequest.forEach((item, index) => {
   msg += `${index + 1}. ${item.name} — *${item.qty}*\n`;
  });
- msg += `\nकृэй उपरोक्त सामान जल्द भिजवाने की कृपा करें। धन्यवाद!`;
+ msg += `\nकृपया उपरोक्त सामान जल्द भिजवाने की कृपा करें। धन्यवाद!`;
 
  window.open("https://wa.me/?text=" + encodeURIComponent(msg), "_blank");
 }
@@ -702,13 +719,16 @@ function renderItemsList(){
 
  container.innerHTML = list.length ? list.map((item, idx) => `
   <div style="display:flex; justify-content:space-between; align-items:center; background:#f8fafc; border:1px solid #ddd; padding:8px 12px; margin-bottom:6px; border-radius:6px;">
-    <div>
-      <b>${idx+1}. ${escapeHTML(item.name)}</b>
-      ${item.qty ? '<span class="small" style="color:#166534; font-weight:bold;"> ('+escapeHTML(item.qty)+')</span>' : '<span class="small" style="color:#999;"> (मात्रा नहीं)</span>'}
+    <div style="display:flex; align-items:center; gap:10px; flex:1;">
+      <input type="checkbox" ${item.selected !== false ? "checked" : ""} onclick="toggleItemCheck('${item.id}')" style="width:24px; height:24px; cursor:pointer;">
+      <div>
+        <b>${idx+1}. ${escapeHTML(item.name)}</b>
+        ${item.qty ? '<br><span class="small" style="color:#166534; font-weight:bold;">मात्रा: '+escapeHTML(item.qty)+'</span>' : '<br><span class="small" style="color:#b91c1c;">(मात्रा नहीं भरी गई)</span>'}
+      </div>
     </div>
     <div>
-      <button class="secondary" style="padding:4px 8px; font-size:14px; margin:0 2px;" onclick="editItem('${item.id}')">✏️</button>
-      <button class="danger" style="padding:4px 8px; font-size:14px; margin:0 2px;" onclick="deleteItem('${item.id}')">🗑️</button>
+      <button class="secondary" style="padding:6px 10px; font-size:14px; margin:0 2px;" onclick="editItem('${item.id}')">✏️ मात्रा लिखें</button>
+      <button class="danger" style="padding:6px 10px; font-size:14px; margin:0 2px;" onclick="deleteItem('${item.id}')">🗑️</button>
     </div>
   </div>
  `).join("") : "<p class='small'>कोई सामान नहीं मिला।</p>";
@@ -1446,7 +1466,7 @@ try {
   const oldLocal = JSON.parse(localStorage.getItem("panditJiBookings") || "[]");
   if (Array.isArray(oldLocal) && oldLocal.length &&
       !sessionStorage.getItem(LEGACY_SESSION_KEY)) {
-    sessionStorage.setItem(LEGACY_SESSION_KEY, JSON.stringify(oldLocal));
+    sessionStorage.getItem(LEGACY_SESSION_KEY, JSON.stringify(oldLocal));
   }
 } catch {}
 const app = initializeApp(firebaseConfig);
