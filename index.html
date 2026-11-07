@@ -422,8 +422,8 @@ oninput="showAllBookings=false;render()">
 
 <div class="row">
 <div>
-<label>समय</label>
-<input id="time" type="time">
+<label>समय / शिफ्ट</label>
+<input id="time" type="text" placeholder="जैसे: सुबह / शाम / 10 AM">
 </div>
 
 <div>
@@ -439,10 +439,18 @@ oninput="showAllBookings=false;render()">
 </div>
 
 <div>
+<label>भुगतान का माध्यम</label>
+<select id="payMethod">
+<option>नकद (Cash)</option>
+<option>UPI (PhonePe/GPay)</option>
+<option>बैंक ट्रांसफर</option>
+<option>अन्य</option>
+</select>
+</div>
+</div>
+
 <label>रिमाइंडर तारीख</label>
 <input id="reminder" type="date">
-</div>
-</div>
 
 <label>बुकिंग की स्थिति</label>
 <select id="status">
@@ -673,9 +681,10 @@ el("bookingForm").addEventListener("submit",function(e){
   address:el("address").value.trim(),
   date:el("date").value,
   endDate:el("endDate").value,
-  time:el("time").value,
+  time:el("time").value.trim(),
   amount:amount,
   advance:advance,
+  payMethod:el("payMethod").value,
   reminder:el("reminder").value,
   status:el("status").value,
   notes:el("notes").value
@@ -730,9 +739,9 @@ function editBooking(id){
  [
   "name","phone","customerCity","category","address",
   "date","endDate","time","amount",
-  "advance","reminder","status","notes"
+  "advance","payMethod","reminder","status","notes"
  ].forEach(k=>{
-  el(k).value=b[k]??"";
+  if(el(k)) el(k).value=b[k]??"";
  });
 
  if(b.category==="शादी / पार्टी") el("category").value="शादी पार्टी";
@@ -797,10 +806,10 @@ function shareBooking(id){
 पता: ${b.address||"नहीं दिया"}
 तारीख: ${b.date}
 समाप्ति: ${b.endDate||"नहीं दी"}
-समय: ${b.time||"नहीं दिया"}
+समय/शिफ्ट: ${b.time||"नहीं दिया"}
 
 कुल रकम: ₹${b.amount}
-एडवांस: ₹${b.advance}
+एडवांस: ₹${b.advance} (${b.payMethod||"नकद"})
 बाकी: ₹${Number(b.amount||0)-Number(b.advance||0)}
 स्थिति: ${b.status}
 
@@ -938,13 +947,13 @@ function render(){
  📍 कार्यक्रम का पता: ${escapeHTML(b.address||"पता नहीं दिया")}<br>
 
  📅 ${escapeHTML(b.date||"-")}
- ${escapeHTML(b.time||"")}
+ ${b.time?"("+escapeHTML(b.time)+")":""}
  ${b.endDate?"से "+escapeHTML(b.endDate):""}<br>
 
  कुल रकम:
  <span class="amount">${money(b.amount)}</span><br>
 
- एडवांस: ${money(b.advance)}
+ एडवांस: ${money(b.advance)} (${escapeHTML(b.payMethod||"नकद")})
  | बाकी: <b>${money(Number(b.amount||0)-Number(b.advance||0))}</b><br>
 
  स्थिति: <b>${escapeHTML(b.status)}</b>
@@ -1070,7 +1079,7 @@ function restore(e){
 function exportCSV(){
 
  const rows=[
-  ["नाम","मोबाइल","काम","पता","तारीख","समय","कुल रकम","एडवांस","बाकी","स्थिति"]
+  ["नाम","मोबाइल","काम","पता","तारीख","समय/शिफ्ट","कुल रकम","एडवांस","भुगतान माध्यम","बाकी","स्थिति"]
  ];
 
  bookings.forEach(b=>rows.push([
@@ -1082,6 +1091,7 @@ function exportCSV(){
   b.time,
   b.amount,
   b.advance,
+  b.payMethod,
   Number(b.amount||0)-Number(b.advance||0),
   b.status
  ]));
