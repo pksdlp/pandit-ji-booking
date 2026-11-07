@@ -465,17 +465,30 @@ function initFirebase(){
     setSync("अभी डेटा इस मोबाइल में सेव है। Google Login के बाद Cloud Sync चालू होगा।")
    }
   });
-  el("googleLoginBtn").onclick=async()=>{
+  el"googleLoginBtn").onclick=async()=>{
    try{const provider=new firebase.auth.GoogleAuthProvider();await auth.signInWithPopup(provider)}
    catch(e){if(e.code==="auth/popup-blocked"||e.code==="auth/popup-closed-by-user"){try{await auth.signInWithRedirect(new firebase.auth.GoogleAuthProvider())}catch(x){alert("Login समस्या: "+x.message)}}else alert("Google Login समस्या: "+e.message)}
   };
   el("googleLogoutBtn").onclick=()=>{if(confirm("क्या Logout करना चाहते हैं?"))auth.signOut()}
- }catch(e){console.error(e);el("authStatus").textContent="Firebase शुरू नहीं हो पाया: "+e.message}
+ }catch(e){con(sole.error(e);el("authStatus").textContent="Firebase शुरू नहीं हो पाया: "+e.message}
 }
 
 loadBusinessProfile();loadLogo();loadTheme();renderBookings();renderStats();renderItemsList();initFirebase();
 // ऐप खुला रहने पर भी तारीख बदलते ही पुरानी बुकिंग अपने-आप काम पूरा सूची में चली जाए।
 setInterval(()=>{renderBookings();renderStats();},60*1000);
+</script>
+ <script>
+if ("serviceWorker" in navigator) {
+  window.addEventListener("load", function () {
+    navigator.serviceWorker.register("./sw.js")
+      .then(function (registration) {
+        console.log("Service Worker Registered:", registration.scope);
+      })
+      .catch(function (error) {
+        console.error("Service Worker Error:", error);
+      });
+  });
+}
 </script>
 </body>
 </html>
