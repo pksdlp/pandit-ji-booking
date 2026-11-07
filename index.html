@@ -48,7 +48,10 @@ h3{margin:0 0 12px;color:var(--primary);font-size:20px}body.dark h3{color:#4ade8
 label{display:block;font-size:15px;margin:12px 0 6px;color:var(--muted);font-weight:600}
 input,select,textarea{width:100%;padding:12px;border:1px solid var(--border);border-radius:10px;font-size:16px;background:var(--input);color:var(--text);font-family:inherit}
 input:focus,select:focus,textarea:focus{outline:2px solid rgba(22,101,52,.35);border-color:var(--primary)}
-input[type=checkbox]{width:20px;height:20px;padding:0}
+input[type=checkbox]{-webkit-appearance:none;appearance:none;width:26px;height:26px;min-width:26px;padding:0;margin:0;border:2px solid #94a3b8;border-radius:7px;background:#fff;cursor:pointer;position:relative}
+input[type=checkbox]:checked{background:#16a34a;border-color:#16a34a}
+input[type=checkbox]:checked::after{content:"";position:absolute;left:7px;top:2px;width:6px;height:12px;border:solid #fff;border-width:0 3px 3px 0;transform:rotate(45deg)}
+.qty-input{width:130px!important;padding:6px 9px!important;font-size:14px!important;margin-top:4px;border-radius:8px!important}
 textarea{min-height:70px;resize:vertical}
 button{border:0;border-radius:10px;padding:11px 14px;background:var(--primary);color:#fff;font-size:15px;margin:5px 3px 0 0;cursor:pointer;font-family:inherit;box-shadow:0 1px 2px rgba(0,0,0,.15);transition:transform .08s}
 button:active{transform:scale(.97)}
@@ -69,6 +72,8 @@ footer{text-align:center;padding:18px 10px;font-size:13px;color:var(--muted)}
 .modal,.sub-modal{position:fixed;inset:0;background:#0009;display:none;z-index:2000;justify-content:center;align-items:center;padding:15px}
 .modal.show,.sub-modal.show{display:flex}.modal-content{background:var(--card);color:var(--text);width:100%;max-width:600px;max-height:90vh;border-radius:16px;padding:20px;overflow-y:auto}
 .sub-modal{z-index:2500}.sub-modal-content{background:var(--card);color:var(--text);width:100%;max-width:400px;border-radius:16px;padding:20px}
+.serial{display:inline-block;min-width:30px;text-align:center;background:var(--primary);color:#fff;border-radius:8px;padding:1px 7px;font-size:13px;margin-right:7px}
+#pdfTableBody tr{page-break-inside:avoid}
 #pdfInvoiceTemplate{display:none;background:#fff;padding:25px;color:#222;width:600px;font-family:"Noto Sans Devanagari","Mangal",Arial,sans-serif}
 @media(max-width:420px){body{font-size:16px}.container{padding:10px}.card{padding:13px}.row{grid-template-columns:1fr}.menu-btn,.lang-btn{font-size:14px;padding:6px 11px}header h2{font-size:22px}}
 </style>
@@ -108,15 +113,19 @@ footer{text-align:center;padding:18px 10px;font-size:13px;color:var(--muted)}
 <div class="modal" id="itemsModal"><div class="modal-content">
 <div style="display:flex;justify-content:space-between;align-items:center;border-bottom:2px solid var(--primary);padding-bottom:8px;margin-bottom:12px">
 <h3 style="margin:0">📦 सामान की सूची</h3><button class="danger" onclick="closeItemsModal()">बंद करें</button></div>
-<form id="itemForm" onsubmit="saveItem(event)">
-<label>नया सामान जोड़ें *</label><input id="itemName" required placeholder="जैसे: टेंट, कुर्सी...">
-<label>मात्रा / क्वांटिटी</label><input id="itemQty" placeholder="जैसे: 50 पीस">
-<button type="submit">सामान सेव करें</button></form>
+<label>सामान एक साथ जोड़ें (कॉमा , से अलग करें)</label>
+<textarea id="bulkItems" rows="4" placeholder="जैसे: टेंट, कुर्सी, दरी, माइक:2, गैस सिलेंडर:3 पीस" oninput="updateBulkCount()"></textarea>
+<div class="small" id="bulkCount"></div>
+<button type="button" onclick="saveBulkItems()">➕ सभी सामान जोड़ें</button><button type="button" class="secondary" onclick="el('bulkItems').value='';updateBulkCount()">साफ़ करें</button>
+<p class="small">💡 हर सामान कॉमा (,) से अलग लिखें। मात्रा भी डालनी हो तो नाम के बाद : लगाएँ, जैसे दरी:10। जिस सामान में मात्रा भरी हो वह अपने-आप चुना (हरा टिक) हो जाता है। एक बार में 500 तक सामान डाल सकते हैं।</p>
 <hr style="margin:18px 0;border:0;border-top:1px solid var(--border)">
 <div style="display:flex;justify-content:space-between;align-items:center;gap:8px">
 <h4 style="color:var(--primary);margin:0">कुल सामान (<span id="totalItemsCount">0</span>)</h4>
 <button class="whatsapp" onclick="downloadAndShareItemsPDF()">📥 PDF डाउनलोड / WhatsApp</button></div>
-<div id="itemsListContainer" style="max-height:300px;overflow-y:auto"></div>
+<input id="itemSearch" placeholder="🔎 सामान खोजें..." oninput="renderItemsList()" style="margin-top:10px">
+<div class="small" id="itemsSelInfo" style="margin-top:6px"></div>
+<div><button class="secondary" onclick="setAllChecked(true)">✔ सभी चुनें</button><button class="secondary" onclick="setAllChecked(false)">✖ कोई नहीं</button><button class="danger" onclick="deleteSelectedItems()">🗑️ चुने हुए हटाएं</button></div>
+<div id="itemsListContainer" style="max-height:45vh;overflow-y:auto;margin-top:6px"></div>
 </div></div>
 
 <div class="sub-modal" id="editItemModal"><div class="sub-modal-content">
@@ -225,6 +234,17 @@ const EN={
 "📋 बुकिंग की सूची":"📋 Booking List","🔎 ग्राहक का नाम खोजें...":"🔎 Search customer name...","स्टेटस फ़िल्टर":"Status filter","सभी":"All","महीना फ़िल्टर":"Month filter",
 "🔐 Google Login और Cloud Sync":"🔐 Google Login & Cloud Sync","Google से Login करें":"Login with Google","🔄 अभी Sync करें":"🔄 Sync now",
 /* डायनामिक संदेश */
+"सामान एक साथ जोड़ें (कॉमा , से अलग करें)":"Add many items at once (separate with comma ,)",
+"जैसे: टेंट, कुर्सी, दरी, माइक:2, गैस सिलेंडर:3 पीस":"e.g. Tent, Chair, Mat, Mic:2, Gas cylinder:3 pcs",
+"➕ सभी सामान जोड़ें":"➕ Add all items","साफ़ करें":"Clear",
+"💡 हर सामान कॉमा (,) से अलग लिखें। मात्रा भी डालनी हो तो नाम के बाद : लगाएँ, जैसे दरी:10। जिस सामान में मात्रा भरी हो वह अपने-आप चुना (हरा टिक) हो जाता है। एक बार में 500 तक सामान डाल सकते हैं।":"💡 Write each item separated by a comma (,). To add quantity, put : after the name, e.g. Mat:10. An item with a quantity is selected automatically (green tick). You can add up to 500 items at once.",
+"🔎 सामान खोजें...":"🔎 Search items...","✔ सभी चुनें":"✔ Select all","✖ कोई नहीं":"✖ Select none","🗑️ चुने हुए हटाएं":"🗑️ Delete selected",
+"{n} नए सामान मिले":"{n} new items found","{d} पहले से सूची में हैं":"{d} already in list",
+"कोई नया सामान नहीं मिला। कॉमा से अलग करके नाम लिखें।":"No new items found. Write names separated by commas.",
+"एक बार में अधिकतम 500 सामान जोड़ें।":"Add at most 500 items at a time.",
+"{n} नए सामान जोड़े गए।":"{n} new items added.","{d} सामान पहले से सूची में थे, छोड़ दिए गए।":"{d} items were already in the list and were skipped.",
+"कोई सामान चुना नहीं है।":"No item is selected.","चुने हुए {n} सामान हटाएं? यह वापस नहीं होगा।":"Delete the {n} selected items? This cannot be undone.",
+"चुने हुए: {s} / कुल: {n}":"Selected: {s} / Total: {n}","कोई सामान नहीं मिला।":"No items match.","कम से कम एक सामान चुनें।":"Select at least one item.",
 "मोबाइल की मेमोरी भर गई है, डेटा सेव नहीं हो पाया।":"Phone storage is full; data could not be saved.",
 "Cloud Sync में समस्या: ":"Cloud Sync problem: ","कृपया इंटरनेट और Firestore Rules जांचें।":"Please check internet and Firestore Rules.",
 "Cloud से हटाने में समस्या: ":"Problem deleting from Cloud: ","बिजनेस प्रोफाइल सेव हो गई।":"Business profile saved.","संचालक:":"Owner:",
@@ -260,7 +280,7 @@ const EN={
 let LANG=localStorage.getItem(LANG_KEY)==="en"?"en":"hi";
 function t(s){return LANG==="en"&&Object.prototype.hasOwnProperty.call(EN,s)?EN[s]:s}
 function tf(s,v){return t(s).replace(/\{(\w+)\}/g,(m,k)=>v[k]??"")}
-const DYN_SEL="#syncStatus,#authStatus,#bookingList,#itemsListContainer,#bookingDetailContent,#headerBusinessSub,#headerBusinessName,#pdfBizName,#pdfBizSub,#pdfBizPhone,#pdfTableBody,#totalItemsCount,#newBookingBtn,#saveBtn,#langHeaderBtn,#themeBtn,#langMenuBtn";
+const DYN_SEL="#syncStatus,#authStatus,#bookingList,#itemsListContainer,#bookingDetailContent,#headerBusinessSub,#headerBusinessName,#pdfBizName,#pdfBizSub,#pdfBizPhone,#pdfTableBody,#totalItemsCount,#newBookingBtn,#saveBtn,#langHeaderBtn,#themeBtn,#langMenuBtn,#bulkCount,#itemsSelInfo";
 function translateStatic(){
  const w=document.createTreeWalker(document.body,NodeFilter.SHOW_TEXT),nodes=[];let n;
  while(n=w.nextNode())nodes.push(n);
@@ -287,7 +307,7 @@ function applyLang(){
  el("newBookingBtn").textContent=t(el("bookingFormPanel").classList.contains("hidden")?"➕ नई बुकिंग जोड़ें":"✕ फॉर्म बंद करें");
  el("saveBtn").textContent=t(el("editId").value?"बदलाव सेव करें":"बुकिंग सेव करें");
  setSync(lastSync.k,lastSync.x);setAuth(lastAuth.k,lastAuth.x);
- applyBusinessProfile(profile);renderBookings();renderStats();renderItemsList();
+ applyBusinessProfile(profile);renderBookings();renderStats();renderItemsList();updateBulkCount();
  if(el("bookingDetailModal").classList.contains("show")&&detailId)showBookingDetails(detailId);
 }
 function toggleLang(){LANG=LANG==="en"?"hi":"en";localStorage.setItem(LANG_KEY,LANG);applyLang()}
@@ -298,6 +318,12 @@ let businessItems=safeParse(localStorage.getItem(ITEMS_KEY),[]);
 let profile=safeParse(localStorage.getItem(BIZ_PROFILE_KEY),{});
 if(!Array.isArray(bookings))bookings=[];
 if(!Array.isArray(businessItems))businessItems=[];
+function normalizeItems(){
+ businessItems=businessItems.filter(i=>i&&typeof i==="object");
+ businessItems.forEach((it,i)=>{if(typeof it.ord!=="number")it.ord=i+1});
+ businessItems.sort((a,b)=>a.ord-b.ord);
+}
+normalizeItems();
 if(!profile||typeof profile!=="object"||Array.isArray(profile))profile={};
 let auth=null, fdb=null, currentUser=null, cloudReady=false, unsubBookings=null, unsubItems=null, unsubProfile=null, detailId=null;
 
@@ -392,7 +418,7 @@ function restore(e){
    if(d.logo){profile.logo=d.logo;try{localStorage.setItem(LOGO_KEY,d.logo)}catch(x){}}else{localStorage.removeItem(LOGO_KEY)}
   }
   bookings=bookings.filter(b=>b&&typeof b==="object").map(b=>({...b,id:String(b.id||uid())}));
-  businessItems=businessItems.filter(i=>i&&typeof i==="object").map(i=>({...i,id:String(i.id||uid())}));
+  businessItems=businessItems.filter(i=>i&&typeof i==="object").map(i=>({...i,id:String(i.id||uid())}));normalizeItems();
   saveLocal();applyBusinessProfile(profile);renderBookings();renderStats();renderItemsList();
   if(currentUser&&fdb){
    setSync("Restore किया गया डेटा Cloud पर भेजा जा रहा है...");
@@ -419,9 +445,61 @@ function toggleTheme(){document.body.classList.toggle("dark");localStorage.setIt
 function loadTheme(){if(localStorage.getItem(THEME_KEY)==="1")document.body.classList.add("dark");el("themeBtn").textContent=document.body.classList.contains("dark")?"☀️ Light Mode":"🌙 Dark Mode"}
 
 /* ---------- Inventory ---------- */
-function saveItem(e){
- e.preventDefault();const name=el("itemName").value.trim(),qty=el("itemQty").value.trim();if(!name)return;
- const item={id:uid(),name,qty,selected:true};businessItems.push(item);saveLocal();saveItemCloud(item);el("itemForm").reset();renderItemsList()
+function parseBulk(txt){
+ const seen=new Set(businessItems.map(i=>String(i.name||"").trim().toLowerCase()));
+ const out=[];let dup=0;
+ String(txt||"").split(/[,\n，、;]+/).forEach(raw=>{
+  const part=raw.trim();if(!part)return;
+  let name=part,qty="";const ix=part.indexOf(":");
+  if(ix>0){name=part.slice(0,ix).trim();qty=part.slice(ix+1).trim()}
+  if(!name)return;
+  const k=name.toLowerCase();
+  if(seen.has(k)){dup++;return}
+  seen.add(k);out.push({name,qty});
+ });
+ return {out,dup};
+}
+function updateBulkCount(){
+ const box=el("bulkItems");if(!box)return;
+ const r=parseBulk(box.value);
+ el("bulkCount").textContent=box.value.trim()?tf("{n} नए सामान मिले",{n:r.out.length})+(r.dup?" • "+tf("{d} पहले से सूची में हैं",{d:r.dup}):""):"";
+}
+async function cloudBatchItems(sets,delIds){
+ if(!currentUser||!fdb||!cloudReady)return;
+ try{
+  const base=userBase().collection("inventory"),ops=[];
+  sets.forEach(i=>ops.push(b=>b.set(base.doc(String(i.id)),i)));
+  delIds.forEach(id=>ops.push(b=>b.delete(base.doc(String(id)))));
+  for(let i=0;i<ops.length;i+=400){const batch=fdb.batch();ops.slice(i,i+400).forEach(f=>f(batch));await batch.commit()}
+ }catch(e){console.error(e);setSync("Cloud Sync में समस्या: ",e.message)}
+}
+function saveBulkItems(){
+ const r=parseBulk(el("bulkItems").value);
+ if(!r.out.length){alert(t("कोई नया सामान नहीं मिला। कॉमा से अलग करके नाम लिखें।"));return}
+ if(r.out.length>500){alert(t("एक बार में अधिकतम 500 सामान जोड़ें।"));return}
+ let ord=businessItems.reduce((m,i)=>Math.max(m,i.ord||0),0);
+ const added=r.out.map((x,i)=>({id:uid()+"_"+i,name:x.name,qty:x.qty,selected:!!x.qty,ord:++ord}));
+ businessItems=businessItems.concat(added);
+ saveLocal();cloudBatchItems(added,[]);
+ el("bulkItems").value="";updateBulkCount();renderItemsList();
+ alert(tf("{n} नए सामान जोड़े गए।",{n:added.length})+(r.dup?" "+tf("{d} सामान पहले से सूची में थे, छोड़ दिए गए।",{d:r.dup}):""));
+}
+function visibleItems(){
+ const q=(el("itemSearch")?el("itemSearch").value:"").trim().toLowerCase();
+ return businessItems.map((it,i)=>({it,i})).filter(x=>!q||String(x.it.name||"").toLowerCase().includes(q));
+}
+function setAllChecked(v){
+ const vis=visibleItems().map(x=>x.it);
+ vis.forEach(i=>{i.selected=v});
+ saveLocal();cloudBatchItems(vis,[]);renderItemsList();
+}
+function deleteSelectedItems(){
+ const sel=businessItems.filter(i=>i.selected!==false);
+ if(!sel.length){alert(t("कोई सामान चुना नहीं है।"));return}
+ if(!confirm(tf("चुने हुए {n} सामान हटाएं? यह वापस नहीं होगा।",{n:sel.length})))return;
+ const ids=new Set(sel.map(i=>String(i.id)));
+ businessItems=businessItems.filter(i=>!ids.has(String(i.id)));
+ saveLocal();cloudBatchItems([],[...ids]);renderItemsList();
 }
 function editItem(id){
  const item=businessItems.find(x=>String(x.id)===String(id));if(!item)return;
@@ -429,7 +507,7 @@ function editItem(id){
 }
 function updateSingleItem(e){
  e.preventDefault();const id=el("modalEditId").value,item=businessItems.find(x=>String(x.id)===String(id));if(!item)return;
- item.name=el("modalEditName").value.trim();item.qty=el("modalEditQty").value.trim();saveLocal();saveItemCloud(item);closeEditModal();renderItemsList()
+ const oldQty=item.qty||"";item.name=el("modalEditName").value.trim();item.qty=el("modalEditQty").value.trim();if(item.qty!==oldQty)item.selected=!!item.qty;saveLocal();saveItemCloud(item);closeEditModal();renderItemsList()
 }
 function deleteItem(id){
  if(!confirm(t("इस सामान को डिलीट करें?")))return;
@@ -439,26 +517,35 @@ function toggleItemCheck(id){
  const item=businessItems.find(x=>String(x.id)===String(id));
  if(item){item.selected=!(item.selected!==false);saveLocal();saveItemCloud(item)}
 }
+function updateItemsSelInfo(){
+ const all=businessItems.length,sel=businessItems.filter(i=>i.selected!==false).length;
+ el("totalItemsCount").textContent=all;
+ el("itemsSelInfo").textContent=tf("चुने हुए: {s} / कुल: {n}",{s:sel,n:all});
+}
 function renderItemsList(){
- if(!el("itemsListContainer"))return;el("totalItemsCount").textContent=businessItems.length;
- el("itemsListContainer").innerHTML=businessItems.length?businessItems.map((it,i)=>`
+ if(!el("itemsListContainer"))return;
+ const ae=document.activeElement,fid=ae&&ae.dataset?ae.dataset.qty:undefined,fpos=fid?ae.selectionStart:null;
+ const all=businessItems.length,vis=visibleItems();
+ updateItemsSelInfo();
+ el("itemsListContainer").innerHTML=vis.length?vis.map(({it,i})=>`
  <div class="item-row">
  <div style="display:flex;align-items:center;gap:8px;min-width:0"><input type="checkbox" ${it.selected!==false?"checked":""} data-check="${esc(it.id)}">
- <div><b>${i+1}. ${esc(it.name)}</b><br><small>${t("मात्रा:")} ${it.qty?esc(it.qty):t("नहीं भरी")}</small></div></div>
- <div style="white-space:nowrap"><button class="secondary" data-act="item-edit" data-id="${esc(it.id)}">✏️</button><button class="danger" data-act="item-del" data-id="${esc(it.id)}">🗑️</button></div></div>`).join(""):`<p class='small'>${t("कोई सामान नहीं है।")}</p>`
+ <div><b><span class="serial">${i+1}</span>${esc(it.name)}</b><br><input class="qty-input" data-qty="${esc(it.id)}" value="${esc(it.qty||"")}" placeholder="${esc(t("मात्रा"))}"></div></div>
+ <div style="white-space:nowrap"><button class="secondary" data-act="item-edit" data-id="${esc(it.id)}">✏️</button><button class="danger" data-act="item-del" data-id="${esc(it.id)}">🗑️</button></div></div>`).join(""):`<p class='small'>${t(all?"कोई सामान नहीं मिला।":"कोई सामान नहीं है।")}</p>`;
+ if(fid){const n=el("itemsListContainer").querySelector('[data-qty="'+(window.CSS&&CSS.escape?CSS.escape(fid):fid)+'"]');if(n){n.focus();try{n.setSelectionRange(fpos,fpos)}catch(e){}}}
 }
 async function downloadAndShareItemsPDF(){
- const list=businessItems.filter(i=>i.selected!==false&&String(i.qty||"").trim());
- if(!list.length){alert(t("कम से कम एक सामान की मात्रा भरें और उसे चुना हुआ रखें।"));return}
+ const list=businessItems.filter(i=>i.selected!==false);
+ if(!list.length){alert(t("कम से कम एक सामान चुनें।"));return}
  if(!window.html2pdf){alert(t("PDF लाइब्रेरी लोड नहीं हुई। इंटरनेट चालू करके दोबारा प्रयास करें।"));return}
  el("pdfBizName").textContent=profile.bizName||"WORK MANAGER";
  el("pdfBizSub").textContent=(profile.ownerName?t("संचालक:")+" "+profile.ownerName+" ":"")+(profile.bizAddress||"");
  el("pdfBizPhone").textContent=profile.bizPhone?t("मोबाइल:")+" "+profile.bizPhone:"";
  el("pdfLogoImg").src=localStorage.getItem(LOGO_KEY)||profile.logo||DEFAULT_LOGO;
- el("pdfTableBody").innerHTML=list.map((it,i)=>`<tr><td style="border:1px solid #ddd;padding:8px;text-align:center">${i+1}</td><td style="border:1px solid #ddd;padding:8px">${esc(it.name)}</td><td style="border:1px solid #ddd;padding:8px">${esc(it.qty)}</td></tr>`).join("");
+ el("pdfTableBody").innerHTML=list.map((it,i)=>`<tr><td style="border:1px solid #ddd;padding:8px;text-align:center">${i+1}</td><td style="border:1px solid #ddd;padding:8px">${esc(it.name)}</td><td style="border:1px solid #ddd;padding:8px">${esc(it.qty||"-")}</td></tr>`).join("");
  const box=el("pdfInvoiceTemplate");box.style.display="block";
  try{
-  await html2pdf().from(box).set({margin:10,filename:"Saman-List.pdf",image:{type:"jpeg",quality:.98},html2canvas:{scale:2,useCORS:true},jsPDF:{unit:"mm",format:"a4",orientation:"portrait"}}).save();
+  await html2pdf().from(box).set({margin:10,filename:"Saman-List.pdf",image:{type:"jpeg",quality:.98},html2canvas:{scale:2,useCORS:true},jsPDF:{unit:"mm",format:"a4",orientation:"portrait"},pagebreak:{mode:["css","legacy"],avoid:"tr"}}).save();
   alert(t("PDF डाउनलोड हो गई। अब WhatsApp में PDF फाइल खुद अटैच करके भेजें।"));
   const msg=t("नमस्ते, सामान की सूची की PDF संलग्न है। कृपया समय पर सामान मंगवा कर रखें। धन्यवाद!");
   window.open("https://wa.me/?text="+encodeURIComponent(msg),"_blank")
@@ -584,6 +671,17 @@ document.addEventListener("click",e=>{
   case "item-del":deleteItem(id);break;
  }
 });
+const qtyTimers={},pendingQty=new Set();
+document.addEventListener("input",e=>{
+ const id=e.target.dataset?e.target.dataset.qty:undefined;
+ if(id===undefined||id==="")return;
+ const item=businessItems.find(x=>String(x.id)===String(id));if(!item)return;
+ item.qty=e.target.value.trim();item.selected=!!item.qty;
+ const row=e.target.closest(".item-row"),cb=row&&row.querySelector("[data-check]");if(cb)cb.checked=item.selected;
+ updateItemsSelInfo();saveLocal();
+ pendingQty.add(String(id));clearTimeout(qtyTimers[id]);
+ qtyTimers[id]=setTimeout(()=>{pendingQty.delete(String(id));saveItemCloud(item)},700);
+});
 document.addEventListener("change",e=>{
  const id=e.target.dataset&&e.target.dataset.check;
  if(id!==undefined&&id!=="")toggleItemCheck(id)
@@ -629,14 +727,14 @@ async function migrateOrLoadCloud(){
    await syncAllToCloud(false);
   }else{
    bookings=bs.docs.map(d=>({...d.data(),id:d.id}));
-   businessItems=is.docs.map(d=>({...d.data(),id:d.id}));
+   businessItems=is.docs.map(d=>({...d.data(),id:d.id}));normalizeItems();
    if(ps.exists)profile=ps.data();
    saveLocal();
   }
   cloudReady=true;renderBookings();renderStats();renderItemsList();applyBusinessProfile(profile);
   stopListeners();
   unsubBookings=base.collection("bookings").onSnapshot(s=>{if(!cloudReady)return;bookings=s.docs.map(d=>({...d.data(),id:d.id}));saveLocal();renderBookings();renderStats()},e=>setSync("बुकिंग Sync समस्या: ",e.message));
-  unsubItems=base.collection("inventory").onSnapshot(s=>{if(!cloudReady)return;businessItems=s.docs.map(d=>({...d.data(),id:d.id}));saveLocal();renderItemsList()},e=>setSync("सामान Sync समस्या: ",e.message));
+  unsubItems=base.collection("inventory").onSnapshot(s=>{if(!cloudReady)return;const loc=new Map(businessItems.map(i=>[String(i.id),i]));businessItems=s.docs.map(d=>(pendingQty.has(d.id)&&loc.has(d.id))?loc.get(d.id):({...d.data(),id:d.id}));normalizeItems();saveLocal();renderItemsList()},e=>setSync("सामान Sync समस्या: ",e.message));
   unsubProfile=base.collection("profile").doc("main").onSnapshot(s=>{if(s.exists){profile=s.data();saveLocal();applyBusinessProfile(profile)}},e=>setSync("प्रोफाइल Sync समस्या: ",e.message));
   setSync("✅ Cloud Sync चालू है। इस Google अकाउंट से दूसरे मोबाइल पर लॉगिन करें।")
  }catch(e){console.error(e);cloudReady=false;setSync("Cloud Sync शुरू नहीं हुआ: ",e.message+t(" | Firestore Rules जांचें।"))}
