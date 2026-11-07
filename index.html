@@ -352,10 +352,26 @@ function shareBooking(id){
 }
 function renderBookings(){
  const q=el("searchInput").value.trim().toLowerCase(),st=el("statusFilter").value,mo=el("monthFilter").value;
- let list=bookings.filter(b=>(!st||b.status===st)&&(!mo||String(b.date||"").startsWith(mo))&&(!q||String(b.name||"").toLowerCase().includes(q)));
- list.sort((a,b)=>String(a.date||"").localeCompare(String(b.date||"")));
- el("bookingList").innerHTML=list.length?list.map(b=>`
- <div class="booking ${b.status==="काम पूरा"?"completed":""}" onclick="showBookingDetails('${esc(b.id)}')">
+ const filtered=bookings.filter(b=>(!st||b.status===st)&&(!mo||String(b.date||"").startsWith(mo))&&(!q||String(b.name||"").toLowerCase().includes(q)));
+ const today=new Date();today.setHours(0,0,0,0);
+ const dateValue=b=>{const d=new Date(String(b.date||"")+"T00:00:00");return Number.isNaN(d.getTime())?null:d;};
+ const upcoming=filtered.filter(b=>b.status!=="काम पूरा");
+ const completed=filtered.filter(b=>b.status==="काम पूरा");
+ // नजदीकी आने वाली तारीखें पहले; बीती हुई तारीखें उसके बाद, हाल की बीती तारीख पहले।
+ upcoming.sort((a,b)=>{
+  const da=dateValue(a),db=dateValue(b);
+  if(!da)return 1;if(!db)return -1;
+  const af=da>=today,bf=db>=today;
+  if(af!==bf)return af?-1:1;
+  return af?da-db:db-da;
+ });
+ // काम पूरा बुकिंग नीचे अलग सूची में तारीख के क्रम में।
+ completed.sort((a,b)=>{
+  const da=dateValue(a),db=dateValue(b);
+  if(!da)return 1;if(!db)return -1;
+  return da-db;
+ });
+ const card=b=>`<div class="booking ${b.status==="काम पूरा"?"completed":""}" onclick="showBookingDetails('${esc(b.id)}')">
   <div class="booking-row">
    <strong>${esc(b.name||"बिना नाम")}</strong>
    <span class="small">${esc(b.address||"पता उपलब्ध नहीं")}</span>
@@ -367,7 +383,11 @@ function renderBookings(){
    <button class="whatsapp" onclick="shareBooking('${esc(b.id)}')">WhatsApp</button>
    <button class="danger" onclick="deleteBooking('${esc(b.id)}')">डिलीट</button>
   </div>
- </div>`).join(""):"<p class='small'>कोई बुकिंग नहीं मिली।</p>"
+ </div>`;
+ let html="";
+ if(upcoming.length)html+=`<h3 style="margin:16px 0 6px">📅 आने वाली बुकिंग — सबसे नजदीकी तारीख पहले</h3>`+upcoming.map(card).join("");
+ if(completed.length)html+=`<h3 style="margin:22px 0 6px">✅ काम पूरा — तारीख के अनुसार</h3>`+completed.map(card).join("");
+ el("bookingList").innerHTML=html||"<p class='small'>कोई बुकिंग नहीं मिली।</p>";
 }
 function renderStats(){
  const active=bookings.filter(b=>b.status!=="रद्द");const total=active.reduce((s,b)=>s+(+b.amount||0),0),adv=active.reduce((s,b)=>s+(+b.advance||0),0);
