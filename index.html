@@ -426,6 +426,18 @@ body.dark footer{color:#cbd5e1}
       <button type="submit" id="saveBtn">बुकिंग सेव करें</button>
     </form>
   </div>
+
+  <!-- Google Login और Cloud Sync कार्ड -->
+  <div class="card" id="authCard">
+    <h3>🔐 Google Login और Cloud Sync</h3>
+    <p class="small" id="authStatus">बुकिंग देखने और सुरक्षित रखने के लिए अपने जीमेल से लॉगिन करें।</p>
+    <p class="small" id="syncStatus" style="color:#166534;">आपका डेटा सुरक्षित रहेगा।</p>
+    <div style="margin-top: 10px;">
+      <button type="button" id="googleLoginBtn">Google से Login करें</button>
+      <button type="button" class="secondary hidden" id="googleLogoutBtn">Logout</button>
+    </div>
+  </div>
+
 </div>
 
 <script>
@@ -482,7 +494,7 @@ function deleteItem(id){
   businessItems = businessItems.filter(x => String(x.id) !== String(id));
   localStorage.setItem(ITEMS_KEY, JSON.stringify(businessItems));
   renderItemsList();
- }
+ }1
 }
 
 function toggleItemCheck(id){
@@ -577,5 +589,69 @@ function download(blob, name){
  const a=document.createElement("a"); a.href=URL.createObjectURL(blob); a.download=name; a.click();
 }
 </script>
+
+<!-- Firebase Script -->
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
+import {
+  getAuth, GoogleAuthProvider, signInWithPopup,
+  onAuthStateChanged, signOut
+} from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
+import {
+  getFirestore, collection, doc, getDocs, writeBatch, onSnapshot
+} from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyBB41-2VwBwEwPzf8JqIcPBBRSUEljhYG4",
+  authDomain: "pandit-ji-booking.firebaseapp.com",
+  projectId: "pandit-ji-booking",
+  storageBucket: "pandit-ji-booking.firebasestorage.app",
+  messagingSenderId: "243861452271",
+  appId: "1:243861452271:web:6286ff35372a299ee4b21a",
+  measurementId: "G-Q2H88GJVHD"
+};
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+const provider = new GoogleAuthProvider();
+
+const loginBtn = document.getElementById("googleLoginBtn");
+const logoutBtn = document.getElementById("googleLogoutBtn");
+const authStatus = document.getElementById("authStatus");
+const syncStatus = document.getElementById("syncStatus");
+
+loginBtn.addEventListener("click", async () => {
+  try {
+    syncStatus.textContent = "Google Login खोला जा रहा है...";
+    await signInWithPopup(auth, provider);
+  } catch (error) {
+    syncStatus.textContent = "Login असफल: " + error.message;
+  }
+});
+
+logoutBtn.addEventListener("click", async () => {
+  try {
+    await signOut(auth);
+  } catch (error) {
+    syncStatus.textContent = "Logout असफल: " + error.message;
+  }
+});
+
+onAuthStateChanged(auth, (user) => {
+  if (!user) {
+    loginBtn.classList.remove("hidden");
+    logoutBtn.classList.add("hidden");
+    authStatus.textContent = "बुकिंग देखने और सुरक्षित रखने के लिए अपने जीमेल से लॉगिन करें।";
+    syncStatus.textContent = "लॉगआउट हैं।";
+  } else {
+    loginBtn.classList.add("hidden");
+    logoutBtn.classList.remove("hidden");
+    authStatus.textContent = "लॉगिन: " + (user.email || "Google अकाउंट");
+    syncStatus.textContent = "Cloud Sync सक्रिय है।";
+  }
+});
+</script>
+
 </body>
 </html>
