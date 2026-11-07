@@ -1,4 +1,4 @@
-const CACHE_NAME = "work-manager-v4";
+const CACHE_NAME = "work-manager-v5";
 
 const FILES_TO_CACHE = [
   "./",
