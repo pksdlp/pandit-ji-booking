@@ -4,9 +4,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="theme-color" content="#166534">
+<link rel="manifest" href="./manifest.webmanifest">
 <title>WORK MANAGER | Smart Booking &amp; Management</title>
-
-<!-- html2pdf.js लाइब्रेरी PDF जनरेट करने के लिए -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 
 <style>
@@ -25,20 +24,6 @@ header{
  color:white;
  padding:18px 12px;
  text-align:center;
- position: relative;
-}
-
-.menu-btn{
- position: absolute;
- top: 15px;
- left: 15px;
- background: rgba(255,255,255,0.2);
- color: white;
- border: 1px solid #fff;
- border-radius: 6px;
- padding: 8px 12px;
- font-size: 18px;
- cursor: pointer;
 }
 
 .header-photo{
@@ -52,65 +37,6 @@ header{
 
 header h2{font-size:29px;margin:8px 0}
 header div{font-size:19px}
-
-/* SIDE MENU DRAWER */
-.side-menu{
- position: fixed;
- top: 0;
- left: -300px;
- width: 300px;
- height: 100%;
- background: white;
- box-shadow: 2px 0 10px rgba(0,0,0,0.3);
- transition: 0.3s ease;
- z-index: 1000;
- padding: 20px;
- overflow-y: auto;
- text-align: left;
- color: #222;
-}
-
-.side-menu.open{ left: 0; }
-
-.side-menu h3{
- margin-top: 0;
- border-bottom: 2px solid #166534;
- padding-bottom: 10px;
-}
-
-.menu-close{
- background: #b91c1c;
- float: right;
- padding: 5px 10px;
- font-size: 16px;
- margin: 0;
-}
-
-.menu-item{
- display: block;
- width: 100%;
- text-align: left;
- background: #f1f5f2;
- color: #222;
- padding: 12px;
- margin: 8px 0;
- border-radius: 6px;
- font-size: 17px;
- border: 1px solid #ddd;
- cursor: pointer;
-}
-
-.menu-item:hover{ background: #e2e8f0; }
-
-.overlay{
- position: fixed;
- top: 0; left: 0; width: 100%; height: 100%;
- background: rgba(0,0,0,0.5);
- display: none;
- z-index: 999;
-}
-
-.overlay.show{ display: block; }
 
 .container{
  padding:12px;
@@ -180,7 +106,8 @@ button.secondary{background:#475569}
 button.danger{background:#b91c1c}
 button.orange{background:#c66b0b}
 button.whatsapp{background:#25D366;color:white}
-button.pdfbtn{background:#0284c7;color:white}
+button.theme{background:#334155;margin-top:12px}
+button.shareapp{background:#0f766e}
 
 .row{
  display:grid;
@@ -197,6 +124,8 @@ button.pdfbtn{background:#0284c7;color:white}
 
 .booking-complete{border:2px solid #16a34a;background:#f0fdf4}
 .booking-complete .booking-title{background:#dcfce7;color:#14532d}
+body.dark .booking-complete{background:#183323;border-color:#22c55e}
+body.dark .booking-complete .booking-title{background:#244b32;color:#bbf7d0}
 
 .booking-title{
  width:100%;
@@ -235,472 +164,913 @@ footer{
  background:transparent;
 }
 
-/* MODAL FOR ITEMS LIST */
-.modal{
- position:fixed;
- top:0; left:0; width:100%; height:100%;
- background:rgba(0,0,0,0.6);
- display:none;
- z-index:2000;
- justify-content:center;
- align-items:center;
- padding:15px;
-}
-.modal.show{ display:flex; }
-.modal-content{
- background:white;
- width:100%;
- max-width:600px;
- max-height:90vh;
- border-radius:12px;
- padding:20px;
- overflow-y:auto;
-}
-
-/* SUB-MODAL FOR EDITING SINGLE ITEM */
-.sub-modal{
- position:fixed;
- top:0; left:0; width:100%; height:100%;
- background:rgba(0,0,0,0.5);
- display:none;
- z-index:2500;
- justify-content:center;
- align-items:center;
- padding:15px;
-}
-.sub-modal.show{ display:flex; }
-.sub-modal-content{
- background:white;
- width:100%;
- max-width:400px;
- border-radius:12px;
- padding:20px;
- box-shadow:0 4px 15px rgba(0,0,0,0.3);
-}
-
 body.dark{
  background:#121212;
  color:#eeeeee;
 }
-body.dark .card, body.dark .side-menu, body.dark .modal-content, body.dark .sub-modal-content{
+
+body.dark .card{
  background:#242424;
  color:#eeeeee;
 }
-body.dark .menu-item{
- background:#333;
- color:#fff;
+
+body.dark .booking{border-color:#555}
+
+body.dark h3{color:#86efac}
+
+body.dark .booking-title{
+ background:#303b32;
+ color:#86efac;
+}
+
+body.dark .booking-details{
  border-color:#555;
 }
-body.dark .booking{border-color:#555}
-body.dark h3{color:#86efac}
-body.dark .booking-title{ background:#303b32; color:#86efac; }
-body.dark .booking-details{ border-color:#555; }
-body.dark input, body.dark select, body.dark textarea{
- background:#333; color:white; border-color:#666;
+
+body.dark input,
+body.dark select,
+body.dark textarea{
+ background:#333;
+ color:white;
+ border-color:#666;
 }
+
 body.dark .small{color:#cccccc}
-body.dark .stat{ background:#303b32; color:white; }
-body.dark .stat strong, body.dark .amount{color:#86efac}
+
+body.dark .stat{
+ background:#303b32;
+ color:white;
+}
+
+body.dark .stat strong,
+body.dark .amount{color:#86efac}
+
 body.dark footer{color:#cbd5e1}
+
+@media(max-width:380px){
+ button{font-size:16px;padding:12px}
+ .row{gap:6px}
+ .header-photo{width:95px;height:95px}
+}
 </style>
 </head>
 
 <body>
 
 <header>
-<button class="menu-btn" onclick="toggleMenu()">☰ मेनू</button>
-<img class="header-photo" id="headerLogoImg" src="./hanuman-blessing.png" alt="लोगो">
-<h2 id="headerBusinessName">WORK MANAGER</h2>
-<div id="headerBusinessSub">Smart Booking &amp; Management</div>
+
+<img class="header-photo"
+src="./hanuman-blessing.png"
+alt="बजरंग बली">
+
+<h2>WORK MANAGER</h2>
+<div>Smart Booking &amp; Management</div>
+
+<button class="theme" onclick="toggleTheme()" id="themeBtn">
+🌙 Dark Mode
+</button>
+
+<button class="shareapp" onclick="shareApp()">
+📲 ऐप शेयर करें
+</button>
+
+<button type="button" id="googleLoginBtn">Google से Login करें</button>
+<button type="button" class="secondary hidden" id="googleLogoutBtn">Logout</button>
+
 </header>
 
-<div class="overlay" id="menuOverlay" onclick="toggleMenu()"></div>
-<div class="side-menu" id="sideMenu">
-  <button class="menu-close" onclick="toggleMenu()">✕ बंद करें</button>
-  <h3>⚙️ सेटिंग्स और मेनू</h3>
-  
-  <div style="margin: 15px 0; background:#f8fafc; padding:10px; border-radius:6px; border:1px solid #ddd;">
-    <label style="font-size: 15px; margin-bottom: 4px; font-weight:bold;">🏢 बिजनेस प्रोफाइल</label>
-    <input type="text" id="bizNameInput" placeholder="दुकान / बिजनेस का नाम" style="font-size:14px; padding:8px; margin-bottom:6px;">
-    <input type="text" id="ownerNameInput" placeholder="संचालक का नाम" style="font-size:14px; padding:8px; margin-bottom:6px;">
-    <input type="tel" id="bizPhoneInput" placeholder="मोबाइल नंबर" style="font-size:14px; padding:8px; margin-bottom:6px;">
-    <input type="text" id="bizAddressInput" placeholder="पूरा पता" style="font-size:14px; padding:8px; margin-bottom:8px;">
-    <button type="button" style="font-size:14px; padding:8px; width:100%;" onclick="saveBusinessProfile()">प्रोफाइल सेव करें</button>
-  </div>
-
-  <div style="margin: 15px 0;">
-    <label style="font-size: 15px; margin-bottom: 5px; font-weight:bold;">🖼️ बिजनेस लोगो बदलें</label>
-    <input type="file" id="logoInput" accept="image/*" onchange="uploadLogo(event)" style="font-size: 13px; padding: 4px;">
-    <button type="button" class="secondary" style="margin-top:6px; font-size:13px; padding:6px; width:100%;" onclick="resetLogo()">डिफ़ॉल्ट लोगो वापस लाएं</button>
-  </div>
-
-  <button class="menu-item" onclick="toggleMenu(); openItemsModal()">📦 सामान की सूची (Inventory)</button>
-  <button class="menu-item" onclick="toggleMenu(); toggleTheme()" id="themeBtn">🌙 Dark Mode</button>
-  <button class="menu-item" onclick="toggleMenu(); shareApp()">📲 ऐप शेयर करें</button>
-  <button class="menu-item" onclick="toggleMenu(); backup()">📥 बैकअप डाउनलोड करें</button>
-  <button class="menu-item" onclick="toggleMenu(); document.getElementById('restoreFile').click()">📤 बैकअप वापस डालें (Restore)</button>
-  <button class="menu-item" onclick="toggleMenu(); exportCSV()">📊 Excel रिपोर्ट (CSV)</button>
-</div>
-
-<!-- हिडन फाइल इनपुट रीस्टोर के लिए -->
-<input type="file" id="restoreFile" accept=".json" hidden onchange="restore(event)">
-
-<!-- सामान की सूची मॉडेल -->
-<div class="modal" id="itemsModal">
-  <div class="modal-content">
-    <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:2px solid #166534; padding-bottom:8px; margin-bottom:12px;">
-      <h3 style="margin:0;">📦 सामान की सूची (मैनेजमेंट)</h3>
-      <button class="danger" style="padding:6px 12px; font-size:14px;" onclick="closeItemsModal()">बंद करें</button>
-    </div>
-
-    <form id="itemForm" onsubmit="saveItem(event)">
-      <label>नया सामान जोड़ें *</label>
-      <input id="itemName" required placeholder="जैसे: टेंट, कुर्सी...">
-      <label>मात्रा / क्वांटिटी</label>
-      <input id="itemQty" placeholder="जैसे: 50 पीस">
-      <button type="submit" style="margin-top:10px;">सामान सेव करें</button>
-    </form>
-
-    <hr style="margin:20px 0; border:0; border-top:1px solid #ddd;">
-    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
-      <h4 style="color:#166534; margin:0;">📋 कुल सामान (<span id="totalItemsCount">0</span>)</h4>
-      <button class="whatsapp" style="padding:6px 12px; font-size:14px; margin:0;" onclick="downloadAndShareItemsPDF()">📥 PDF भेजें WhatsApp</button>
-    </div>
-    <div id="itemsListContainer" style="max-height:250px; overflow-y:auto;"></div>
-  </div>
-</div>
-
-<!-- एडिट सामान पॉप-अप -->
-<div class="sub-modal" id="editItemModal">
-  <div class="sub-modal-content">
-    <h3 style="margin-top:0; color:#166534; border-bottom:2px solid #166534; padding-bottom:8px;">✏️ सामान एडिट करें</h3>
-    <form id="editItemForm" onsubmit="updateSingleItem(event)">
-      <input type="hidden" id="modalEditId">
-      <label>सामान का नाम *</label>
-      <input id="modalEditName" required>
-      <label>मात्रा / क्वांटिटी *</label>
-      <input id="modalEditQty" required>
-      <div style="margin-top:15px; display:flex; gap:10px;">
-        <button type="submit" style="flex:1; margin:0;">सेव करें</button>
-        <button type="button" class="danger" style="flex:1; margin:0;" onclick="closeEditModal()">रद्द</button>
-      </div>
-    </form>
-  </div>
-</div>
-
-<!-- PDF टेम्पलेट -->
-<div id="pdfInvoiceTemplate" style="display:none; background:#ffffff; padding:25px; color:#222; width:600px;">
-  <div style="text-align:center; border-bottom:3px solid #166534; padding-bottom:15px; margin-bottom:20px;">
-    <img id="pdfLogoImg" src="./hanuman-blessing.png" style="width:80px; height:80px; object-fit:cover; border-radius:50%; border:2px solid #166534;">
-    <h2 id="pdfBizName" style="color:#166534; margin:10px 0 5px;">WORK MANAGER</h2>
-    <div id="pdfBizSub" style="font-size:16px; color:#555;"></div>
-    <div id="pdfBizPhone" style="font-size:16px; color:#555; margin-top:3px;"></div>
-  </div>
-  <h3 style="text-align:center; color:#166534;">📦 मंगवाने वाले सामान की सूची</h3>
-  <table style="width:100%; border-collapse:collapse; margin-top:10px; font-size:16px;">
-    <thead>
-      <tr style="background:#e8f5e9; color:#166534;">
-        <th style="border:1px solid #ddd; padding:10px;">क्र.</th>
-        <th style="border:1px solid #ddd; padding:10px;">सामान का नाम</th>
-        <th style="border:1px solid #ddd; padding:10px;">मात्रा</th>
-      </tr>
-    </thead>
-    <tbody id="pdfTableBody"></tbody>
-  </table>
-  <div style="margin-top:30px; text-align:center; font-size:16px; border-top:1px dashed #ccc; padding-top:15px;">
-    <p><b>नोट:</b> कृपया उपरोक्त सामान समय पर मंगवा कर रखें। धन्यवाद!</p>
-  </div>
-</div>
-
 <div class="container">
-  <div class="card">
-    <h3>📊 बुकिंग का हिसाब</h3>
-    <div class="stats">
-      <div class="stat">कुल बुकिंग<strong id="totalCount">0</strong></div>
-      <div class="stat">कुल रकम<strong id="totalAmount">₹0</strong></div>
-    </div>
-  </div>
 
-  <div class="card">
-    <h3>➕ नई बुकिंग जोड़ें</h3>
-    <form id="bookingForm">
-      <input type="hidden" id="editId">
-      <label>ग्राहक का नाम *</label>
-      <input id="name" required placeholder="नाम">
-      <label>मोबाइल नंबर</label>
-      <input id="phone" type="tel" placeholder="नंबर">
-      <label>तारीख *</label>
-      <input id="date" type="date" required>
-      <label>कुल रकम ₹ *</label>
-      <input id="amount" type="number" required placeholder="0">
-      <button type="submit" id="saveBtn">बुकिंग सेव करें</button>
-    </form>
-  </div>
+<div class="card">
+<h3>📊 बुकिंग का हिसाब</h3>
 
-  <!-- Google Login और Cloud Sync कार्ड -->
+<div class="stats">
+<div class="stat">कुल बुकिंग<strong id="totalCount">0</strong></div>
+<div class="stat">कुल रकम<strong id="totalAmount">₹0</strong></div>
+<div class="stat">एडवांस<strong id="totalAdvance">₹0</strong></div>
+<div class="stat">बाकी रकम<strong id="totalDue">₹0</strong></div>
+</div>
+</div>
+
+<div class="card">
+<h3>📋 बुकिंग की सूची</h3>
+
+<input id="search"
+placeholder="नाम, मोबाइल या गांव/शहर से खोजें..."
+oninput="showAllBookings=false;render()">
+
+<div class="row">
+<select id="filter" onchange="showAllBookings=false;render()">
+<option value="">सभी बुकिंग</option>
+<option>पक्की</option>
+<option>बातचीत जारी</option>
+<option>काम पूरा</option>
+<option>रद्द</option>
+</select>
+
+<select id="monthFilter" onchange="showAllBookings=false;render()">
+<option value="">सभी महीने</option>
+</select>
+</div>
+
+<div id="bookingList"></div>
+</div>
+
+
+<div class="card">
+<h3>➕ नई बुकिंग जोड़ें</h3>
+
+<form id="bookingForm">
+
+<input type="hidden" id="editId">
+
+<label>ग्राहक का नाम *</label>
+<input id="name" required placeholder="ग्राहक का नाम">
+
+<label>मोबाइल नंबर</label>
+<input id="phone" type="tel" placeholder="मोबाइल नंबर">
+
+<label>ग्राहक का गांव / शहर</label>
+<input id="customerCity" placeholder="ग्राहक का गांव / शहर">
+
+<label>बुकिंग का काम</label>
+
+<select id="category" onchange="toggleOtherWork()">
+<option>शादी पार्टी</option>
+<option>कच्ची रसोई</option>
+<option>रोटी बनाना</option>
+<option>कॉफी स्टॉल</option>
+<option>चाय स्टॉल</option>
+<option>जूस स्टॉल</option>
+<option value="अन्य">अन्य काम (लिखें)</option>
+</select>
+
+<div id="otherWorkBox" class="hidden">
+<label>काम का नाम लिखें *</label>
+<input id="otherWork" placeholder="अपना काम लिखें">
+</div>
+
+<label>कार्यक्रम का पता</label>
+<input id="address" placeholder="गांव / शहर / पूरा पता">
+
+<div class="row">
+<div>
+<label>शुरू होने की तारीख *</label>
+<input id="date" type="date" required>
+</div>
+
+<div>
+<label>समाप्ति की तारीख</label>
+<input id="endDate" type="date">
+</div>
+</div>
+
+<div class="row">
+<div>
+<label>समय</label>
+<input id="time" type="time">
+</div>
+
+<div>
+<label>कुल रकम ₹ *</label>
+<input id="amount" type="number" min="0" required placeholder="0">
+</div>
+</div>
+
+<div class="row">
+<div>
+<label>एडवांस ₹</label>
+<input id="advance" type="number" min="0" value="0">
+</div>
+
+<div>
+<label>रिमाइंडर तारीख</label>
+<input id="reminder" type="date">
+</div>
+</div>
+
+<label>बुकिंग की स्थिति</label>
+<select id="status">
+<option>पक्की</option>
+<option>बातचीत जारी</option>
+<option>काम पूरा</option>
+<option>रद्द</option>
+</select>
+
+<label>अन्य जानकारी</label>
+<textarea id="notes" rows="2" placeholder="कोई जरूरी बात..."></textarea>
+
+<button type="submit" id="saveBtn">बुकिंग सेव करें</button>
+
+<button type="button" class="secondary" onclick="resetForm()">
+फॉर्म साफ करें
+</button>
+
+<p id="message"></p>
+
+</form>
+</div>
+
+
+<div class="card">
+<h3>📦 सामान की सूची (Inventory)</h3>
+<form id="itemForm">
+<label>नया सामान *</label>
+<input id="itemName" required placeholder="जैसे: टेंट, कुर्सी, चाय पत्ती">
+<label>मात्रा / क्वांटिटी</label>
+<input id="itemQty" placeholder="जैसे: 50 पीस">
+<button type="submit">सामान सेव करें</button>
+</form>
+<div style="display:flex;justify-content:space-between;align-items:center;gap:8px;margin-top:15px;">
+<b>कुल सामान: <span id="totalItemsCount">0</span></b>
+<button type="button" class="whatsapp" onclick="downloadItemsPDF()">📄 सामान की PDF</button>
+</div>
+<div id="itemsListContainer"></div>
+<p class="small">सामान की सूची भी लॉगिन होने पर दूसरे मोबाइल में Sync होगी।</p>
+</div>
+
+<div class="card">
+<h3>📅 रिपोर्ट और बैकअप</h3>
+
+<p class="small">
+अपना डेटा सुरक्षित रखने के लिए समय-समय पर बैकअप डाउनलोड करें।
+</p>
+
+<button onclick="backup()">बैकअप डाउनलोड करें</button>
+
+<button class="secondary" onclick="el('restoreFile').click()">
+बैकअप वापस डालें
+</button>
+
+<input type="file" id="restoreFile"
+accept=".json" hidden onchange="restore(event)">
+
+<button class="orange" onclick="exportCSV()">
+Excel के लिए CSV रिपोर्ट
+</button>
+
+<p class="small" id="report"></p>
+</div>
+
   <div class="card" id="authCard">
     <h3>🔐 Google Login और Cloud Sync</h3>
-    <p class="small" id="authStatus">बुकिंग देखने और सुरक्षित रखने के लिए अपने जीमेल से लॉगिन करें।</p>
-    <p class="small" id="syncStatus" style="color:#166534;">आपका डेटा सुरक्षित रहेगा।</p>
-    <div style="margin-top: 10px;">
-      <button type="button" id="googleLoginBtn">Google से Login करें</button>
-      <button type="button" class="secondary hidden" id="googleLogoutBtn">Logout</button>
-    </div>
+    <p class="small" id="authStatus">बुकिंग देखने और सेव करने के लिए अपने Gmail से लॉगिन करें。</p>
+    <p class="small" id="syncStatus">आपका डेटा आपके Google अकाउंट के साथ सुरक्षित रहेगा।</p>
   </div>
 
 </div>
 
+<div id="itemsPdfTemplate" style="display:none;background:#fff;color:#222;padding:24px;width:700px;">
+<div style="text-align:center;border-bottom:2px solid #166534;padding-bottom:12px;margin-bottom:16px;">
+<h2 style="color:#166534;margin:0;">WORK MANAGER</h2><p>मंगवाने वाले सामान की सूची</p></div>
+<table style="width:100%;border-collapse:collapse;font-size:16px;">
+<thead><tr style="background:#e8f5e9;"><th style="border:1px solid #ddd;padding:9px;">क्र.</th><th style="border:1px solid #ddd;padding:9px;">सामान</th><th style="border:1px solid #ddd;padding:9px;">मात्रा</th></tr></thead>
+<tbody id="itemsPdfBody"></tbody></table>
+<p style="text-align:center;margin-top:24px;">कृपया सामान समय पर मंगवा कर रखें। धन्यवाद!</p>
+</div>
+
+<footer>© 2026 WORK MANAGER | All Rights Reserved</footer>
+
 <script>
+
 const KEY="panditJiBookings";
-const LOGO_KEY="workManagerLogo";
-const BIZ_PROFILE_KEY="workManagerBizProfile";
 const ITEMS_KEY="workManagerItems";
+let businessItems=[];
+try{businessItems=JSON.parse(localStorage.getItem(ITEMS_KEY)||"[]");if(!Array.isArray(businessItems))businessItems=[];}catch(e){businessItems=[];}
 
-let bookings=JSON.parse(localStorage.getItem(KEY)||"[]");
-let businessItems=JSON.parse(localStorage.getItem(ITEMS_KEY)||"[]");
+let bookings=[];
 
-function el(id){ return document.getElementById(id); }
-function toggleMenu(){ el("sideMenu").classList.toggle("open"); el("menuOverlay").classList.toggle("show"); }
-function openItemsModal(){ el("itemsModal").classList.add("show"); renderItemsList(); }
-function closeItemsModal(){ el("itemsModal").classList.remove("show"); }
-
-/* बिजनेस प्रोफाइल सेव और लोड करने के फंक्शन्स */
-function saveBusinessProfile(){
- const profile = {
-  bizName: el("bizNameInput").value.trim() || "WORK MANAGER",
-  ownerName: el("ownerNameInput").value.trim(),
-  bizPhone: el("bizPhoneInput").value.trim(),
-  bizAddress: el("bizAddressInput").value.trim()
- };
- localStorage.setItem(BIZ_PROFILE_KEY, JSON.stringify(profile));
- applyBusinessProfile(profile);
- alert("बिजनेस प्रोफाइल सफलतापूर्वक सेव हो गई!");
- toggleMenu();
+try{
+ bookings=JSON.parse(localStorage.getItem(KEY)||"[]");
+ if(!Array.isArray(bookings))bookings=[];
+}catch(e){
+ bookings=[];
 }
 
-function loadBusinessProfile(){
- const saved = localStorage.getItem(BIZ_PROFILE_KEY);
- if(saved){
-  try{
-   const profile = JSON.parse(saved);
-   el("bizNameInput").value = profile.bizName || "";
-   el("ownerNameInput").value = profile.ownerName || "";
-   el("bizPhoneInput").value = profile.bizPhone || "";
-   el("bizAddressInput").value = profile.bizAddress || "";
-   applyBusinessProfile(profile);
-  }catch(e){}
- }
+function el(id){
+ return document.getElementById(id);
 }
 
-function applyBusinessProfile(profile){
- el("headerBusinessName").textContent = profile.bizName || "WORK MANAGER";
- let subText = profile.ownerName ? "संचालक: " + profile.ownerName : "";
- if(profile.bizAddress) subText += (subText ? " | " : "") + profile.bizAddress;
- el("headerBusinessSub").textContent = subText || "Smart Booking & Management";
+function money(n){
+ return "₹"+Number(n||0).toLocaleString("en-IN");
 }
 
-/* लोगो अपलोड और रीसेट करने के फंक्शन्स */
-function uploadLogo(event){
- const file = event.target.files[0];
- if(!file) return;
- const reader = new FileReader();
- reader.onload = function(e){
-  const base64Img = e.target.result;
-  localStorage.setItem(LOGO_KEY, base64Img);
-  applyLogo(base64Img);
-  alert("बिजनेस लोगो सफलतापूर्वक अपडेट हो गया!");
- };
- reader.readAsDataURL(file);
+/* THEME */
+
+function toggleTheme(){
+
+ document.body.classList.toggle("dark");
+
+ const dark=document.body.classList.contains("dark");
+
+ localStorage.setItem("panditTheme",dark?"dark":"light");
+
+ el("themeBtn").textContent=
+ dark?"☀️ Light Mode":"🌙 Dark Mode";
 }
 
-function applyLogo(src){
- const img = el("headerLogoImg");
- if(img) img.src = src;
+function loadTheme(){
+
+ const dark=localStorage.getItem("panditTheme")==="dark";
+
+ document.body.classList.toggle("dark",dark);
+
+ el("themeBtn").textContent=
+ dark?"☀️ Light Mode":"🌙 Dark Mode";
 }
 
-function loadLogo(){
- const saved = localStorage.getItem(LOGO_KEY);
- if(saved){
-  applyLogo(saved);
+/* APP SHARE */
+
+function shareApp(){
+
+ const url="https://pksdlp.github.io/pandit-ji-booking/";
+
+ if(navigator.share){
+
+  navigator.share({
+   title:"WORK MANAGER",
+   text:"WORK MANAGER – Smart Booking & Management",
+   url:url
+  }).catch(()=>{});
+
  }else{
-  applyLogo("./hanuman-blessing.png");
- }
-}
 
-function resetLogo(){
- localStorage.removeItem(LOGO_KEY);
- applyLogo("./hanuman-blessing.png");
- alert("डिफ़ॉल्ट लोगो वापस आ गया है।");
-}
-
-/* बैकअप डाउनलोड और रीस्टोर फंक्शन्स */
-function backup(){
- const blob = new Blob([JSON.stringify(bookings, null, 2)], {type:"application/json"});
- download(blob, "WORK-Manager-Backup.json");
-}
-
-function restore(e){
- const file = e.target.files[0];
- if(!file) return;
- const reader = new FileReader();
- reader.onload = () => {
-  try{
-   const data = JSON.parse(reader.result);
-   if(!Array.isArray(data)) throw Error();
-   if(confirm("क्या आप बैकअप फाइल से डेटा वापस डालना चाहते हैं?")){
-    bookings = data;
-    localStorage.setItem(KEY, JSON.stringify(bookings));
-    alert("बैकअप सफलतापूर्वक वापस आ गया है!");
-    location.reload();
-   }
-  }catch(err){
-   alert("यह सही बैकअप फाइल नहीं है।");
+  if(navigator.clipboard){
+   navigator.clipboard.writeText(url).then(()=>{
+    alert("ऐप का लिंक कॉपी हो गया। अब WhatsApp पर शेयर कर सकते हैं।");
+   }).catch(()=>{
+    prompt("इस लिंक को कॉपी करके शेयर करें:",url);
+   });
+  }else{
+   prompt("इस लिंक को कॉपी करके शेयर करें:",url);
   }
- };
- reader.readAsText(file);
- e.target.value = "";
+
+ }
 }
 
-function saveItem(e){
- e.preventDefault();
- const name = el("itemName").value.trim();
- const qty = el("itemQty").value.trim();
- if(!name) return;
- businessItems.push({ id: String(Date.now()), name, qty, selected: true });
- localStorage.setItem(ITEMS_KEY, JSON.stringify(businessItems));
- el("itemForm").reset();
+/* INVENTORY */
+function saveItems(deletedIds=[]){
+ localStorage.setItem(ITEMS_KEY,JSON.stringify(businessItems));
  renderItemsList();
+ if(window.firebaseSaveInventory) window.firebaseSaveInventory(businessItems,deletedIds);
 }
-
-function editItem(id){
- const item = businessItems.find(x => String(x.id) === String(id));
- if(!item) return;
- el("modalEditId").value = item.id;
- el("modalEditName").value = item.name;
- el("modalEditQty").value = item.qty || "";
- el("editItemModal").classList.add("show");
-}
-
-function closeEditModal(){ el("editItemModal").classList.remove("show"); }
-
-function updateSingleItem(e){
- e.preventDefault();
- const id = el("modalEditId").value;
- const item = businessItems.find(x => String(x.id) === String(id));
- if(item){
-  item.name = el("modalEditName").value.trim();
-  item.qty = el("modalEditQty").value.trim();
-  localStorage.setItem(ITEMS_KEY, JSON.stringify(businessItems));
-  closeEditModal();
-  renderItemsList();
- }
-}
-
-function deleteItem(id){
- if(confirm("डिलीट करें?")){
-  businessItems = businessItems.filter(x => String(x.id) !== String(id));
-  localStorage.setItem(ITEMS_KEY, JSON.stringify(businessItems));
-  renderItemsList();
- }
-}
-
-function toggleItemCheck(id){
- const item = businessItems.find(x => String(x.id) === String(id));
- if(item){ item.selected = !item.selected; localStorage.setItem(ITEMS_KEY, JSON.stringify(businessItems)); }
-}
-
 function renderItemsList(){
- const container = el("itemsListContainer");
- el("totalItemsCount").textContent = businessItems.length;
- container.innerHTML = businessItems.length ? businessItems.map((item, idx) => `
-  <div style="display:flex; justify-content:space-between; align-items:center; background:#f8fafc; border:1px solid #ddd; padding:8px; margin-bottom:6px; border-radius:6px;">
-    <div style="display:flex; align-items:center; gap:10px;">
-      <input type="checkbox" ${item.selected !== false ? "checked" : ""} onclick="toggleItemCheck('${item.id}')" style="width:20px; height:20px;">
-      <div><b>${idx+1}. ${item.name}</b><br><small style="color:#166534">मात्रा: ${item.qty || 'नहीं भरी'}</small></div>
-    </div>
-    <div>
-      <button class="secondary" style="padding:4px 8px; font-size:13px;" onclick="editItem('${item.id}')">✏️ एडिट</button>
-      <button class="danger" style="padding:4px 8px; font-size:13px;" onclick="deleteItem('${item.id}')">🗑️</button>
-    </div>
-  </div>
- `).join("") : "<p class='small'>कोई सामान नहीं है।</p>";
+ const box=el("itemsListContainer");
+ if(!box)return;
+ el("totalItemsCount").textContent=businessItems.length;
+ box.innerHTML=businessItems.length?businessItems.map((item,i)=>`<div style="display:flex;justify-content:space-between;align-items:center;gap:8px;border:1px solid #ddd;border-radius:8px;padding:9px;margin-top:8px;">
+ <label style="display:flex;align-items:center;gap:8px;margin:0;flex:1;"><input type="checkbox" ${item.selected!==false?"checked":""} onchange="toggleItemSelected('${encodeURIComponent(String(item.id))}')" style="width:20px;height:20px;"> <span><b>${i+1}. ${escapeHTML(item.name)}</b><br><small>मात्रा: ${escapeHTML(item.qty||"नहीं भरी")}</small></span></label>
+ <button type="button" class="secondary" onclick="editItem('${encodeURIComponent(String(item.id))}')">एडिट</button><button type="button" class="danger" onclick="deleteItem('${encodeURIComponent(String(item.id))}')">✕</button></div>`).join(""):"<p class='small'>अभी कोई सामान नहीं जोड़ा गया।</p>";
+}
+function toggleItemSelected(encodedId){const id=decodeURIComponent(encodedId);const item=businessItems.find(x=>String(x.id)===id);if(item){item.selected=!item.selected;saveItems();}}
+function editItem(encodedId){const id=decodeURIComponent(encodedId);const item=businessItems.find(x=>String(x.id)===id);if(!item)return;const name=prompt("सामान का नाम:",item.name);if(name===null)return;const qty=prompt("मात्रा / क्वांटिटी:",item.qty||"");if(qty===null)return;item.name=name.trim();item.qty=qty.trim();if(!item.name){alert("सामान का नाम खाली नहीं हो सकता।");return;}saveItems();}
+function deleteItem(encodedId){const id=decodeURIComponent(encodedId);if(!confirm("क्या यह सामान डिलीट करना चाहते हैं?"))return;businessItems=businessItems.filter(x=>String(x.id)!==id);saveItems([id]);}
+el("itemForm").addEventListener("submit",function(e){e.preventDefault();const name=el("itemName").value.trim();if(!name)return;businessItems.push({id:String(Date.now()),name,qty:el("itemQty").value.trim(),selected:true});el("itemForm").reset();saveItems();});
+function downloadItemsPDF(){const chosen=businessItems.filter(x=>x.selected!==false&&String(x.qty||"").trim());if(!chosen.length){alert("PDF बनाने के लिए कम से कम एक सामान की मात्रा भरें और उसे चुना हुआ रखें।");return;}if(!window.html2pdf){alert("PDF लाइब्रेरी लोड नहीं हुई। इंटरनेट चालू करके दोबारा प्रयास करें।");return;}el("itemsPdfBody").innerHTML=chosen.map((x,i)=>`<tr><td style="border:1px solid #ddd;padding:8px;text-align:center;">${i+1}</td><td style="border:1px solid #ddd;padding:8px;">${escapeHTML(x.name)}</td><td style="border:1px solid #ddd;padding:8px;">${escapeHTML(x.qty)}</td></tr>`).join("");const node=el("itemsPdfTemplate");node.style.display="block";html2pdf().from(node).set({margin:10,filename:"WORK-Manager-Saman-List.pdf",image:{type:"jpeg",quality:0.98},html2canvas:{scale:2},jsPDF:{unit:"mm",format:"a4",orientation:"portrait"}}).save().then(()=>{node.style.display="none";}).catch(err=>{node.style.display="none";alert("PDF नहीं बन पाई: "+err.message);});}
+
+/* OTHER WORK */
+
+function toggleOtherWork(){
+
+ const show=el("category").value==="अन्य";
+
+ el("otherWorkBox").classList.toggle("hidden",!show);
+
+ el("otherWork").required=show;
+
+ if(!show){
+  el("otherWork").value="";
+ }
 }
 
-function downloadAndShareItemsPDF(){
- const itemsToRequest = businessItems.filter(item => item.selected !== false && item.qty && item.qty.trim() !== "");
- if(itemsToRequest.length === 0){ alert("कृपया कम से कम एक सामान की मात्रा (Quantity) भरें।"); return; }
+/* SAVE DATA */
 
- const savedBiz = JSON.parse(localStorage.getItem(BIZ_PROFILE_KEY)||"{}");
- el("pdfBizName").textContent = savedBiz.bizName || "WORK MANAGER APP";
- el("pdfBizSub").textContent = (savedBiz.ownerName ? "संचालक: "+savedBiz.ownerName+" " : "") + (savedBiz.bizAddress ? "| "+savedBiz.bizAddress : "");
- el("pdfBizPhone").textContent = savedBiz.bizPhone ? "मोबाइल: "+savedBiz.bizPhone : "";
- const logoSrc = localStorage.getItem(LOGO_KEY) || "./hanuman-blessing.png";
- el("pdfLogoImg").src = logoSrc;
-
- el("pdfTableBody").innerHTML = itemsToRequest.map((item, i) => `
-  <tr>
-    <td style="border:1px solid #ddd; padding:8px; text-align:center;">${i+1}</td>
-    <td style="border:1px solid #ddd; padding:8px;"><b>${item.name}</b></td>
-    <td style="border:1px solid #ddd; padding:8px; color:#166534; font-weight:bold;">${item.qty}</td>
-  </tr>
- `).join("");
-
- const element = el("pdfInvoiceTemplate");
- element.style.display = "block";
-
- html2pdf().from(element).set({
-  margin: 10,
-  filename: 'Saman-List.pdf',
-  image: { type: 'jpeg', quality: 0.98 },
-  html2canvas: { scale: 2, useCORS: true },
-  jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
- }).save().then(() => {
-  element.style.display = "none";
-  businessItems.forEach(item => { item.qty = ""; item.selected = true; });
-  localStorage.setItem(ITEMS_KEY, JSON.stringify(businessItems));
-  renderItemsList();
-  alert("PDF फाइल डाउनलोड हो गई है और सूची अगली बार के लिए खाली हो गई है!");
-  window.open("https://wa.me/?text=" + encodeURIComponent("नमस्ते, सामान की PDF रसीद संलग्न है। कृपया समय पर मंगवा कर रखें। धन्यवाद!"), "_blank");
- });
+function saveData(deletedIds=[]){
+  localStorage.setItem(KEY,JSON.stringify(bookings));
+  render();
+  if(window.firebaseSaveData){
+    window.firebaseSaveData(bookings, deletedIds);
+  }
 }
 
-el("bookingForm").addEventListener("submit", function(e){
- e.preventDefault();
- bookings.push({
-  id: String(Date.now()),
-  name: el("name").value.trim(),
-  phone: el("phone").value.trim(),
-  date: el("date").value,
-  amount: Number(el("amount").value),
-  status: "पक्की"
- });
- localStorage.setItem(KEY, JSON.stringify(bookings));
+/* RESET FORM */
+
+function resetForm(){
+
  el("bookingForm").reset();
- alert("बुकिंग सेव हो गई!");
+
+ el("editId").value="";
+ el("advance").value=0;
+
+ el("saveBtn").textContent="बुकिंग सेव करें";
+
+ el("message").textContent="";
+
+ el("otherWorkBox").classList.add("hidden");
+ el("otherWork").required=false;
+}
+
+/* SAVE OR UPDATE */
+
+el("bookingForm").addEventListener("submit",function(e){
+
+ e.preventDefault();
+
+ const amount=Number(el("amount").value);
+ const advance=Number(el("advance").value);
+
+ if(advance>amount){
+  alert("एडवांस कुल रकम से ज्यादा नहीं हो सकता।");
+  return;
+ }
+
+ const category=el("category").value;
+ const otherWork=category==="अन्य"?el("otherWork").value.trim():"";
+
+ if(category==="अन्य"&&!otherWork){
+  alert("कृपया काम का नाम लिखें।");
+  return;
+ }
+
+ const id=el("editId").value;
+
+ const item={
+  id:id||String(Date.now()),
+  name:el("name").value.trim(),
+  phone:el("phone").value.trim(),
+  customerCity:el("customerCity").value.trim(),
+  category:category,
+  otherWork:otherWork,
+  address:el("address").value.trim(),
+  date:el("date").value,
+  endDate:el("endDate").value,
+  time:el("time").value,
+  amount:amount,
+  advance:advance,
+  reminder:el("reminder").value,
+  status:el("status").value,
+  notes:el("notes").value
+ };
+
+ if(id){
+
+  const i=bookings.findIndex(x=>String(x.id)===String(id));
+
+  if(i>=0){
+   bookings[i]=item;
+  }else{
+   alert("यह बुकिंग नहीं मिली।");
+   return;
+  }
+
+ }else{
+
+  bookings.push(item);
+
+ }
+
+ saveData();
+ resetForm();
+
+ el("message").textContent="बुकिंग सफलतापूर्वक सेव हो गई।";
+
 });
 
-function toggleTheme(){ document.body.classList.toggle("dark"); }
-function shareApp(){ alert("लिंक कॉपी हो गया!"); }
-function exportCSV(){ alert("CSV एक्सपोर्ट हो गया!"); }
-function download(blob, name){
- const a=document.createElement("a"); a.href=URL.createObjectURL(blob); a.download=name; a.click();
+/* WORK NAME */
+
+function getWork(b){
+
+ if(b.category==="अन्य"){
+  return b.otherWork||"अन्य";
+ }
+
+ return b.category||"";
 }
 
-// शुरुआत में प्रोफाइल और लोगो लोड करें
-loadBusinessProfile();
-loadLogo();
+/* EDIT */
+
+function editBooking(id){
+
+ const b=bookings.find(x=>String(x.id)===String(id));
+
+ if(!b){
+  alert("बुकिंग नहीं मिली।");
+  return;
+ }
+
+ [
+  "name","phone","customerCity","category","address",
+  "date","endDate","time","amount",
+  "advance","reminder","status","notes"
+ ].forEach(k=>{
+  el(k).value=b[k]??"";
+ });
+
+ // पुराने वर्जन की शादी / पार्टी कैटेगरी को नए नाम से दिखाएं।
+ if(b.category==="शादी / पार्टी") el("category").value="शादी पार्टी";
+
+ el("editId").value=String(b.id);
+
+ if(b.category==="अन्य"){
+  el("otherWorkBox").classList.remove("hidden");
+  el("otherWork").required=true;
+  el("otherWork").value=b.otherWork||"";
+ }else{
+  el("otherWorkBox").classList.add("hidden");
+  el("otherWork").required=false;
+  el("otherWork").value="";
+ }
+
+ el("saveBtn").textContent="बदलाव सेव करें";
+ el("message").textContent="अब आप जानकारी बदल सकते हैं।";
+
+ window.scrollTo({top:0,behavior:"smooth"});
+}
+
+/* DELETE */
+
+function deleteBooking(id){
+
+ if(confirm("क्या आप यह बुकिंग डिलीट करना चाहते हैं?")){
+
+  bookings=bookings.filter(x=>String(x.id)!==String(id));
+
+  saveData([String(id)]);
+ }
+
+}
+
+/* COMPLETE */
+
+function completeBooking(id){
+
+ const b=bookings.find(x=>String(x.id)===String(id));
+
+ if(b){
+  b.status="काम पूरा";
+  saveData();
+ }
+
+}
+
+/* WHATSAPP SHARE */
+
+function shareBooking(id){
+
+ const b=bookings.find(x=>String(x.id)===String(id));
+
+ if(!b)return;
+
+ const msg=`WORK MANAGER – Smart Booking & Management
+
+ग्राहक: ${b.name}
+मोबाइल: ${b.phone||"नहीं दिया"}
+काम: ${getWork(b)}
+पता: ${b.address||"नहीं दिया"}
+तारीख: ${b.date}
+समाप्ति: ${b.endDate||"नहीं दी"}
+समय: ${b.time||"नहीं दिया"}
+
+कुल रकम: ₹${b.amount}
+एडवांस: ₹${b.advance}
+बाकी: ₹${Number(b.amount||0)-Number(b.advance||0)}
+स्थिति: ${b.status}
+
+नोट: ${b.notes||"कोई नहीं"}
+
+धन्यवाद!`;
+
+ window.open("https://wa.me/?text="+encodeURIComponent(msg),"_blank");
+}
+
+/* HTML SECURITY */
+
+function escapeHTML(s){
+
+ return String(s??"").replace(/[&<>"']/g,c=>({
+  "&":"&amp;",
+  "<":"&lt;",
+  ">":"&gt;",
+  '"':"&quot;",
+  "'":"&#39;"
+ }[c]));
+
+}
+
+/* DATE SORTING */
+
+function sortBookingsByDate(list){
+
+ const today=new Date().toISOString().slice(0,10);
+
+ return list.sort((a,b)=>{
+
+  const da=a.date||"9999-12-31";
+  const db=b.date||"9999-12-31";
+
+  const aPast=da<today;
+  const bPast=db<today;
+
+  if(!aPast&&bPast)return -1;
+  if(aPast&&!bPast)return 1;
+
+  if(!aPast&&!bPast)return da.localeCompare(db);
+
+  return db.localeCompare(da);
+
+ });
+}
+
+/* SHOW / HIDE DETAILS */
+
+function toggleDetails(id){
+
+ const box=el("details-"+id);
+
+ if(box){
+  box.classList.toggle("hidden");
+ }
+
+}
+
+/* DISPLAY BOOKINGS */
+
+let showAllBookings = false;
+
+function showMoreBookings(){
+ showAllBookings = true;
+ render();
+}
+
+function render(){
+
+ const q=el("search").value.toLowerCase();
+ const f=el("filter").value;
+ const m=el("monthFilter").value;
+
+ const total=bookings.filter(b=>b.status!=="रद्द");
+
+ el("totalCount").textContent=total.length;
+
+ el("totalAmount").textContent=
+ money(total.reduce((s,b)=>s+Number(b.amount||0),0));
+
+ el("totalAdvance").textContent=
+ money(total.reduce((s,b)=>s+Number(b.advance||0),0));
+
+ el("totalDue").textContent=
+ money(total.reduce((s,b)=>s+Number(b.amount||0)-Number(b.advance||0),0));
+
+ const months=[...new Set(
+  bookings.map(b=>b.date?.slice(0,7)).filter(Boolean)
+ )].sort().reverse();
+
+ const mf=el("monthFilter");
+ const old=mf.value;
+
+ mf.innerHTML=
+ '<option value="">सभी महीने</option>'+
+ months.map(x=>`<option value="${x}">${x}</option>`).join("");
+
+ mf.value=months.includes(old)?old:"";
+
+ let list=bookings.filter(b=>
+  (!q||(String(b.name||"")+" "+String(b.phone||"")+" "+String(b.customerCity||"")+" "+getWork(b)).toLowerCase().includes(q))&&
+  (!f||b.status===f)&&
+  (!m||b.date?.startsWith(m))
+ );
+
+ list=sortBookingsByDate(list);
+
+ const visibleList = showAllBookings ? list : list.slice(0,5);
+
+ el("bookingList").innerHTML=list.length?
+
+ visibleList.map(b=>`
+
+ <div class="booking ${b.status==="काम पूरा"?"booking-complete":""}">
+
+ <button class="booking-title"
+ onclick="toggleDetails('${encodeURIComponent(String(b.id))}')">
+
+ ${escapeHTML(b.date||"तारीख नहीं")}
+ — ${escapeHTML(b.name)}
+ — ${escapeHTML(b.customerCity||b.address||"गांव/शहर नहीं दिया")}
+
+ </button>
+
+ <div class="booking-details hidden"
+ id="details-${escapeHTML(encodeURIComponent(String(b.id)))}">
+
+ <div class="small">
+
+ 📞 ${escapeHTML(b.phone||"नंबर नहीं दिया")}<br>
+
+ 🏙️ ${escapeHTML(b.customerCity||"गांव/शहर नहीं दिया")}<br>
+ 📍 कार्यक्रम का पता: ${escapeHTML(b.address||"पता नहीं दिया")}<br>
+
+ 📅 ${escapeHTML(b.date||"-")}
+ ${escapeHTML(b.time||"")}
+ ${b.endDate?"से "+escapeHTML(b.endDate):""}<br>
+
+ कुल रकम:
+ <span class="amount">${money(b.amount)}</span><br>
+
+ एडवांस: ${money(b.advance)}
+ | बाकी: <b>${money(Number(b.amount||0)-Number(b.advance||0))}</b><br>
+
+ स्थिति: <b>${escapeHTML(b.status)}</b>
+
+ ${b.reminder?"<br>🔔 रिमाइंडर: "+escapeHTML(b.reminder):""}
+
+ ${b.notes?"<br>नोट: "+escapeHTML(b.notes):""}
+
+ </div>
+
+ <div class="actions">
+
+ <button onclick="editBooking('${encodeURIComponent(String(b.id))}')">
+ ✏️ एडिट
+ </button>
+
+ <button class="whatsapp"
+ onclick="shareBooking('${encodeURIComponent(String(b.id))}')">
+ 📲 WhatsApp शेयर
+ </button>
+
+ <button class="orange"
+ onclick="completeBooking('${encodeURIComponent(String(b.id))}')">
+ काम पूरा
+ </button>
+
+ <button class="danger"
+ onclick="deleteBooking('${encodeURIComponent(String(b.id))}')">
+ डिलीट
+ </button>
+
+ </div>
+
+ </div>
+ </div>
+
+ `).join(""):
+
+ "<p class='small'>अभी कोई बुकिंग नहीं है।</p>";
+
+ if(list.length>5){
+  el("bookingList").innerHTML += showAllBookings
+   ? '<button type="button" class="secondary" onclick="showAllBookings=false;render()">कम दिखाएं</button>'
+   : '<button type="button" class="secondary" onclick="showMoreBookings()">और देखें ('+list.length+')</button>';
+ }
+
+ const due=total.reduce(
+  (s,b)=>s+Number(b.amount||0)-Number(b.advance||0),0
+ );
+
+ el("report").textContent=
+ "कुल सक्रिय बुकिंग: "+total.length+
+ " | कुल बाकी रकम: "+money(due);
+
+}
+
+/* DECODE IDS */
+
+function decodeId(id){
+ return decodeURIComponent(String(id));
+}
+
+const oldEdit=editBooking;
+editBooking=function(id){oldEdit(decodeId(id));};
+
+const oldShare=shareBooking;
+shareBooking=function(id){oldShare(decodeId(id));};
+
+const oldComplete=completeBooking;
+completeBooking=function(id){oldComplete(decodeId(id));};
+
+const oldDelete=deleteBooking;
+deleteBooking=function(id){oldDelete(decodeId(id));};
+
+const oldToggle=toggleDetails;
+toggleDetails=function(id){oldToggle(decodeId(id));};
+
+/* BACKUP */
+
+function backup(){
+
+ const backupData={version:2,bookings:bookings,items:businessItems};
+ const blob=new Blob([JSON.stringify(backupData,null,2)],{type:"application/json"});
+ download(blob,"WORK-Manager-Backup.json");
+}
+
+/* RESTORE */
+
+function restore(e){
+
+ const file=e.target.files[0];
+
+ if(!file)return;
+
+ const reader=new FileReader();
+
+ reader.onload=()=>{
+
+  try{
+
+   const data=JSON.parse(reader.result);
+   const restoredBookings=Array.isArray(data)?data:data.bookings;
+   const restoredItems=Array.isArray(data.items)?data.items:businessItems;
+   if(!Array.isArray(restoredBookings))throw Error();
+   if(confirm("बैकअप से बुकिंग और सामान की सूची वापस डालें?")){
+    bookings=restoredBookings;
+    businessItems=restoredItems;
+    saveData();
+    saveItems();
+    alert("बैकअप सफलतापूर्वक वापस आ गया।");
+   }
+
+  }catch(err){
+
+   alert("यह सही बैकअप फाइल नहीं है।");
+
+  }
+
+ };
+
+ reader.readAsText(file);
+ e.target.value="";
+}
+
+/* CSV REPORT */
+
+function exportCSV(){
+
+ const rows=[
+  ["नाम","मोबाइल","काम","पता","तारीख","समय","कुल रकम","एडवांस","बाकी","स्थिति"]
+ ];
+
+ bookings.forEach(b=>rows.push([
+  b.name,
+  b.phone,
+  getWork(b),
+  b.address,
+  b.date,
+  b.time,
+  b.amount,
+  b.advance,
+  Number(b.amount||0)-Number(b.advance||0),
+  b.status
+ ]));
+
+ const csv="\uFEFF"+rows.map(r=>
+  r.map(x=>'"'+String(x??"").replace(/"/g,'""')+'"').join(",")
+ ).join("\n");
+
+ download(
+  new Blob([csv],{type:"text/csv;charset=utf-8"}),
+  "WORK-Manager-Booking-Report.csv"
+ );
+}
+
+/* DOWNLOAD */
+
+function download(blob,name){
+
+ const a=document.createElement("a");
+
+ a.href=URL.createObjectURL(blob);
+ a.download=name;
+
+ a.click();
+
+ setTimeout(()=>URL.revokeObjectURL(a.href),1000);
+}
+
+/* OFFLINE APP */
+
+if("serviceWorker" in navigator){
+
+ window.addEventListener("load",()=>{
+
+  navigator.serviceWorker.register("./sw.js").catch(()=>{});
+
+ });
+
+}
+
+/* START */
+
+loadTheme();
+render();
+renderItemsList();
+
 </script>
 
-<!-- Firebase Script -->
+
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
-import {
-  getAuth, GoogleAuthProvider, signInWithPopup,
-  onAuthStateChanged, signOut
-} from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
-import {
-  getFirestore, collection, doc, getDocs, writeBatch, onSnapshot
-} from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
+import { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
+import { getFirestore, collection, doc, getDocs, writeBatch, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyBB41-2VwBwEwPzf8JqIcPBBRSUEljhYG4",
@@ -716,42 +1086,181 @@ const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
 const provider = new GoogleAuthProvider();
+let activeUser = null;
+let syncReady = false;
+let unsubscribeBookings = null;
+let unsubscribeInventory = null;
+let writingCloud = false;
+let writingInventoryCloud = false;
+let inventorySyncReady = false;
 
 const loginBtn = document.getElementById("googleLoginBtn");
 const logoutBtn = document.getElementById("googleLogoutBtn");
 const authStatus = document.getElementById("authStatus");
 const syncStatus = document.getElementById("syncStatus");
 
-loginBtn.addEventListener("click", async () => {
-  try {
-    syncStatus.textContent = "Google Login खोला जा रहा है...";
-    await signInWithPopup(auth, provider);
-  } catch (error) {
-    syncStatus.textContent = "Login असफल: " + error.message;
-  }
-});
+function setStatus(message, isError = false) {
+  syncStatus.textContent = message;
+  syncStatus.style.color = isError ? "#b91c1c" : "#166534";
+}
+function bookingsRef(uid) { return collection(db, "users", uid, "bookings"); }
+function inventoryRef(uid) { return collection(db, "users", uid, "inventory"); }
 
+loginBtn.addEventListener("click", async () => {
+  try { setStatus("Google Login खोला जा रहा है..."); await signInWithPopup(auth, provider); }
+  catch (error) { console.error(error); setStatus("Login शुरू नहीं हो पाया: " + error.message, true); }
+});
 logoutBtn.addEventListener("click", async () => {
   try {
+    if (unsubscribeBookings) unsubscribeBookings();
+    unsubscribeBookings = null;
+    syncReady = false;
     await signOut(auth);
-  } catch (error) {
-    syncStatus.textContent = "Logout असफल: " + error.message;
-  }
+  } catch (error) { console.error(error); setStatus("Logout नहीं हो पाया: " + error.message, true); }
 });
 
-onAuthStateChanged(auth, (user) => {
+onAuthStateChanged(auth, async (user) => {
+  if (unsubscribeBookings) { unsubscribeBookings(); unsubscribeBookings = null; }
+  if (unsubscribeInventory) { unsubscribeInventory(); unsubscribeInventory = null; }
+  syncReady = false;
+  inventorySyncReady = false;
+  activeUser = user || null;
   if (!user) {
     loginBtn.classList.remove("hidden");
     logoutBtn.classList.add("hidden");
-    authStatus.textContent = "बुकिंग देखने और सुरक्षित रखने के लिए अपने जीमेल से लॉगिन करें।";
-    syncStatus.textContent = "लॉगआउट हैं।";
-  } else {
-    loginBtn.classList.add("hidden");
-    logoutBtn.classList.remove("hidden");
-    authStatus.textContent = "लॉगिन: " + (user.email || "Google अकाउंट");
-    syncStatus.textContent = "Cloud Sync सक्रिय है।";
+    authStatus.textContent = "कृपया अपने Gmail से Login करें।";
+    // Logout पर स्थानीय बुकिंग को न मिटाएँ।
+    try {
+      const saved = JSON.parse(localStorage.getItem(KEY) || "[]");
+      bookings = Array.isArray(saved) ? saved : [];
+    } catch (error) { bookings = []; }
+    render();
+    setStatus("आपकी स्थानीय बुकिंग सुरक्षित हैं। Cloud Sync के लिए Login करें।");
+    return;
+  }
+
+  loginBtn.classList.add("hidden");
+  logoutBtn.classList.remove("hidden");
+  authStatus.textContent = "लॉगिन: " + (user.email || "Google अकाउंट");
+  setStatus("Cloud में आपका डेटा जाँचा जा रहा है...");
+  try {
+    const ref = bookingsRef(user.uid);
+    let snapshot = await getDocs(ref);
+    let remoteBookings = snapshot.docs.map(d => ({...d.data(), id: d.id}));
+
+    // Cloud खाली हो तभी इस डिवाइस की स्थानीय बुकिंग पहली बार अपलोड करें।
+    if (remoteBookings.length === 0) {
+      let localBookings = [];
+      try {
+        const saved = JSON.parse(localStorage.getItem(KEY) || "[]");
+        localBookings = Array.isArray(saved) ? saved : [];
+      } catch (error) { localBookings = []; }
+      if (localBookings.length > 0) {
+        setStatus("स्थानीय बुकिंग Cloud में सुरक्षित की जा रही हैं...");
+        writingCloud = true;
+        try { await writeBookingsToCloud(user.uid, localBookings); }
+        finally { writingCloud = false; }
+        snapshot = await getDocs(ref); // अपलोड की पुष्टि
+        remoteBookings = snapshot.docs.map(d => ({...d.data(), id: d.id}));
+        if (remoteBookings.length !== localBookings.length) {
+          throw new Error("अपलोड के बाद बुकिंग की संख्या मेल नहीं खाई। अपना बैकअप सुरक्षित रखें।");
+        }
+        setStatus(remoteBookings.length + " पुरानी बुकिंग Cloud में सुरक्षित और जाँच ली गई हैं।");
+      }
+    }
+
+    bookings = remoteBookings;
+    localStorage.setItem(KEY, JSON.stringify(bookings));
+    render();
+    syncReady = true;
+    setStatus(remoteBookings.length
+      ? "आपकी " + remoteBookings.length + " बुकिंग Cloud से लोड हो गईं। Sync चालू है।"
+      : "यह नया अकाउंट है। अभी कोई बुकिंग नहीं है; आप नई बुकिंग जोड़ सकते हैं।");
+
+    unsubscribeBookings = onSnapshot(ref, (snap) => {
+      if (!activeUser || activeUser.uid !== user.uid || writingCloud) return;
+      bookings = snap.docs.map(d => ({...d.data(), id: d.id}));
+      localStorage.setItem(KEY, JSON.stringify(bookings));
+      render();
+      setStatus("Cloud Sync चालू है। आपकी बुकिंग अपडेट हो रही हैं।");
+    }, (error) => { console.error(error); setStatus("Cloud से डेटा पढ़ने में समस्या: " + error.message, true); });
+
+    // सामान की सूची भी इसी Google खाते के अलग inventory collection में सुरक्षित होगी।
+    const invRef = inventoryRef(user.uid);
+    let invSnapshot = await getDocs(invRef);
+    let remoteItems = invSnapshot.docs.map(d => ({...d.data(), id:d.id}));
+    if(remoteItems.length===0){
+      let localItems=[];
+      try{const savedItems=JSON.parse(localStorage.getItem(ITEMS_KEY)||"[]");localItems=Array.isArray(savedItems)?savedItems:[];}catch(e){localItems=[];}
+      if(localItems.length){
+        writingInventoryCloud=true;
+        try{await writeInventoryToCloud(user.uid,localItems);}finally{writingInventoryCloud=false;}
+        invSnapshot=await getDocs(invRef);
+        remoteItems=invSnapshot.docs.map(d=>({...d.data(),id:d.id}));
+        if(remoteItems.length!==localItems.length) throw new Error("सामान की सूची Cloud में पूरी तरह सेव नहीं हुई।");
+      }
+    }
+    businessItems=remoteItems;
+    localStorage.setItem(ITEMS_KEY,JSON.stringify(businessItems));
+    renderItemsList();
+    inventorySyncReady=true;
+    unsubscribeInventory=onSnapshot(invRef,(snap)=>{
+      if(!activeUser||activeUser.uid!==user.uid||writingInventoryCloud)return;
+      businessItems=snap.docs.map(d=>({...d.data(),id:d.id}));
+      localStorage.setItem(ITEMS_KEY,JSON.stringify(businessItems));
+      renderItemsList();
+    },(error)=>{console.error(error);setStatus("सामान Sync में समस्या: "+error.message,true);});
+  } catch (error) {
+    console.error(error);
+    setStatus("डेटा लोड/सुरक्षित नहीं हुआ: " + error.message + " — कृपया बैकअप सुरक्षित रखें।", true);
   }
 });
+
+// मौजूदा रिकॉर्ड केवल जोड़ें/अपडेट करें। दूसरी बुकिंग अपने-आप डिलीट नहीं होंगी।
+// केवल यूज़र द्वारा स्पष्ट रूप से डिलीट की गई IDs हटाई जाएँगी।
+async function writeBookingsToCloud(uid, list, deletedIds = []) {
+  const ref = bookingsRef(uid);
+  let batch = writeBatch(db);
+  let count = 0;
+  for (const item of list) {
+    const id = String(item.id || Date.now());
+    batch.set(doc(ref, id), {...item, id});
+    count++;
+    if (count >= 450) { await batch.commit(); batch = writeBatch(db); count = 0; }
+  }
+  for (const id of deletedIds) {
+    batch.delete(doc(ref, String(id)));
+    count++;
+    if (count >= 450) { await batch.commit(); batch = writeBatch(db); count = 0; }
+  }
+  if (count > 0) await batch.commit();
+}
+
+async function writeInventoryToCloud(uid,list,deletedIds=[]){
+ const ref=inventoryRef(uid);let batch=writeBatch(db);let count=0;
+ for(const item of list){const id=String(item.id||Date.now());batch.set(doc(ref,id),{...item,id});count++;if(count>=450){await batch.commit();batch=writeBatch(db);count=0;}}
+ for(const id of deletedIds){batch.delete(doc(ref,String(id)));count++;if(count>=450){await batch.commit();batch=writeBatch(db);count=0;}}
+ if(count)await batch.commit();
+}
+window.firebaseSaveInventory=async function(list,deletedIds=[]){
+ if(!activeUser||!inventorySyncReady||writingInventoryCloud)return;
+ writingInventoryCloud=true;
+ try{await writeInventoryToCloud(activeUser.uid,list,deletedIds);}
+ catch(error){console.error(error);setStatus("सामान Cloud Sync असफल: "+error.message+" — स्थानीय सूची सुरक्षित है।",true);}
+ finally{writingInventoryCloud=false;}
+};
+
+window.firebaseSaveData = async function(list, deletedIds = []) {
+  if (!activeUser || !syncReady || writingCloud) return;
+  writingCloud = true;
+  try {
+    await writeBookingsToCloud(activeUser.uid, list, deletedIds);
+    setStatus("बुकिंग Cloud में सुरक्षित हो गई।");
+  } catch (error) {
+    console.error(error);
+    setStatus("Cloud Sync असफल: " + error.message + " — इंटरनेट और Firestore Rules जाँचें। स्थानीय डेटा सुरक्षित है।", true);
+  } finally { writingCloud = false; }
+};
 </script>
 
 </body>
