@@ -631,7 +631,7 @@ function downloadAndShareItemsPDF(){
  if(itemsToRequest.length === 0){ alert("कृपया कम से कम एक सामान की मात्रा (Quantity) भरें।"); return; }
 
  const savedBiz = JSON.parse(localStorage.getItem(BIZ_PROFILE_KEY)||"{}");
- el("pdfBizName").textContent = savedBiz.bizName || "WORK MANAGER";
+ el("pdfBizName").textContent = savedBiz.bizName || "WORK MANAGER APP";
  el("pdfBizSub").textContent = (savedBiz.ownerName ? "संचालक: "+savedBiz.ownerName+" " : "") + (savedBiz.bizAddress ? "| "+savedBiz.bizAddress : "");
  el("pdfBizPhone").textContent = savedBiz.bizPhone ? "मोबाइल: "+savedBiz.bizPhone : "";
  const logoSrc = localStorage.getItem(LOGO_KEY) || "./hanuman-blessing.png";
