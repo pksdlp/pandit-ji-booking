@@ -494,7 +494,7 @@ function deleteItem(id){
   businessItems = businessItems.filter(x => String(x.id) !== String(id));
   localStorage.setItem(ITEMS_KEY, JSON.stringify(businessItems));
   renderItemsList();
- }1
+ }
 }
 
 function toggleItemCheck(id){
