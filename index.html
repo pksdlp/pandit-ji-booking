@@ -351,9 +351,19 @@ function shareBooking(id){
  const phone=String(b.phone||"").replace(/\D/g,"");window.open("https://wa.me/"+(phone.length>=10?phone.slice(-10):"")+"?text="+encodeURIComponent(text),"_blank")
 }
 function renderBookings(){
+ const today=new Date();today.setHours(0,0,0,0);
+ const todayKey=[today.getFullYear(),String(today.getMonth()+1).padStart(2,"0"),String(today.getDate()).padStart(2,"0")].join("-");
+ // तारीख निकल जाने पर (और रद्द न होने पर) बुकिंग अपने-आप काम पूरा सूची में चली जाएगी।
+ let autoCompleted=false;
+ bookings.forEach(b=>{
+  if(b.status!=="काम पूरा"&&b.status!=="रद्द"&&b.date&&b.date<todayKey){
+   b.status="काम पूरा";b.updatedAt=new Date().toISOString();autoCompleted=true;
+   if(currentUser&&db)saveBookingCloud(b);
+  }
+ });
+ if(autoCompleted)localStorage.setItem(KEY,JSON.stringify(bookings));
  const q=el("searchInput").value.trim().toLowerCase(),st=el("statusFilter").value,mo=el("monthFilter").value;
  const filtered=bookings.filter(b=>(!st||b.status===st)&&(!mo||String(b.date||"").startsWith(mo))&&(!q||String(b.name||"").toLowerCase().includes(q)));
- const today=new Date();today.setHours(0,0,0,0);
  const dateValue=b=>{const d=new Date(String(b.date||"")+"T00:00:00");return Number.isNaN(d.getTime())?null:d;};
  const upcoming=filtered.filter(b=>b.status!=="काम पूरा");
  const completed=filtered.filter(b=>b.status==="काम पूरा");
@@ -464,6 +474,8 @@ function initFirebase(){
 }
 
 loadBusinessProfile();loadLogo();loadTheme();renderBookings();renderStats();renderItemsList();initFirebase();
+// ऐप खुला रहने पर भी तारीख बदलते ही पुरानी बुकिंग अपने-आप काम पूरा सूची में चली जाए।
+setInterval(()=>{renderBookings();renderStats();},60*1000);
 </script>
 </body>
 </html>
