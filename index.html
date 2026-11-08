@@ -6,6 +6,8 @@
 <meta name="theme-color" content="#9b1515">
 <title>WORK MANAGER | Smart Booking &amp; Management</title>
 <link rel="manifest" href="./manifest.webmanifest">
+<link rel="icon" type="image/png" href="./icon-192.png">
+<link rel="apple-touch-icon" href="./apple-touch-icon.png">
 <script>
 // कोई भी JS गलती स्क्रीन के ऊपर लाल पट्टी में दिखेगी (समस्या पहचानने के लिए)
 window.addEventListener("error",function(e){
@@ -13,9 +15,8 @@ window.addEventListener("error",function(e){
  if(!d){d=document.createElement("div");d.id="errBar";d.style.cssText="position:fixed;top:0;left:0;right:0;z-index:99999;background:#b91c1c;color:#fff;font:13px/1.4 Arial;padding:8px;white-space:pre-wrap";(document.body||document.documentElement).appendChild(d)}
  d.textContent+="⚠ "+(e.message||"error")+(e.lineno?" (line "+e.lineno+")":"")+"\n"
 });
-// पुराने Service Worker / Cache से अटका हुआ पुराना ऐप हटाएं
-if("serviceWorker" in navigator){navigator.serviceWorker.getRegistrations().then(function(r){r.forEach(function(x){x.unregister()})}).catch(function(){})}
-if(window.caches){caches.keys().then(function(k){k.forEach(function(n){caches.delete(n)})}).catch(function(){})}
+// ऑफलाइन चलाने के लिए Service Worker (sw.js फाइल इसी फोल्डर में होनी चाहिए)
+if("serviceWorker" in navigator){window.addEventListener("load",function(){navigator.serviceWorker.register("./sw.js").catch(function(){})})}
 </script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-app-compat.js"></script>
@@ -138,9 +139,19 @@ header .hd-text div{font-size:14px}
 .top-nav{background:#5e0b0b;gap:6px;padding:7px 8px;box-shadow:0 3px 8px rgba(0,0,0,.45)}
 .top-nav button{background:#7a1212;border:1px solid rgba(255,255,255,.28);border-radius:8px;color:#ffe3dc;padding:6px 2px;box-shadow:0 1px 3px rgba(0,0,0,.35);min-width:0}
 .top-nav button.active{background:#fdd891;color:#7a1010;border-color:#fdd891;font-weight:800}
+.sub-modal-content{max-height:90vh;overflow-y:auto}
+.sect{margin-top:12px;padding:2px 12px 12px;border:1px dashed var(--primary);border-radius:8px;background:var(--soft)}
+#workersField{cursor:pointer;font-weight:700;background:var(--input)}
+.worker-row{display:grid;grid-template-columns:1fr 100px auto;gap:6px;align-items:center;margin:6px 0}
+.worker-row input{padding:9px 8px;font-size:15px}.worker-row button{margin:0;padding:9px 11px}
+.chip{background:var(--soft);color:var(--text);border:1px solid var(--border);padding:6px 10px;font-size:13px;margin:4px 4px 0 0;box-shadow:none}
+.calc-line{margin-top:10px;padding:9px 11px;border-radius:6px;background:#fff7cf;border:1px solid #e6c34a;color:#5b4300;font-weight:700;font-size:15px}
+body.dark .calc-line{background:#3d3410;color:#ffe9a0;border-color:#6b5a1a}
+#offBar{position:fixed;left:0;right:0;bottom:0;z-index:3000;background:#5e0b0b;color:#fff;font-size:13px;text-align:center;padding:7px 10px;box-shadow:0 -2px 8px rgba(0,0,0,.4)}
 </style>
 </head>
 <body data-view="home">
+<div id="offBar" class="hidden"></div>
 <!-- सबसे ऊपर का नेविगेशन बार -->
 <nav class="top-nav" id="topNav">
 <button data-v="home" onclick="showView('home')"><span>🏠</span>होम</button>
@@ -152,7 +163,7 @@ header .hd-text div{font-size:14px}
 <header>
 <button class="menu-btn" onclick="toggleMenu()">☰ मेनू</button>
 <button class="back-btn" onclick="showView('home')" aria-label="वापस">←</button>
-<img class="header-photo" id="headerLogoImg" src="./hanuman-blessing.png" alt="Logo">
+<img class="header-photo" id="headerLogoImg" src="./logo.png" alt="Logo">
 <div class="hd-text"><h2 id="headerBusinessName">WORK MANAGER</h2><div id="headerBusinessSub">Smart Booking &amp; Management</div><div id="headerBusinessContact"></div></div>
 <button class="lang-btn" id="langHeaderBtn" onclick="toggleLang()">EN</button>
 </header>
@@ -207,6 +218,19 @@ header .hd-text div{font-size:14px}
 <div style="display:flex;gap:8px;margin-top:12px"><button type="submit" style="flex:1">सेव करें</button><button type="button" class="danger" style="flex:1" onclick="closeEditModal()">रद्द करें</button></div>
 </form></div></div>
 
+<div class="sub-modal" id="workersModal"><div class="sub-modal-content" style="max-width:480px">
+<h3>👷 कारीगर / आदमियों का भुगतान</h3>
+<label>जल्दी जोड़ें (कॉमा से अलग करें)</label>
+<textarea id="workerQuick" rows="2" placeholder="जैसे: बर्तन वाला 800, रसोईया 1000, सफाई वाला 700"></textarea>
+<button type="button" onclick="addWorkersFromText()">➕ जोड़ें</button>
+<div id="workerChips"></div>
+<hr style="margin:14px 0;border:0;border-top:1px solid var(--border)">
+<div id="workersList"></div>
+<div class="calc-line">कुल कारीगर भुगतान: <b id="workersTotal">₹0</b></div>
+<p class="small">💡 नाम और रकम सीधे बदल सकते हैं। यह भुगतान बुकिंग के साथ सेव होगा।</p>
+<div style="display:flex;gap:8px;margin-top:8px"><button type="button" style="flex:1" onclick="applyWorkers()">✔ सेव करें</button><button type="button" class="danger" style="flex:1" onclick="closeWorkers()">रद्द करें</button></div>
+</div></div>
+
 <div class="sub-modal" id="shareModal"><div class="sub-modal-content">
 <h3>📄 PDF तैयार है</h3>
 <p class="small" id="shareInfo"></p>
@@ -225,7 +249,7 @@ header .hd-text div{font-size:14px}
 
 <div id="pdfInvoiceTemplate">
 <div style="background:#b71c1c;background-image:linear-gradient(135deg,#8e1111,#b71c1c 55%,#d32f2f);color:#fff;text-align:center;padding:22px 16px;border-radius:12px;border-bottom:5px solid #fdd891;margin-bottom:18px">
-<img id="pdfLogoImg" src="./hanuman-blessing.png" style="width:92px;height:92px;object-fit:cover;border-radius:50%;border:3px solid #fff;background:#fff">
+<img id="pdfLogoImg" src="./logo.png" style="width:92px;height:92px;object-fit:cover;border-radius:50%;border:3px solid #fff;background:#fff">
 <h2 id="pdfBizName" style="color:#fff;margin:10px 0 4px;font-size:24px">WORK MANAGER</h2>
 <div id="pdfBizTag" style="font-size:15px;font-style:italic;color:#ffe9c2"></div>
 <div id="pdfBizSub" style="font-size:14px;color:#fff;margin-top:5px"></div>
@@ -254,7 +278,9 @@ header .hd-text div{font-size:14px}
 <div class="stat">कुल बुकिंग<strong id="totalCount">0</strong></div>
 <div class="stat">कुल रकम<strong id="totalAmount">₹0</strong></div>
 <div class="stat">कुल एडवांस<strong id="totalAdvance">₹0</strong></div>
-<div class="stat due">बाकी रकम<strong id="totalDue">₹0</strong></div></div></div>
+<div class="stat due">बाकी रकम<strong id="totalDue">₹0</strong></div>
+<div class="stat">कारीगर भुगतान<strong id="totalWorkers">₹0</strong></div>
+<div class="stat">कुल बचत<strong id="totalProfit">₹0</strong></div></div></div>
 
 <div class="card" id="formCard">
 <button type="button" id="newBookingBtn" onclick="toggleBookingForm()" style="width:100%;font-size:18px;padding:14px;margin:0">➕ नई बुकिंग जोड़ें</button>
@@ -268,6 +294,9 @@ header .hd-text div{font-size:14px}
 <label>कार्यक्रम का पता</label><input id="address" placeholder="पता / गांव">
 <div class="row"><div><label>कुल रकम ₹ *</label><input id="amount" type="number" min="0" required placeholder="0"></div>
 <div><label>एडवांस ₹</label><input id="advance" type="number" min="0" value="0" placeholder="0"></div></div>
+<div class="sect"><label>👷 आदमियों का भुगतान ₹</label>
+<input id="workersField" readonly placeholder="कारीगर" onclick="openWorkers()">
+<div class="small" id="workersSummary" style="margin-top:6px"></div></div>
 <label>स्टेटस</label><select id="status"><option value="पक्की">पक्की</option><option value="बातचीत जारी">बातचीत जारी</option><option value="काम पूरा">काम पूरा</option><option value="रद्द">रद्द</option></select>
 <label>नोट</label><textarea id="notes" placeholder="अतिरिक्त जानकारी"></textarea>
 <button type="submit" id="saveBtn">बुकिंग सेव करें</button><button type="button" class="secondary" onclick="resetBookingForm()">रद्द करें</button>
@@ -320,7 +349,7 @@ function openNewBooking(){
 
 <script>
 const KEY="panditJiBookings", ITEMS_KEY="workManagerItems", BIZ_PROFILE_KEY="workManagerBizProfile", LOGO_KEY="workManagerLogo", THEME_KEY="workManagerDark", LANG_KEY="workManagerLang";
-const DEFAULT_LOGO="./hanuman-blessing.png";
+const DEFAULT_LOGO="./logo.png";
 const firebaseConfig={
  apiKey:"AIzaSyBB41-2VwBwEwPzf8JqIcPBBRSUEljhYG4",
  authDomain:"pandit-ji-booking.firebaseapp.com",
@@ -409,7 +438,14 @@ const EN={
 "Firebase लोड नहीं हुआ। इंटरनेट जांचें। ऐप अभी इस मोबाइल के डेटा से चलेगा।":"Firebase did not load. Check internet. The app will use this phone's data for now.",
 "लॉगिन:":"Logged in:","बुकिंग देखने और Cloud Sync के लिए Google से लॉगिन करें।":"Login with Google to view bookings and use Cloud Sync.",
 "अभी डेटा इस मोबाइल में सेव है। Google Login के बाद Cloud Sync चालू होगा।":"Data is saved on this phone for now. Cloud Sync starts after Google Login.",
-"Login समस्या: ":"Login problem: ","Google Login समस्या: ":"Google Login problem: ","क्या Logout करना चाहते हैं?":"Do you want to logout?","Firebase शुरू नहीं हो पाया: ":"Firebase could not start: "
+"Login समस्या: ":"Login problem: ","Google Login समस्या: ":"Google Login problem: ","क्या Logout करना चाहते हैं?":"Do you want to logout?","Firebase शुरू नहीं हो पाया: ":"Firebase could not start: ",
+"👷 आदमियों का भुगतान ₹":"👷 Workers' payment ₹","कारीगर":"Workers","👷 कारीगर / आदमियों का भुगतान":"👷 Workers / labour payment",
+"जल्दी जोड़ें (कॉमा से अलग करें)":"Quick add (separate with comma)","जैसे: बर्तन वाला 800, रसोईया 1000, सफाई वाला 700":"e.g. Dishwasher 800, Cook 1000, Cleaner 700",
+"➕ जोड़ें":"➕ Add","कुल कारीगर भुगतान:":"Total workers payment:","💡 नाम और रकम सीधे बदल सकते हैं। यह भुगतान बुकिंग के साथ सेव होगा।":"💡 You can edit names and amounts directly. This payment is saved with the booking.",
+"✔ सेव करें":"✔ Save","कारीगर भुगतान":"Worker payments","कुल बचत":"Net savings","कारीगर का काम / नाम":"Worker role / name","अभी कोई कारीगर नहीं जुड़ा।":"No workers added yet.",
+"👷 कारीगर भुगतान:":"👷 Worker payments:","कारीगर कुल:":"Workers total:",
+"बर्तन वाला":"Dishwasher","रसोईया":"Cook","सफाई वाला":"Cleaner","हलवाई":"Halwai","वेटर":"Waiter","सहायक":"Helper",
+"📴 ऑफलाइन — डेटा फोन में सुरक्षित है, इंटरनेट आने पर अपने-आप सिंक होगा।":"📴 Offline — data is safe on this phone and will sync automatically when internet returns."
 };
 let LANG=localStorage.getItem(LANG_KEY)==="en"?"en":"hi";
 function t(s){return LANG==="en"&&Object.prototype.hasOwnProperty.call(EN,s)?EN[s]:s}
@@ -441,7 +477,7 @@ function applyLang(){
  el("newBookingBtn").textContent=t(el("bookingFormPanel").classList.contains("hidden")?"➕ नई बुकिंग जोड़ें":"✕ फॉर्म बंद करें");
  el("saveBtn").textContent=t(el("editId").value?"बदलाव सेव करें":"बुकिंग सेव करें");
  setSync(lastSync.k,lastSync.x);setAuth(lastAuth.k,lastAuth.x);
- applyBusinessProfile(profile);renderBookings();renderStats();renderItemsList();updateBulkCount();
+ applyBusinessProfile(profile);renderBookings();renderStats();renderItemsList();updateBulkCount();updateWorkersSummary();updateOffBar();
  if(el("bookingDetailModal").classList.contains("show")&&detailId)showBookingDetails(detailId);
 }
 function toggleLang(){LANG=LANG==="en"?"hi":"en";localStorage.setItem(LANG_KEY,LANG);applyLang()}
@@ -566,8 +602,8 @@ function restore(e){
 }
 function downloadBlob(blob,name){const a=document.createElement("a"),url=URL.createObjectURL(blob);a.href=url;a.download=name;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1500)}
 function exportCSV(){
- const rows=[[t("ग्राहक"),t("मोबाइल"),t("काम"),t("तारीख"),t("पता"),t("कुल रकम"),t("एडवांस"),t("बाकी"),t("स्टेटस"),t("नोट")]];
- bookings.forEach(b=>rows.push([b.name,b.phone,t(b.category),b.date,b.address,b.amount,b.advance||0,Math.max(0,(+b.amount||0)-(+b.advance||0)),t(b.status),b.notes]));
+ const rows=[[t("ग्राहक"),t("मोबाइल"),t("काम"),t("तारीख"),t("पता"),t("कुल रकम"),t("एडवांस"),t("बाकी"),t("स्टेटस"),t("नोट"),t("कारीगर भुगतान")]];
+ bookings.forEach(b=>rows.push([b.name,b.phone,t(b.category),b.date,b.address,b.amount,b.advance||0,Math.max(0,(+b.amount||0)-(+b.advance||0)),t(b.status),b.notes,workersSum(b.workers)]));
  const csv="\uFEFF"+rows.map(r=>r.map(x=>'"'+String(x??"").replace(/"/g,'""')+'"').join(",")).join("\r\n");
  downloadBlob(new Blob([csv],{type:"text/csv;charset=utf-8"}),"WORK-Manager-Bookings.csv")
 }
@@ -729,7 +765,7 @@ function toggleBookingForm(show){
  if(shouldShow)el("name").focus();
 }
 function resetBookingForm(){
- el("bookingForm").reset();el("editId").value="";el("advance").value="0";
+ el("bookingForm").reset();el("editId").value="";el("advance").value="0";formWorkers=[];updateWorkersSummary();
  el("saveBtn").textContent=t("बुकिंग सेव करें");toggleBookingForm(false)
 }
 function closeBookingDetails(){detailId=null;el("bookingDetailModal").classList.remove("show")}
@@ -747,6 +783,7 @@ function showBookingDetails(id){
  <p><b>${t("मोबाइल:")}</b> ${esc(b.phone||"-")}</p><p><b>${t("काम:")}</b> ${esc(t(b.category||"-"))}</p>
  <p><b>${t("कुल रकम:")}</b> ${money(b.amount)}</p><p><b>${t("एडवांस:")}</b> ${money(b.advance||0)}</p>
  <p><b>${t("बाकी रकम:")}</b> ${money(due)}</p><p><b>${t("स्टेटस:")}</b> ${pill(b.status)}</p>
+ ${(b.workers&&b.workers.length)?`<p><b>${t("👷 कारीगर भुगतान:")}</b></p><div class="small">${b.workers.map(w=>esc(w.name)+" — "+money(w.amount)).join("<br>")}</div><p><b>${t("कारीगर कुल:")}</b> ${money(workersSum(b.workers))}</p>`:""}
  <p><b>${t("नोट:")}</b> ${esc(b.notes||"-")}</p>
  <button data-act="edit-close" data-id="${esc(b.id)}">${t("✏️ एडिट करें")}</button>
  <button class="whatsapp" data-act="share" data-id="${esc(b.id)}">WhatsApp</button>`;
@@ -755,7 +792,7 @@ function showBookingDetails(id){
 function editBooking(id){
  const b=bookings.find(x=>String(x.id)===String(id));if(!b)return;
  el("editId").value=b.id;el("name").value=b.name||"";el("phone").value=b.phone||"";el("category").value=b.category||"शादी / पार्टी";el("date").value=b.date||"";el("address").value=b.address||"";el("amount").value=b.amount??"";el("advance").value=b.advance||0;el("status").value=b.status||"पक्की";el("notes").value=b.notes||"";
- el("saveBtn").textContent=t("बदलाव सेव करें");toggleBookingForm(true);window.scrollTo({top:0,behavior:"smooth"})
+ formWorkers=(b.workers||[]).map(w=>({name:w.name,amount:+w.amount||0}));updateWorkersSummary();el("saveBtn").textContent=t("बदलाव सेव करें");toggleBookingForm(true);window.scrollTo({top:0,behavior:"smooth"})
 }
 function deleteBooking(id){
  if(!confirm(t("इस बुकिंग को हमेशा के लिए डिलीट करें?")))return;
@@ -799,6 +836,7 @@ function renderBookings(){
  const card=b=>`<div class="booking ${b.status==="काम पूरा"?"completed":""}" data-act="details" data-id="${esc(b.id)}">
   <div class="booking-top"><strong>${esc(b.name||t("बिना नाम"))}</strong><span class="booking-date">📅 ${esc(b.date||"-")}</span></div>
   <div class="small">📍 ${esc(b.address||t("पता उपलब्ध नहीं"))}</div>
+   ${(b.workers&&b.workers.length)?`<div class="small">👷 ${t("कारीगर कुल:")} ${money(workersSum(b.workers))}</div>`:""}
   <div class="booking-meta">${pill(b.status)}<span class="small">${t("पूरी जानकारी देखने के लिए दबाएँ")}</span></div>
   <div class="booking-actions">
    <button class="secondary" data-act="edit" data-id="${esc(b.id)}">${t("✏️ एडिट")}</button>
@@ -814,18 +852,92 @@ function renderBookings(){
 function renderStats(){
  const active=bookings.filter(b=>b.status!=="रद्द");
  const total=active.reduce((s,b)=>s+(+b.amount||0),0),adv=active.reduce((s,b)=>s+(+b.advance||0),0);
- el("totalCount").textContent=active.length;el("totalAmount").textContent=money(total);el("totalAdvance").textContent=money(adv);el("totalDue").textContent=money(total-adv)
+ el("totalCount").textContent=active.length;el("totalAmount").textContent=money(total);el("totalAdvance").textContent=money(adv);el("totalDue").textContent=money(total-adv);
+ const wk=active.reduce((x,b)=>x+workersSum(b.workers),0);el("totalWorkers").textContent=money(wk);el("totalProfit").textContent=money(total-wk)
 }
 el("bookingForm").addEventListener("submit",e=>{
  e.preventDefault();const amount=Number(el("amount").value),advance=Number(el("advance").value||0);
  if(advance>amount){alert(t("एडवांस रकम कुल रकम से अधिक नहीं हो सकती।"));return}
  const id=el("editId").value||uid();
- const b={id,name:el("name").value.trim(),phone:el("phone").value.trim(),category:el("category").value,date:el("date").value,address:el("address").value.trim(),amount,advance,status:el("status").value,notes:el("notes").value.trim(),updatedAt:new Date().toISOString()};
+ const b={id,name:el("name").value.trim(),phone:el("phone").value.trim(),category:el("category").value,date:el("date").value,address:el("address").value.trim(),amount,advance,status:el("status").value,notes:el("notes").value.trim(),workers:formWorkers.map(w=>({name:w.name,amount:+w.amount||0})),updatedAt:new Date().toISOString()};
  const ix=bookings.findIndex(x=>String(x.id)===String(id));if(ix>=0)bookings[ix]=b;else bookings.push(b);
  saveLocal();saveBookingCloud(b);resetBookingForm();renderBookings();renderStats();alert(t("बुकिंग सेव हो गई।"))
 });
 
+/* ---------- कारीगर / आदमियों का भुगतान ---------- */
+let formWorkers=[],workersDraft=[];
+const ROLE_CHIPS=["बर्तन वाला","रसोईया","सफाई वाला","हलवाई","वेटर","सहायक"];
+const NUM_WORDS={"डेढ़":1.5,"डेढ":1.5,"ढाई":2.5,"एक":1,"दो":2,"तीन":3,"चार":4,"पांच":5,"पाँच":5,"छह":6,"छः":6,"सात":7,"आठ":8,"नौ":9,"दस":10};
+const UNIT_WORDS={"हजार":1000,"हज़ार":1000,"सौ":100};
+const RUPEE_WORDS=["रुपए","रुपये","रुपया","रु","रु.","rs","rs.","/-"];
+function workersSum(arr){return (arr||[]).reduce((s,w)=>s+(+w.amount||0),0)}
+// "बर्तन वाला₹800 रसोईया हजार रुपए, सफाई वाला 700" जैसा लिखा पढ़कर नाम+रकम बनाता है
+function parseWorkers(text){
+ let s=String(text||"").replace(/[०-९]/g,d=>"०१२३४५६७८९".indexOf(d));
+ s=s.replace(/(\d),(?=\d{3})/g,"$1").replace(/₹/g," ").replace(/\/-/g," ").replace(/[:=]/g," ").replace(/([\u0900-\u097F])(\d)/g,"$1 $2").replace(/[,\n;]+/g," , ");
+ const tk=s.split(/\s+/).filter(x=>x&&x!=="-"),out=[];let name=[];
+ const emit=amt=>{out.push({name:name.join(" ").trim(),amount:Math.round(amt)});name=[]};
+ const skipRupee=i=>(i+1<tk.length&&RUPEE_WORDS.includes(tk[i+1].toLowerCase()))?i+1:i;
+ for(let i=0;i<tk.length;i++){
+  const w=tk[i];
+  if(w===","){if(name.length)emit(0);continue}
+  if(/^\d+(\.\d+)?$/.test(w)){
+   let amt=parseFloat(w);
+   if(i+1<tk.length&&UNIT_WORDS[tk[i+1]]){amt*=UNIT_WORDS[tk[i+1]];i++}
+   i=skipRupee(i);emit(amt);continue;
+  }
+  if(NUM_WORDS[w]!==undefined&&i+1<tk.length&&UNIT_WORDS[tk[i+1]]){
+   const amt=NUM_WORDS[w]*UNIT_WORDS[tk[i+1]];i++;i=skipRupee(i);emit(amt);continue;
+  }
+  if(UNIT_WORDS[w]){i=skipRupee(i);emit(UNIT_WORDS[w]);continue}
+  name.push(w);
+ }
+ if(name.length)emit(0);
+ return out;
+}
+function openWorkers(){
+ workersDraft=formWorkers.map(w=>({name:w.name,amount:w.amount}));
+ el("workerQuick").value="";renderWorkers();el("workersModal").classList.add("show");
+}
+function closeWorkers(){el("workersModal").classList.remove("show")}
+function renderWorkers(){
+ el("workersList").innerHTML=workersDraft.length?workersDraft.map((w,i)=>`<div class="worker-row"><input data-wname="${i}" value="${esc(w.name)}" placeholder="${esc(t("कारीगर का काम / नाम"))}"><input data-wamt="${i}" type="number" inputmode="numeric" min="0" value="${w.amount||""}" placeholder="₹"><button type="button" class="danger" data-act="w-del" data-id="${i}">🗑️</button></div>`).join(""):`<p class="small">${t("अभी कोई कारीगर नहीं जुड़ा।")}</p>`;
+ el("workerChips").innerHTML=ROLE_CHIPS.map((r,i)=>`<button type="button" class="chip" data-act="w-chip" data-id="${i}">+ ${esc(t(r))}</button>`).join("");
+ updateWorkersTotal();
+}
+function updateWorkersTotal(){el("workersTotal").textContent=money(workersSum(workersDraft))}
+function addWorkersFromText(){
+ const box=el("workerQuick"),list=parseWorkers(box.value);
+ if(!list.length)return;
+ list.forEach(w=>workersDraft.push({name:w.name||t("कारीगर"),amount:w.amount}));
+ box.value="";renderWorkers();
+}
+function applyWorkers(){
+ formWorkers=workersDraft.filter(w=>String(w.name||"").trim()||+w.amount).map(w=>({name:String(w.name||"").trim()||t("कारीगर"),amount:+w.amount||0}));
+ closeWorkers();updateWorkersSummary();
+}
+function updateWorkersSummary(){
+ const f=el("workersField"),s=el("workersSummary");if(!f||!s)return;
+ f.value=formWorkers.length?t("कारीगर")+": "+formWorkers.length+" • "+money(workersSum(formWorkers)):"";
+ s.textContent=formWorkers.map(w=>w.name+" "+money(w.amount)).join("  •  ");
+}
+document.addEventListener("input",e=>{
+ const d=e.target.dataset||{};
+ if(d.wname!==undefined&&workersDraft[+d.wname])workersDraft[+d.wname].name=e.target.value;
+ else if(d.wamt!==undefined&&workersDraft[+d.wamt]){workersDraft[+d.wamt].amount=+e.target.value||0;updateWorkersTotal()}
+});
+
+/* ---------- ऑफलाइन पट्टी ---------- */
+function updateOffBar(){
+ const b=el("offBar");if(!b)return;
+ b.textContent=t("📴 ऑफलाइन — डेटा फोन में सुरक्षित है, इंटरनेट आने पर अपने-आप सिंक होगा।");
+ b.classList.toggle("hidden",navigator.onLine!==false);
+}
+window.addEventListener("offline",updateOffBar);
+window.addEventListener("online",()=>{updateOffBar();if(currentUser&&fdb&&!unsubBookings)migrateOrLoadCloud()});
+
 /* ---------- बटन क्लिक ---------- */
+
 document.addEventListener("click",e=>{
  const tg=e.target.closest("[data-act]");if(!tg)return;
  const id=tg.dataset.id;
@@ -838,6 +950,8 @@ document.addEventListener("click",e=>{
   case "item-edit":editItem(id);break;
   case "item-del":deleteItem(id);break;
   case "item-clear":clearItem(id);break;
+  case "w-del":workersDraft.splice(+id,1);renderWorkers();break;
+  case "w-chip":workersDraft.push({name:t(ROLE_CHIPS[+id]),amount:0});renderWorkers();break;
  }
 });
 const qtyTimers={},pendingQty=new Set();
@@ -889,6 +1003,7 @@ async function syncAllToCloud(replaceAll){
 async function migrateOrLoadCloud(){
  const base=userBase();
  try{
+  cloudReady=true; // लोड होते समय किए बदलाव भी Cloud की कतार में जाएँ
   setSync("Cloud से डेटा मिलाया जा रहा है...");
   const [bs,is,ps]=await Promise.all([base.collection("bookings").get(),base.collection("inventory").get(),base.collection("profile").doc("main").get()]);
   if(bs.empty&&is.empty&&!ps.exists&&(bookings.length||businessItems.length||Object.keys(profile).length)){
@@ -906,7 +1021,7 @@ async function migrateOrLoadCloud(){
   unsubItems=base.collection("inventory").onSnapshot(s=>{if(!cloudReady)return;const loc=new Map(businessItems.map(i=>[String(i.id),i]));businessItems=s.docs.map(d=>(pendingQty.has(d.id)&&loc.has(d.id))?loc.get(d.id):({...d.data(),id:d.id}));normalizeItems();saveLocal();renderItemsList()},e=>setSync("सामान Sync समस्या: ",e.message));
   unsubProfile=base.collection("profile").doc("main").onSnapshot(s=>{if(s.exists){profile=s.data();saveLocal();applyBusinessProfile(profile)}},e=>setSync("प्रोफाइल Sync समस्या: ",e.message));
   setSync("✅ Cloud Sync चालू है। इस Google अकाउंट से दूसरे मोबाइल पर लॉगिन करें।")
- }catch(e){console.error(e);cloudReady=false;setSync("Cloud Sync शुरू नहीं हुआ: ",e.message+t(" | Firestore Rules जांचें।"))}
+ }catch(e){console.error(e);cloudReady=(e&&e.code!=="permission-denied");setSync("Cloud Sync शुरू नहीं हुआ: ",e.message+t(" | Firestore Rules जांचें।"))}
 }
 function stopListeners(){
  if(unsubBookings)unsubBookings();if(unsubItems)unsubItems();if(unsubProfile)unsubProfile();
@@ -918,6 +1033,7 @@ function initFirebase(){
   if(!window.firebase){setAuth("Firebase लोड नहीं हुआ। इंटरनेट जांचें। ऐप अभी इस मोबाइल के डेटा से चलेगा।");return}
   if(!firebase.apps.length)firebase.initializeApp(firebaseConfig);
   auth=firebase.auth();fdb=firebase.firestore();
+   try{fdb.enablePersistence({synchronizeTabs:true}).catch(function(){})}catch(x){} // ऑफलाइन में भी बदलाव सेव रहें, नेट आने पर अपने-आप चढ़ें
   auth.onAuthStateChanged(async user=>{
    currentUser=user;stopCloud();
    if(user){
