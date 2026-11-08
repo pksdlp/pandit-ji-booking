@@ -156,7 +156,8 @@ body.dark .calc-line{background:#3d3410;color:#ffe9a0;border-color:#6b5a1a}
 .row2{display:grid;grid-template-columns:1fr 1fr;gap:9px}.row2>div{min-width:0}.row2 input{padding:10px 6px;font-size:14px}
 #formSummary,#workersSummary{white-space:pre-line}
 .worker-card{border:1px solid var(--border);border-radius:8px;padding:8px;margin:8px 0;background:var(--card)}
-.wr1{display:grid;grid-template-columns:1fr 1fr auto;gap:6px;align-items:center}
+.wr1{display:grid;grid-template-columns:78px 1fr auto;gap:6px;align-items:end}
+.wr1 small{display:block;font-size:12px;color:var(--muted);font-weight:700}
 .wr2{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin-top:6px}
 .wr1 input,.wr2 input{padding:9px 7px;font-size:15px}.wr1 button{margin:0;padding:9px 11px}
 .wr2 small{display:block;font-size:12px;color:var(--muted);font-weight:700}
@@ -233,19 +234,20 @@ body.dark .calc-line{background:#3d3410;color:#ffe9a0;border-color:#6b5a1a}
 </form></div></div>
 
 <div class="sub-modal" id="workersModal"><div class="sub-modal-content" style="max-width:520px">
-<h3>👷 कारीगर / आदमियों का भुगतान</h3>
+<h3>👷 काम करने वाले व्यक्ति</h3>
 <div class="calc-line" id="workersDaysInfo"></div>
+<button type="button" style="width:100%;font-size:17px;padding:13px" onclick="addPersonRow()">➕ व्यक्ति जोड़ें</button>
 <button type="button" class="secondary" onclick="setAllWorkerDays()">📆 सभी के दिन = काम के दिन</button>
+<div id="workersList" style="margin-top:8px"></div>
+<div class="calc-line">कुल कारीगर भुगतान: <b id="workersTotal">₹0</b></div>
+<details style="margin-top:10px"><summary class="small" style="cursor:pointer;font-weight:700">⚡ जल्दी जोड़ें / कैटेगरी</summary>
 <label>जल्दी जोड़ें (कैटेगरी और रोज़ का वेतन)</label>
 <textarea id="workerQuick" rows="2" placeholder="जैसे: बर्तन वाला 800, रसोईया 1000, सफाई वाला 700"></textarea>
 <button type="button" onclick="addWorkersFromText()">➕ जोड़ें</button>
 <label>कैटेगरी चुनें / अपनी जोड़ें</label>
 <div id="workerChips"></div>
-<div style="display:flex;gap:6px;margin-top:8px"><input id="newCatInput" placeholder="अपनी कैटेगरी लिखें (जैसे: ड्राइवर)"><button type="button" style="margin:0;white-space:nowrap" onclick="addCustomCat()">+ कैटेगरी</button></div>
-<hr style="margin:14px 0;border:0;border-top:1px solid var(--border)">
-<div id="workersList"></div>
-<div class="calc-line">कुल कारीगर भुगतान: <b id="workersTotal">₹0</b></div>
-<p class="small">💡 कैटेगरी, नाम, रोज़ का वेतन और दिन (हाजिरी) बदल सकते हैं। कुल = वेतन × दिन। यह बुकिंग के साथ सेव होगा।</p>
+<div style="display:flex;gap:6px;margin-top:8px"><input id="newCatInput" placeholder="अपनी कैटेगरी लिखें (जैसे: ड्राइवर)"><button type="button" style="margin:0;white-space:nowrap" onclick="addCustomCat()">+ कैटेगरी</button></div></details>
+<p class="small">💡 हर पंक्ति में संख्या, कैटेगरी, प्रति व्यक्ति रोज़ का वेतन और दिन भरें। कुल = संख्या × वेतन × दिन। यह बुकिंग के साथ सेव होगा।</p>
 <div style="display:flex;gap:8px;margin-top:8px"><button type="button" style="flex:1" onclick="applyWorkers()">✔ सेव करें</button><button type="button" class="danger" style="flex:1" onclick="closeWorkers()">रद्द करें</button></div>
 </div></div>
 
@@ -317,8 +319,8 @@ body.dark .calc-line{background:#3d3410;color:#ffe9a0;border-color:#6b5a1a}
 <div class="calc-line hidden" id="bookDays"></div>
 <div class="row"><div><label>कुल रकम ₹ *</label><input id="amount" type="number" min="0" required placeholder="0" oninput="updateFormSummary()"></div>
 <div><label>एडवांस ₹</label><input id="advance" type="number" min="0" value="0" placeholder="0" oninput="updateFormSummary()"></div></div>
-<div class="sect"><label>👷 आदमियों का भुगतान ₹</label>
-<input id="workersField" readonly placeholder="कारीगर" onclick="openWorkers()">
+<div class="sect"><label>👷 काम करने वाले व्यक्ति</label>
+<input id="workersField" readonly placeholder="काम करने वाले व्यक्ति" onclick="openWorkers()">
 <div class="small" id="workersSummary" style="margin-top:6px"></div></div>
 <div class="calc-line" id="formSummary"></div>
 <label>स्टेटस</label><select id="status"><option value="पक्की">पक्की</option><option value="बातचीत जारी">बातचीत जारी</option><option value="काम पूरा">काम पूरा</option><option value="रद्द">रद्द</option></select>
@@ -478,7 +480,11 @@ const EN={
 "कैटेगरी चुनें / अपनी जोड़ें":"Choose a category / add your own","अपनी कैटेगरी लिखें (जैसे: ड्राइवर)":"Write your own category (e.g. Driver)","+ कैटेगरी":"+ Category",
 "💡 कैटेगरी, नाम, रोज़ का वेतन और दिन (हाजिरी) बदल सकते हैं। कुल = वेतन × दिन। यह बुकिंग के साथ सेव होगा।":"💡 You can edit category, name, daily wage and days (attendance). Total = wage × days. It is saved with the booking.",
 "कैटेगरी (जैसे रसोईया)":"Category (e.g. Cook)","नाम (वैकल्पिक)":"Name (optional)","₹ प्रतिदिन":"₹ per day","दिन (हाजिरी)":"Days (attendance)","कुल":"Total",
-"📤 WhatsApp शेयर (PDF)":"📤 Share on WhatsApp (PDF)",
+"📤 WhatsApp शेयर (PDF)":"📤 Share on WhatsApp (PDF)","📤 WhatsApp PDF":"📤 WhatsApp PDF",
+"👷 काम करने वाले व्यक्ति":"👷 Working persons","काम करने वाले व्यक्ति":"Working persons","➕ व्यक्ति जोड़ें":"➕ Add person","⚡ जल्दी जोड़ें / कैटेगरी":"⚡ Quick add / categories",
+"संख्या":"Number","कैटेगरी":"Category","वेतन ₹ (प्रति व्यक्ति / दिन)":"Wage ₹ (per person / day)","दिन":"days","व्यक्ति":"persons","कुल भुगतान":"Total payment","वेतन (प्रति व्यक्ति/दिन)":"Wage (per person/day)",
+"💡 हर पंक्ति में संख्या, कैटेगरी, प्रति व्यक्ति रोज़ का वेतन और दिन भरें। कुल = संख्या × वेतन × दिन। यह बुकिंग के साथ सेव होगा।":"💡 In each row fill number, category, daily wage per person and days. Total = number × wage × days. It is saved with the booking.",
+"कुल कारीगर भुगतान":"Total workers payment",
 "फॉर्म में ग्राहक का नाम और काम आरंभ की तिथि भरें।":"Fill the customer name and work start date in the form.",
 "✅ बुकिंग पक्की हो गई है":"✅ Your booking is confirmed","📋 बुकिंग विवरण":"📋 Booking details",
 "आदरणीय {n} जी, आपकी बुकिंग हमारे यहाँ पक्की कर दी गई है। आपके कार्यक्रम का विवरण नीचे दिया गया है।":"Dear {n}, your booking with us is confirmed. The details of your event are given below.",
@@ -827,7 +833,7 @@ function showBookingDetails(id){
  const b=bookings.find(x=>String(x.id)===String(id));if(!b)return;
  detailId=id;
  const amt=+b.amount||0,adv=+b.advance||0,due=amt-adv,days=bookingDays(b),ws=(b.workers||[]).map(normW),wsum=workersSum(ws);
- const wHtml=ws.length?`<p><b>${t("👷 कारीगर भुगतान:")}</b></p><div class="small">${ws.map(w=>"• "+esc(wLabel(w))+" — "+money(w.rate)+" × "+w.days+" "+t("दिन")+" = <b>"+money(wTotal(w))+"</b>").join("<br>")}</div>`:"";
+ const wHtml=ws.length?`<p><b>${t("👷 कारीगर भुगतान:")}</b></p><div class="small">${ws.map(w=>"• "+esc(wLine(w))).join("<br>")}</div>`:"";
  el("bookingDetailContent").innerHTML=`
  <h2 style="color:var(--primary);margin:0 0 10px">${esc(b.name||t("ग्राहक"))}</h2>
  <p><b>${t("पता:")}</b> ${esc(b.address||"-")}</p><p><b>${t("मोबाइल:")}</b> ${esc(b.phone||"-")}</p>
@@ -843,7 +849,7 @@ ${t("कारीगर भुगतान")}: ${money(wsum)}
 ${t("कुल बचत")}: ${money(amt-wsum)}</div>
  <p><b>${t("नोट:")}</b> ${esc(b.notes||"-")}</p>
  <button data-act="edit-close" data-id="${esc(b.id)}">${t("✏️ एडिट करें")}</button>
- <button class="whatsapp" data-act="share" data-id="${esc(b.id)}">WhatsApp</button>`;
+ <button class="whatsapp" data-act="share-pdf" data-id="${esc(b.id)}">${t("📤 WhatsApp PDF")}</button>`;
  el("bookingDetailModal").classList.add("show")
 }
 function editBooking(id){
@@ -900,7 +906,7 @@ function renderBookings(){
   <div class="booking-meta">${pill(b.status)}<span class="small">${t("पूरी जानकारी देखने के लिए दबाएँ")}</span></div>
   <div class="booking-actions">
    <button class="secondary" data-act="edit" data-id="${esc(b.id)}">${t("✏️ एडिट")}</button>
-   <button class="whatsapp" data-act="share" data-id="${esc(b.id)}">WhatsApp</button>
+   <button class="whatsapp" data-act="share-pdf" data-id="${esc(b.id)}">${t("📤 WhatsApp PDF")}</button>
    <button class="danger" data-act="del" data-id="${esc(b.id)}">${t("डिलीट")}</button>
   </div>
  </div>`;
@@ -921,7 +927,7 @@ el("bookingForm").addEventListener("submit",e=>{
  const sd=el("date").value,ed=el("endDate").value||sd;
  if(parseYMD(ed)<parseYMD(sd)){alert(t("समाप्ति की तिथि आरंभ की तिथि से पहले नहीं हो सकती।"));return}
  const id=el("editId").value||uid();
- const b={id,name:el("name").value.trim(),phone:el("phone").value.trim(),category:el("category").value,date:sd,endDate:ed,address:el("address").value.trim(),amount,advance,status:el("status").value,notes:el("notes").value.trim(),workers:formWorkers.map(normW).map(w=>({cat:w.cat,name:w.name,rate:w.rate,days:w.days,amount:wTotal(w)})),updatedAt:new Date().toISOString()};
+ const b={id,name:el("name").value.trim(),phone:el("phone").value.trim(),category:el("category").value,date:sd,endDate:ed,address:el("address").value.trim(),amount,advance,status:el("status").value,notes:el("notes").value.trim(),workers:formWorkers.map(normW).map(w=>({cat:w.cat,name:w.name,rate:w.rate,days:w.days,count:w.count,amount:wTotal(w)})),updatedAt:new Date().toISOString()};
  const ix=bookings.findIndex(x=>String(x.id)===String(id));if(ix>=0)bookings[ix]=b;else bookings.push(b);
  saveLocal();saveBookingCloud(b);resetBookingForm();renderBookings();renderStats();alert(t("बुकिंग सेव हो गई।"))
 });
@@ -937,12 +943,16 @@ if(!workerRates||typeof workerRates!=="object"||Array.isArray(workerRates))worke
 function saveWorkerPrefs(){try{localStorage.setItem(WCAT_KEY,JSON.stringify(workerCats));localStorage.setItem(WRATE_KEY,JSON.stringify(workerRates))}catch(e){}}
 // पुराने डेटा ({name, amount}) को नए रूप (कैटेगरी, रोज़ का वेतन, दिन) में बदलता है
 function normW(w){
- if(w&&w.rate!==undefined)return {cat:String(w.cat||""),name:String(w.name||""),rate:+w.rate||0,days:+w.days||0};
- return {cat:String((w&&w.name)||""),name:"",rate:+(w&&w.amount)||0,days:1};
+ if(w&&w.rate!==undefined)return {cat:String(w.cat||""),name:String(w.name||""),rate:+w.rate||0,days:+w.days||0,count:(w.count===undefined||w.count==="")?1:(+w.count||0)};
+ return {cat:String((w&&w.name)||""),name:"",rate:+(w&&w.amount)||0,days:1,count:1};
 }
-function wTotal(w){return Math.round((+w.rate||0)*(+w.days||0))}
+function wCount(w){return (w.count===undefined||w.count==="")?1:(+w.count||0)}
+function wTotal(w){return Math.round(wCount(w)*(+w.rate||0)*(+w.days||0))}
 function workersSum(arr){return (arr||[]).reduce((s,w)=>s+wTotal(normW(w)),0)}
+function personsSum(arr){return (arr||[]).reduce((s,w)=>s+wCount(normW(w)),0)}
 function wLabel(w){const c=String(w.cat||"").trim(),n=String(w.name||"").trim();return c&&n?c+" – "+n:(c||n||t("कारीगर"))}
+// एक पंक्ति का हिसाब: "2 हलवाई: ₹1,500 × 2 व्यक्ति × 2 दिन = ₹6,000"
+function wLine(w){return wCount(w)+" "+wLabel(w)+": "+money(w.rate)+" × "+wCount(w)+" "+t("व्यक्ति")+" × "+w.days+" "+t("दिन")+" = "+money(wTotal(w))}
 
 /* ---------- तारीख और दिन ---------- */
 function parseYMD(x){const m=/^(\d{4})-(\d{2})-(\d{2})$/.exec(String(x||""));return m?Date.UTC(+m[1],+m[2]-1,+m[3]):null}
@@ -1006,28 +1016,32 @@ function renderWorkers(){
  const dd=daysBetween(el("date").value,el("endDate").value||el("date").value);
  el("workersDaysInfo").textContent="📆 "+t("काम के दिन:")+" "+(dd||"-");
  el("workersList").innerHTML=workersDraft.length?workersDraft.map((w,i)=>`<div class="worker-card">
-  <div class="wr1"><input data-wcat="${i}" value="${esc(w.cat)}" placeholder="${esc(t("कैटेगरी (जैसे रसोईया)"))}"><input data-wname="${i}" value="${esc(w.name)}" placeholder="${esc(t("नाम (वैकल्पिक)"))}"><button type="button" class="danger" data-act="w-del" data-id="${i}">🗑️</button></div>
-  <div class="wr2"><div><small>${t("₹ प्रतिदिन")}</small><input data-wrate="${i}" type="number" inputmode="decimal" min="0" value="${w.rate||""}" placeholder="₹"></div><div><small>${t("दिन (हाजिरी)")}</small><input data-wdays="${i}" type="number" inputmode="decimal" min="0" step="0.5" value="${w.days||""}" placeholder="0"></div><div class="wtot"><small>${t("कुल")}</small><b data-wtot="${i}">${money(wTotal(w))}</b></div></div></div>`).join(""):`<p class="small">${t("अभी कोई कारीगर नहीं जुड़ा।")}</p>`;
+  <div class="wr1"><div><small>${t("संख्या")}</small><input data-wcount="${i}" type="number" inputmode="numeric" min="0" step="1" value="${wCount(w)}" placeholder="1"></div><div><small>${t("कैटेगरी")}</small><input data-wcat="${i}" value="${esc(w.cat)}" placeholder="${esc(t("कैटेगरी (जैसे रसोईया)"))}"></div><button type="button" class="danger" data-act="w-del" data-id="${i}">🗑️</button></div>
+  <div class="wr2"><div><small>${t("वेतन ₹ (प्रति व्यक्ति / दिन)")}</small><input data-wrate="${i}" type="number" inputmode="decimal" min="0" value="${w.rate||""}" placeholder="₹"></div><div><small>${t("दिन")}</small><input data-wdays="${i}" type="number" inputmode="decimal" min="0" step="0.5" value="${w.days||""}" placeholder="0"></div><div class="wtot"><small>${t("कुल")}</small><b data-wtot="${i}">${money(wTotal(w))}</b></div></div></div>`).join(""):`<p class="small">${t("अभी कोई कारीगर नहीं जुड़ा।")}</p>`;
  el("workerChips").innerHTML=workerCats.map((c,i)=>`<span class="chipwrap"><button type="button" class="chip" data-act="w-chip" data-id="${i}">+ ${esc(t(c))}</button>${DEFAULT_CATS.includes(c)?"":`<button type="button" class="chip x" data-act="cat-del" data-id="${i}">×</button>`}</span>`).join("");
  updateWorkersTotal();
 }
 function updateWorkersTotal(){el("workersTotal").textContent=money(workersSum(workersDraft))}
-function addCatRow(i){const c=t(workerCats[i]);workersDraft.push({cat:c,name:"",rate:workerRates[c]||workerRates[workerCats[i]]||0,days:defaultDays()});renderWorkers()}
+function addPersonRow(){
+ workersDraft.push({cat:"",name:"",rate:0,days:defaultDays(),count:1});renderWorkers();
+ const c=el("workersList").querySelector('[data-wcount="'+(workersDraft.length-1)+'"]');if(c){c.focus();c.select&&c.select()}
+}
+function addCatRow(i){const c=t(workerCats[i]);workersDraft.push({cat:c,name:"",rate:workerRates[c]||workerRates[workerCats[i]]||0,days:defaultDays(),count:1});renderWorkers()}
 function delCat(i){workerCats.splice(i,1);saveWorkerPrefs();renderWorkers()}
 function addCustomCat(){
  const inp=el("newCatInput"),c=inp.value.trim();if(!c)return;
  if(!workerCats.includes(c))workerCats.push(c);
  saveWorkerPrefs();inp.value="";
- workersDraft.push({cat:c,name:"",rate:workerRates[c]||0,days:defaultDays()});renderWorkers();
+ workersDraft.push({cat:c,name:"",rate:workerRates[c]||0,days:defaultDays(),count:1});renderWorkers();
 }
 function setAllWorkerDays(){const n=defaultDays();workersDraft.forEach(w=>{w.days=n});renderWorkers()}
 function addWorkersFromText(){
  const box=el("workerQuick"),list=parseWorkers(box.value);if(!list.length)return;
- list.forEach(w=>workersDraft.push({cat:w.name||t("कारीगर"),name:"",rate:w.amount||workerRates[w.name]||0,days:defaultDays()}));
+ list.forEach(w=>workersDraft.push({cat:w.name||t("कारीगर"),name:"",rate:w.amount||workerRates[w.name]||0,days:defaultDays(),count:1}));
  box.value="";renderWorkers();
 }
 function applyWorkers(){
- formWorkers=workersDraft.map(normW).filter(w=>w.cat.trim()||w.name.trim()||w.rate).map(w=>({cat:w.cat.trim()||t("कारीगर"),name:w.name.trim(),rate:w.rate,days:w.days}));
+ formWorkers=workersDraft.map(normW).filter(w=>w.cat.trim()||w.name.trim()||w.rate).map(w=>({cat:w.cat.trim()||t("कारीगर"),name:w.name.trim(),rate:w.rate,days:w.days,count:w.count}));
  const known=DEFAULT_CATS.map(c=>t(c));
  formWorkers.forEach(w=>{if(w.rate)workerRates[w.cat]=w.rate;if(!workerCats.includes(w.cat)&&!known.includes(w.cat))workerCats.push(w.cat)});
  saveWorkerPrefs();closeWorkers();updateWorkersSummary();
@@ -1035,16 +1049,16 @@ function applyWorkers(){
 function updateWorkersSummary(){
  const f=el("workersField"),s=el("workersSummary");if(!f||!s)return;
  const ws=formWorkers.map(normW);
- f.value=ws.length?t("कारीगर")+": "+ws.length+" • "+money(workersSum(ws)):"";
- s.textContent=ws.map(w=>"• "+wLabel(w)+": "+money(w.rate)+" × "+w.days+" "+t("दिन")+" = "+money(wTotal(w))).join("\n");
+ f.value=ws.length?t("काम करने वाले व्यक्ति")+": "+personsSum(ws)+" • "+money(workersSum(ws)):"";
+ s.textContent=ws.map(w=>"• "+wLine(w)).join("\n");
  updateFormSummary();
 }
 document.addEventListener("input",e=>{
  const d=e.target.dataset||{};
- const k=["wcat","wname","wrate","wdays"].find(x=>d[x]!==undefined);if(!k)return;
+ const k=["wcat","wname","wrate","wdays","wcount"].find(x=>d[x]!==undefined);if(!k)return;
  const i=+d[k],w=workersDraft[i];if(!w)return;
  const v=e.target.value;
- if(k==="wcat")w.cat=v;else if(k==="wname")w.name=v;else if(k==="wrate")w.rate=+v||0;else w.days=+v||0;
+ if(k==="wcat")w.cat=v;else if(k==="wname")w.name=v;else if(k==="wrate")w.rate=+v||0;else if(k==="wcount")w.count=+v||0;else w.days=+v||0;
  const tot=document.querySelector('[data-wtot="'+i+'"]');if(tot)tot.textContent=money(wTotal(w));
  updateWorkersTotal();
 });
@@ -1072,26 +1086,46 @@ ${phone?`<div style="font-size:15px;color:#fff;font-weight:bold;margin-top:3px">
 <table style="width:100%;border-collapse:collapse;font-size:15px">${cust.map((r,i)=>row(r[0],r[1],i)).join("")}</table>
 <h3 style="color:#b71c1c;margin:16px 0 6px;font-size:17px">${t("📅 कार्यक्रम का विवरण")}</h3>
 <table style="width:100%;border-collapse:collapse;font-size:15px">${det.map((r,i)=>row(r[0],r[1],i)).join("")}${row(t("बाकी रकम"),money(d.amt-d.adv),det.length,"font-weight:800;color:#b71c1c;font-size:17px")}${d.notes?row(t("नोट"),esc(d.notes),det.length+1):""}</table>
+${(d.workers&&d.workers.length)?`<h3 style="color:#b71c1c;margin:16px 0 6px;font-size:17px">${t("👷 काम करने वाले व्यक्ति")}</h3>
+<table style="width:100%;border-collapse:collapse;font-size:14px">
+<thead><tr style="background:#b71c1c;color:#fff"><th style="border:1px solid #b71c1c;padding:8px">${t("संख्या")}</th><th style="border:1px solid #b71c1c;padding:8px">${t("कैटेगरी")}</th><th style="border:1px solid #b71c1c;padding:8px">${t("वेतन (प्रति व्यक्ति/दिन)")}</th><th style="border:1px solid #b71c1c;padding:8px">${t("दिन")}</th><th style="border:1px solid #b71c1c;padding:8px">${t("कुल")}</th></tr></thead>
+<tbody>${d.workers.map((w,i)=>`<tr style="background:${i%2?"#fff3d6":"#ffffff"}"><td style="border:1px solid #e3c98a;padding:8px;text-align:center;font-weight:bold">${wCount(w)}</td><td style="border:1px solid #e3c98a;padding:8px">${esc(wLabel(w))}</td><td style="border:1px solid #e3c98a;padding:8px;text-align:right">${money(w.rate)}</td><td style="border:1px solid #e3c98a;padding:8px;text-align:center">${w.days}</td><td style="border:1px solid #e3c98a;padding:8px;text-align:right;font-weight:bold">${money(wTotal(w))}</td></tr>`).join("")}
+<tr style="background:#fdd891;color:#7a1010"><td colspan="4" style="border:1px solid #e3c98a;padding:9px;font-weight:800;text-align:right">${t("कुल भुगतान")}</td><td style="border:1px solid #e3c98a;padding:9px;font-weight:800;text-align:right;font-size:16px">${money(workersSum(d.workers))}</td></tr></tbody></table>`:""}
 <div style="margin-top:22px;background:#fdd891;color:#7a1010;text-align:center;padding:14px;border-radius:8px;line-height:1.7">
 <div style="font-size:18px;font-weight:800">${t("🙏 धन्यवाद!")}</div>
 <div style="font-size:14px">${t("आपने हम पर भरोसा किया, इसके लिए हृदय से आभार। किसी भी जानकारी के लिए हमसे संपर्क करें।")}</div>
 <div style="font-size:15px;font-weight:bold;margin-top:4px">${biz}${phone?" • "+phone:""}</div></div>`;
  return body;
 }
-async function shareBookingPdf(){
+// फॉर्म में भरी जानकारी से PDF
+function shareBookingPdf(){
  const name=el("name").value.trim(),sd=el("date").value;
  if(!name||!sd){alert(t("फॉर्म में ग्राहक का नाम और काम आरंभ की तिथि भरें।"));return}
- const ed=el("endDate").value||sd;
+ const ed=el("endDate").value||sd,status=el("status").value;
+ const d={name,address:el("address").value.trim(),phone:el("phone").value.trim(),category:el("category").value,sd,ed,days:daysBetween(sd,ed),
+  amt:+el("amount").value||0,adv:+el("advance").value||0,notes:el("notes").value.trim(),workers:formWorkers.map(normW),stamp:nowStamp(),confirmed:(status==="पक्की"||status==="काम पूरा")};
+ return makeBookingPdf(d,el("bookingPdfBtn"));
+}
+// सूची में किसी ग्राहक की सेव हो चुकी बुकिंग से PDF
+function shareBookingPdfById(id,btn){
+ const b=bookings.find(x=>String(x.id)===String(id));if(!b)return;
+ if(!b.name||!b.date){alert(t("फॉर्म में ग्राहक का नाम और काम आरंभ की तिथि भरें।"));return}
+ const ed=b.endDate||b.date;
+ const d={name:b.name,address:b.address||"",phone:b.phone||"",category:b.category||"अन्य",sd:b.date,ed,days:daysBetween(b.date,ed),
+  amt:+b.amount||0,adv:+b.advance||0,notes:b.notes||"",workers:(b.workers||[]).map(normW),stamp:nowStamp(),confirmed:(b.status==="पक्की"||b.status==="काम पूरा")};
+ return makeBookingPdf(d,btn);
+}
+async function makeBookingPdf(d,btn){
+ const name=d.name,sd=d.sd,ed=d.ed;
  if(parseYMD(ed)<parseYMD(sd)){alert(t("समाप्ति की तिथि आरंभ की तिथि से पहले नहीं हो सकती।"));return}
  if(!window.html2pdf){alert(t("PDF लाइब्रेरी लोड नहीं हुई। इंटरनेट चालू करके दोबारा प्रयास करें।"));return}
- const status=el("status").value;
- const d={name,address:el("address").value.trim(),phone:el("phone").value.trim(),category:el("category").value,sd,ed,days:daysBetween(sd,ed),
-  amt:+el("amount").value||0,adv:+el("advance").value||0,notes:el("notes").value.trim(),stamp:nowStamp(),confirmed:(status==="पक्की"||status==="काम पूरा")};
- const box=el("pdfBookingTemplate"),btn=el("bookingPdfBtn"),old=btn.textContent,pdfName="Booking-"+fileStamp()+".pdf";
- btn.disabled=true;btn.textContent=t("⏳ PDF बन रही है...");
+ const box=el("pdfBookingTemplate"),old=btn?btn.textContent:"",pdfName="Booking-"+fileStamp()+".pdf";
+ if(btn){btn.disabled=true;btn.textContent=t("⏳ PDF बन रही है...")}
  box.innerHTML=buildBookingPdfHtml(d);box.style.display="block";
+ window.scrollTo(0,0); // पेज स्क्रॉल होने पर PDF खाली आती थी, इसलिए ऊपर ले जाते हैं
+ await new Promise(r=>setTimeout(r,350)); // लोगो और टेक्स्ट बनने दें
  try{
-  const blob=await html2pdf().from(box).set({margin:10,filename:pdfName,image:{type:"jpeg",quality:.98},html2canvas:{scale:2,useCORS:true},jsPDF:{unit:"mm",format:"a4",orientation:"portrait"},pagebreak:{mode:["css","legacy"],avoid:"tr"}}).outputPdf("blob");
+  const blob=await html2pdf().from(box).set({margin:10,filename:pdfName,image:{type:"jpeg",quality:.98},html2canvas:{scale:2,useCORS:true,scrollX:0,scrollY:0,windowWidth:Math.max(document.documentElement.clientWidth,700)},jsPDF:{unit:"mm",format:"a4",orientation:"portrait"},pagebreak:{mode:["css","legacy"],avoid:"tr"}}).outputPdf("blob");
   const file=new File([blob],pdfName,{type:"application/pdf"});
   const ph=d.phone.replace(/\D/g,"");
   const sig=[profile.bizName||"",profile.bizPhone?"📞 "+profile.bizPhone:""].filter(Boolean).join("\n");
@@ -1101,7 +1135,7 @@ async function shareBookingPdf(){
   el("shareMsgPreview").textContent=msg;
   el("shareModal").classList.add("show")
  }catch(e){console.error(e);alert(t("PDF नहीं बन पाई। कृपया दोबारा प्रयास करें।"))}
- finally{box.style.display="none";box.innerHTML="";btn.disabled=false;btn.textContent=old}
+ finally{box.style.display="none";box.innerHTML="";if(btn){btn.disabled=false;btn.textContent=old}}
 }
 
 /* ---------- ऑफलाइन पट्टी ---------- */
@@ -1123,6 +1157,7 @@ document.addEventListener("click",e=>{
   case "edit":editBooking(id);break;
   case "edit-close":closeBookingDetails();editBooking(id);break;
   case "share":shareBooking(id);break;
+  case "share-pdf":shareBookingPdfById(id,tg);break;
   case "del":deleteBooking(id);break;
   case "item-edit":editItem(id);break;
   case "item-del":deleteItem(id);break;
