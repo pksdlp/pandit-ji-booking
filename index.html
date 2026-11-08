@@ -113,6 +113,31 @@ body:not([data-view=sync]) #authCard{display:none}
 .top-nav button.active{color:#fff;background:rgba(255,255,255,.15);font-weight:800}
 
 @media(max-width:420px){body{font-size:16px}.container{padding:8px}.card{padding:13px}.row{grid-template-columns:1fr}.home-card h4{font-size:20px}.home-card p{font-size:15px}header h2{font-size:19px}}
+
+/* ---------- चौड़ी बिजनेस प्रोफाइल पट्टी ---------- */
+header{position:relative;display:block;text-align:center;background:#b71c1c;background-image:linear-gradient(135deg,#8e1111 0%,#b71c1c 55%,#d32f2f 100%);padding:16px 14px 20px;border-radius:0 0 26px 26px;box-shadow:0 6px 16px rgba(155,21,21,.35)}
+.menu-btn,.lang-btn,.back-btn{position:absolute;top:12px;z-index:2}
+.menu-btn{left:12px}.lang-btn{right:12px}.back-btn{left:12px;top:56px}
+.header-photo{display:block;margin:2px auto 0;width:104px;height:104px;border:3px solid #fff;box-shadow:0 4px 14px rgba(0,0,0,.35)}
+.hd-text{display:block;margin-top:8px}
+header h2{font-size:25px;letter-spacing:.3px;line-height:1.25}
+header .hd-text div{font-size:14px}
+#headerBusinessSub{font-style:italic;font-weight:600;opacity:.95;margin-top:2px;color:#ffe9c2}
+#headerBusinessContact{display:inline-block;margin-top:8px;padding:6px 14px;background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.28);border-radius:14px;line-height:1.6}
+#headerBusinessContact:empty{display:none}
+
+/* ---------- होम के छोटे कार्ड ---------- */
+.home-grid{gap:8px}
+.home-card{min-height:0;padding:10px 11px}
+.home-card .ic{font-size:26px}
+.home-card h4{font-size:18px;margin:4px 0}
+.home-card p{font-size:13px;line-height:1.45}
+@media(max-width:420px){header h2{font-size:22px}.home-card h4{font-size:17px}.home-card p{font-size:13px}}
+
+/* ---------- मैरून नेविगेशन पट्टी, हर आइटम बॉक्स में ---------- */
+.top-nav{background:#5e0b0b;gap:6px;padding:7px 8px;box-shadow:0 3px 8px rgba(0,0,0,.45)}
+.top-nav button{background:#7a1212;border:1px solid rgba(255,255,255,.28);border-radius:8px;color:#ffe3dc;padding:6px 2px;box-shadow:0 1px 3px rgba(0,0,0,.35);min-width:0}
+.top-nav button.active{background:#fdd891;color:#7a1010;border-color:#fdd891;font-weight:800}
 </style>
 </head>
 <body data-view="home">
@@ -199,15 +224,17 @@ body:not([data-view=sync]) #authCard{display:none}
 </div></div>
 
 <div id="pdfInvoiceTemplate">
-<div style="text-align:center;border-bottom:3px solid #b71c1c;padding-bottom:15px;margin-bottom:20px">
-<img id="pdfLogoImg" src="./hanuman-blessing.png" style="width:80px;height:80px;object-fit:cover;border-radius:50%;border:2px solid #b71c1c">
-<h2 id="pdfBizName" style="color:#b71c1c;margin:10px 0 5px">WORK MANAGER</h2>
-<div id="pdfBizSub" style="font-size:15px;color:#555"></div><div id="pdfBizPhone" style="font-size:15px;color:#555"></div></div>
-<h3 style="text-align:center;color:#b71c1c">📦 मंगवाने वाले सामान की सूची</h3>
-<table style="width:100%;border-collapse:collapse;margin-top:10px;font-size:15px">
-<thead><tr style="background:#fdd891;color:#b71c1c"><th style="border:1px solid #ddd;padding:9px">क्र.</th><th style="border:1px solid #ddd;padding:9px">सामान का नाम</th><th style="border:1px solid #ddd;padding:9px">मात्रा</th></tr></thead>
+<div style="background:#b71c1c;background-image:linear-gradient(135deg,#8e1111,#b71c1c 55%,#d32f2f);color:#fff;text-align:center;padding:22px 16px;border-radius:12px;border-bottom:5px solid #fdd891;margin-bottom:18px">
+<img id="pdfLogoImg" src="./hanuman-blessing.png" style="width:92px;height:92px;object-fit:cover;border-radius:50%;border:3px solid #fff;background:#fff">
+<h2 id="pdfBizName" style="color:#fff;margin:10px 0 4px;font-size:24px">WORK MANAGER</h2>
+<div id="pdfBizTag" style="font-size:15px;font-style:italic;color:#ffe9c2"></div>
+<div id="pdfBizSub" style="font-size:14px;color:#fff;margin-top:5px"></div>
+<div id="pdfBizPhone" style="font-size:15px;color:#fff;font-weight:bold;margin-top:3px"></div></div>
+<h3 style="text-align:center;color:#b71c1c;margin:6px 0 10px">📦 मंगवाने वाले सामान की सूची</h3>
+<table style="width:100%;border-collapse:collapse;font-size:15px">
+<thead><tr style="background:#b71c1c;color:#fff"><th style="border:1px solid #b71c1c;padding:9px">क्र.</th><th style="border:1px solid #b71c1c;padding:9px">सामान का नाम</th><th style="border:1px solid #b71c1c;padding:9px">मात्रा</th></tr></thead>
 <tbody id="pdfTableBody"></tbody></table>
-<p style="margin-top:30px;text-align:center;border-top:1px dashed #ccc;padding-top:15px"><b>नोट:</b> कृपया उपरोक्त सामान समय पर मंगवा कर रखें। धन्यवाद!</p>
+<div style="margin-top:22px;background:#fdd891;color:#7a1010;text-align:center;padding:12px;border-radius:8px"><b>नोट:</b> कृपया उपरोक्त सामान समय पर मंगवा कर रखें। धन्यवाद!</div>
 </div>
 
 <div class="container">
@@ -387,7 +414,7 @@ const EN={
 let LANG=localStorage.getItem(LANG_KEY)==="en"?"en":"hi";
 function t(s){return LANG==="en"&&Object.prototype.hasOwnProperty.call(EN,s)?EN[s]:s}
 function tf(s,v){return t(s).replace(/\{(\w+)\}/g,(m,k)=>v[k]??"")}
-const DYN_SEL="#syncStatus,#authStatus,#bookingList,#itemsListContainer,#bookingDetailContent,#headerBusinessSub,#headerBusinessContact,#shareInfo,#shareMsgPreview,#headerBusinessName,#pdfBizName,#pdfBizSub,#pdfBizPhone,#pdfTableBody,#totalItemsCount,#newBookingBtn,#saveBtn,#langHeaderBtn,#themeBtn,#langMenuBtn,#bulkCount,#itemsSelInfo";
+const DYN_SEL="#syncStatus,#authStatus,#bookingList,#itemsListContainer,#bookingDetailContent,#headerBusinessSub,#headerBusinessContact,#shareInfo,#shareMsgPreview,#headerBusinessName,#pdfBizName,#pdfBizTag,#pdfBizSub,#pdfBizPhone,#pdfTableBody,#totalItemsCount,#newBookingBtn,#saveBtn,#langHeaderBtn,#themeBtn,#langMenuBtn,#bulkCount,#itemsSelInfo";
 function translateStatic(){
  const w=document.createTreeWalker(document.body,NodeFilter.SHOW_TEXT),nodes=[];let n;
  while(n=w.nextNode())nodes.push(n);
@@ -476,7 +503,7 @@ function saveBusinessProfile(){
 function applyBusinessProfile(p){
  el("headerBusinessName").textContent=p.bizName||"WORK MANAGER";
  el("headerBusinessSub").textContent=p.tagline||"Smart Booking & Management";
- const ct=[];if(p.ownerName)ct.push(t("संचालक:")+" "+p.ownerName);if(p.bizPhone)ct.push("📞 "+p.bizPhone);if(p.bizAddress)ct.push("📍 "+p.bizAddress);
+ const ct=[];if(p.ownerName)ct.push(t("संचालक:")+" "+p.ownerName);if(p.bizAddress)ct.push("📍 "+p.bizAddress);if(p.bizPhone)ct.push("📞 "+p.bizPhone);
  el("headerBusinessContact").textContent=ct.join("\n");
  el("taglineInput").value=p.tagline||"";
  el("bizNameInput").value=p.bizName||"";el("ownerNameInput").value=p.ownerName||"";
@@ -658,10 +685,11 @@ async function downloadAndShareItemsPDF(){
  if(!list.length){alert(t("कम से कम एक सामान चुनें।"));return}
  if(!window.html2pdf){alert(t("PDF लाइब्रेरी लोड नहीं हुई। इंटरनेट चालू करके दोबारा प्रयास करें।"));return}
  el("pdfBizName").textContent=profile.bizName||"WORK MANAGER";
- el("pdfBizSub").textContent=(profile.ownerName?t("संचालक:")+" "+profile.ownerName+" ":"")+(profile.bizAddress||"");
- el("pdfBizPhone").textContent=profile.bizPhone?t("मोबाइल:")+" "+profile.bizPhone:"";
+ el("pdfBizTag").textContent=profile.tagline||"";
+ el("pdfBizSub").textContent=[profile.ownerName?t("संचालक:")+" "+profile.ownerName:"",profile.bizAddress?"📍 "+profile.bizAddress:""].filter(Boolean).join("   |   ");
+ el("pdfBizPhone").textContent=profile.bizPhone?"📞 "+profile.bizPhone:"";
  el("pdfLogoImg").src=localStorage.getItem(LOGO_KEY)||profile.logo||DEFAULT_LOGO;
- el("pdfTableBody").innerHTML=list.map((it,i)=>`<tr><td style="border:1px solid #ddd;padding:8px;text-align:center">${i+1}</td><td style="border:1px solid #ddd;padding:8px">${esc(it.name)}</td><td style="border:1px solid #ddd;padding:8px">${esc(it.qty||"-")}</td></tr>`).join("");
+ el("pdfTableBody").innerHTML=list.map((it,i)=>`<tr style="background:${i%2?"#fff3d6":"#ffffff"}"><td style="border:1px solid #e3c98a;padding:8px;text-align:center;color:#b71c1c;font-weight:bold">${i+1}</td><td style="border:1px solid #e3c98a;padding:8px;font-weight:600">${esc(it.name)}</td><td style="border:1px solid #e3c98a;padding:8px;color:#7a1010;font-weight:bold">${esc(it.qty||"-")}</td></tr>`).join("");
  const btn=el("shareItemsBtn"),old=btn?btn.textContent:"";
  if(btn){btn.disabled=true;btn.textContent=t("⏳ PDF बन रही है...")}
  const box=el("pdfInvoiceTemplate");box.style.display="block";
