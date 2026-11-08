@@ -1,18 +1,19 @@
 {
-  "name": "WORK MANAGER — Smart Booking & Management",
-  "short_name": "WORK MANAGER",
-  "description": "बुकिंग, ग्राहक और काम का हिसाब-किताब मैनेजमेंट",
+  "id": "./",
+  "name": "WORK MANAGER",
+  "short_name": "Work Manager",
+  "description": "Smart Booking & Management — बुकिंग, सामान और हिसाब",
   "start_url": "./index.html",
   "scope": "./",
   "display": "standalone",
-  "background_color": "#ffffff",
-  "theme_color": "#166534",
+  "orientation": "portrait",
+  "background_color": "#fff8ea",
+  "theme_color": "#9b1515",
+  "lang": "hi",
+  "categories": ["business", "productivity"],
   "icons": [
-    {
-      "src": "./icon.svg",
-      "sizes": "any",
-      "type": "image/svg+xml",
-      "purpose": "any"
-    }
+    { "src": "./icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "./icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "./icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
   ]
 }
