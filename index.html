@@ -25,18 +25,18 @@ if(window.caches){caches.keys().then(function(k){k.forEach(function(n){caches.de
 :root{--primary:#b71c1c;--primary-d:#9b1515;--accent:#b71c1c;--bg:#fff8ea;--card:#fff3d6;--tile:#fdd891;--text:#4a2a0a;--muted:#7a5a35;--border:#ecc77a;--soft:#fde7b0;--input:#fff;--shadow:0 2px 5px rgba(0,0,0,.18)}
 body.dark{--bg:#1c1210;--card:#2a1c18;--tile:#3a2620;--text:#f3e3d0;--muted:#c9a98a;--border:#4a322a;--soft:#33221d;--input:#3a2a24;--shadow:0 1px 2px rgba(0,0,0,.5)}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-body{margin:0;padding-bottom:72px;background:var(--bg);color:var(--text);font-family:"Noto Sans Devanagari","Mangal",system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;font-size:17px;line-height:1.5}
+body{margin:0;background:var(--bg);color:var(--text);font-family:"Noto Sans Devanagari","Mangal",system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;font-size:17px;line-height:1.5}
 
 /* ---------- ऊपर की लाल पट्टी ---------- */
-header{position:sticky;top:0;z-index:900;background:#b71c1c;color:#fff;padding:10px 12px;display:flex;align-items:center;gap:10px;box-shadow:0 2px 6px rgba(0,0,0,.35)}
+header{background:#b71c1c;color:#fff;padding:12px;display:flex;align-items:center;gap:10px;box-shadow:0 2px 6px rgba(0,0,0,.35)}
 .menu-btn,.lang-btn,.back-btn{background:rgba(255,255,255,.14);color:#fff;border:1px solid rgba(255,255,255,.5);border-radius:8px;padding:6px 11px;font-size:14px;margin:0;box-shadow:none}
 .lang-btn{font-weight:bold;min-width:46px}
 .back-btn{font-size:18px;padding:3px 12px;display:none}
 body:not([data-view=home]) .back-btn{display:block}
-.header-photo{width:42px;height:42px;object-fit:cover;border-radius:50%;border:2px solid rgba(255,255,255,.9);background:#fff}
+.header-photo{width:58px;height:58px;object-fit:cover;border-radius:50%;border:2px solid rgba(255,255,255,.9);background:#fff}
 .hd-text{flex:1;min-width:0}
-header h2{font-size:21px;font-weight:800;margin:0;line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-header .hd-text div{font-size:12px;opacity:.9;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+header h2{font-size:21px;font-weight:800;margin:0;line-height:1.25;word-break:break-word}
+header .hd-text div{font-size:13px;opacity:.95;line-height:1.4}#headerBusinessSub{font-style:italic;font-weight:600}#headerBusinessContact{white-space:pre-line;margin-top:3px}
 
 /* ---------- साइड मेनू ---------- */
 .side-menu{position:fixed;top:0;left:-320px;width:300px;height:100%;background:var(--bg);box-shadow:2px 0 14px #0006;transition:.3s;z-index:1000;padding:20px;overflow-y:auto;text-align:left;color:var(--text)}
@@ -107,20 +107,28 @@ body:not([data-view=list]) #listCard{display:none}
 body:not([data-view=sync]) #authCard{display:none}
 
 /* ---------- नीचे का नेविगेशन ---------- */
-.bottom-nav{position:fixed;left:0;right:0;bottom:0;z-index:950;background:#9b1515;display:flex;box-shadow:0 -2px 8px rgba(0,0,0,.3)}
-.bottom-nav button{flex:1;margin:0;border-radius:0;background:transparent;box-shadow:none;color:#ffd9d0;font-size:12px;padding:8px 2px;display:flex;flex-direction:column;align-items:center;gap:2px}
-.bottom-nav button{text-transform:capitalize}.bottom-nav button span{font-size:22px;line-height:1.1}
-.bottom-nav button.active{color:#fff;background:rgba(255,255,255,.15);font-weight:800}
+.top-nav{position:sticky;top:0;z-index:950;background:#9b1515;display:flex;box-shadow:0 2px 6px rgba(0,0,0,.35)}
+.top-nav button{flex:1;margin:0;border-radius:0;background:transparent;box-shadow:none;color:#ffd9d0;font-size:12px;padding:8px 2px;display:flex;flex-direction:column;align-items:center;gap:2px}
+.top-nav button{text-transform:capitalize}.top-nav button span{font-size:22px;line-height:1.1}
+.top-nav button.active{color:#fff;background:rgba(255,255,255,.15);font-weight:800}
 
 @media(max-width:420px){body{font-size:16px}.container{padding:8px}.card{padding:13px}.row{grid-template-columns:1fr}.home-card h4{font-size:20px}.home-card p{font-size:15px}header h2{font-size:19px}}
 </style>
 </head>
 <body data-view="home">
+<!-- सबसे ऊपर का नेविगेशन बार -->
+<nav class="top-nav" id="topNav">
+<button data-v="home" onclick="showView('home')"><span>🏠</span>होम</button>
+<button data-v="form" onclick="openNewBooking()"><span>➕</span>बुकिंग</button>
+<button data-v="list" onclick="showView('list')"><span>📋</span>सूची</button>
+<button onclick="openItemsModal()"><span>📦</span>सामान</button>
+<button data-v="stats" onclick="showView('stats')"><span>📊</span>हिसाब</button>
+</nav>
 <header>
 <button class="menu-btn" onclick="toggleMenu()">☰ मेनू</button>
 <button class="back-btn" onclick="showView('home')" aria-label="वापस">←</button>
 <img class="header-photo" id="headerLogoImg" src="./hanuman-blessing.png" alt="Logo">
-<div class="hd-text"><h2 id="headerBusinessName">WORK MANAGER</h2><div id="headerBusinessSub">Smart Booking &amp; Management</div></div>
+<div class="hd-text"><h2 id="headerBusinessName">WORK MANAGER</h2><div id="headerBusinessSub">Smart Booking &amp; Management</div><div id="headerBusinessContact"></div></div>
 <button class="lang-btn" id="langHeaderBtn" onclick="toggleLang()">EN</button>
 </header>
 
@@ -134,6 +142,7 @@ body:not([data-view=sync]) #authCard{display:none}
 <input id="ownerNameInput" placeholder="संचालक का नाम" style="font-size:14px;padding:8px;margin-bottom:6px">
 <input id="bizPhoneInput" type="tel" placeholder="मोबाइल नंबर" style="font-size:14px;padding:8px;margin-bottom:6px">
 <input id="bizAddressInput" placeholder="पूरा पता" style="font-size:14px;padding:8px;margin-bottom:6px">
+<input id="taglineInput" placeholder="टैगलाइन (जैसे: शुद्ध चाय, ताज़ा स्वाद)" style="font-size:14px;padding:8px;margin-bottom:6px">
 <button style="font-size:14px;padding:8px;width:100%" onclick="saveBusinessProfile()">प्रोफाइल सेव करें</button>
 </div>
 <label>🖼️ बिजनेस लोगो बदलें</label>
@@ -151,19 +160,19 @@ body:not([data-view=sync]) #authCard{display:none}
 <div class="modal" id="itemsModal"><div class="modal-content">
 <div style="display:flex;justify-content:space-between;align-items:center;border-bottom:2px solid var(--primary);padding-bottom:8px;margin-bottom:12px">
 <h3 style="margin:0">📦 सामान की सूची</h3><button class="danger" onclick="closeItemsModal()">बंद करें</button></div>
+<div style="display:flex;justify-content:space-between;align-items:center;gap:8px">
+<h4 style="color:var(--primary);margin:0">कुल सामान (<span id="totalItemsCount">0</span>)</h4>
+<button class="whatsapp" id="shareItemsBtn" onclick="downloadAndShareItemsPDF()">📤 WhatsApp शेयर</button></div>
+<input id="itemSearch" placeholder="🔎 सामान खोजें..." oninput="renderItemsList()" style="margin-top:10px">
+<div class="small" id="itemsSelInfo" style="margin-top:6px"></div>
+<div id="itemsListContainer" style="margin-top:6px"></div>
+<hr style="margin:18px 0;border:0;border-top:1px solid var(--border)">
+<div><button class="secondary" onclick="setAllChecked(true)">✔ सभी चुनें</button><button class="secondary" onclick="setAllChecked(false)">✖ कोई नहीं</button><button class="danger" onclick="deleteSelectedItems()">🗑️ चुने हुए हटाएं</button></div>
 <label>सामान एक साथ जोड़ें (कॉमा , से अलग करें)</label>
 <textarea id="bulkItems" rows="4" placeholder="जैसे: टेंट, कुर्सी, दरी, माइक:2, गैस सिलेंडर:3 पीस" oninput="updateBulkCount()"></textarea>
 <div class="small" id="bulkCount"></div>
 <button type="button" onclick="saveBulkItems()">➕ सभी सामान जोड़ें</button><button type="button" class="secondary" onclick="el('bulkItems').value='';updateBulkCount()">साफ़ करें</button>
 <p class="small">💡 हर सामान कॉमा (,) से अलग लिखें। मात्रा भी डालनी हो तो नाम के बाद : लगाएँ, जैसे दरी:10। जिस सामान में मात्रा भरी हो वह अपने-आप चुना (हरा टिक) हो जाता है। एक बार में 500 तक सामान डाल सकते हैं।</p>
-<hr style="margin:18px 0;border:0;border-top:1px solid var(--border)">
-<div style="display:flex;justify-content:space-between;align-items:center;gap:8px">
-<h4 style="color:var(--primary);margin:0">कुल सामान (<span id="totalItemsCount">0</span>)</h4>
-<button class="whatsapp" onclick="downloadAndShareItemsPDF()">📥 PDF डाउनलोड / WhatsApp</button></div>
-<input id="itemSearch" placeholder="🔎 सामान खोजें..." oninput="renderItemsList()" style="margin-top:10px">
-<div class="small" id="itemsSelInfo" style="margin-top:6px"></div>
-<div><button class="secondary" onclick="setAllChecked(true)">✔ सभी चुनें</button><button class="secondary" onclick="setAllChecked(false)">✖ कोई नहीं</button><button class="danger" onclick="deleteSelectedItems()">🗑️ चुने हुए हटाएं</button></div>
-<div id="itemsListContainer" style="max-height:45vh;overflow-y:auto;margin-top:6px"></div>
 </div></div>
 
 <div class="sub-modal" id="editItemModal"><div class="sub-modal-content">
@@ -172,6 +181,15 @@ body:not([data-view=sync]) #authCard{display:none}
 <label>मात्रा / क्वांटिटी</label><input id="modalEditQty">
 <div style="display:flex;gap:8px;margin-top:12px"><button type="submit" style="flex:1">सेव करें</button><button type="button" class="danger" style="flex:1" onclick="closeEditModal()">रद्द करें</button></div>
 </form></div></div>
+
+<div class="sub-modal" id="shareModal"><div class="sub-modal-content">
+<h3>📄 PDF तैयार है</h3>
+<p class="small" id="shareInfo"></p>
+<div class="small" id="shareMsgPreview" style="white-space:pre-line;background:var(--soft);border:1px solid var(--border);border-radius:6px;padding:10px;margin-bottom:8px"></div>
+<button class="whatsapp" style="width:100%" onclick="sharePdfNow()">📤 WhatsApp पर भेजें</button>
+<button class="secondary" style="width:100%" onclick="downloadReadyPdf()">⬇ PDF डाउनलोड</button>
+<button class="danger" style="width:100%" onclick="closeShareModal()">बंद करें</button>
+</div></div>
 
 <div class="modal" id="bookingDetailModal"><div class="modal-content">
 <div style="display:flex;justify-content:space-between;align-items:center">
@@ -246,20 +264,13 @@ body:not([data-view=sync]) #authCard{display:none}
 </div>
 <footer>WORK MANAGER • Smart Booking &amp; Management</footer>
 
-<!-- नीचे का नेविगेशन बार -->
-<nav class="bottom-nav" id="bottomNav">
-<button data-v="home" onclick="showView('home')"><span>🏠</span>होम</button>
-<button data-v="form" onclick="openNewBooking()"><span>➕</span>बुकिंग</button>
-<button data-v="list" onclick="showView('list')"><span>📋</span>सूची</button>
-<button onclick="openItemsModal()"><span>📦</span>सामान</button>
-<button data-v="stats" onclick="showView('stats')"><span>📊</span>हिसाब</button>
-</nav>
+
 
 <!-- स्क्रीन बदलने की छोटी स्क्रिप्ट (आपकी मुख्य स्क्रिप्ट के फ़ंक्शन ही इस्तेमाल करती है) -->
 <script>
 function showView(v){
  document.body.setAttribute("data-view",v);
- var b=document.querySelectorAll("#bottomNav button[data-v]");
+ var b=document.querySelectorAll("#topNav button[data-v]");
  for(var i=0;i<b.length;i++){b[i].classList.toggle("active",b[i].getAttribute("data-v")===v)}
  window.scrollTo(0,0);
 }
@@ -296,6 +307,11 @@ const firebaseConfig={
 /* ---------- भाषा (हिंदी / English) ---------- */
 // ऐप का डेटा (स्टेटस, काम आदि) हमेशा हिंदी में सेव होता है; सिर्फ़ स्क्रीन पर भाषा बदलती है।
 const EN={
+"टैगलाइन (जैसे: शुद्ध चाय, ताज़ा स्वाद)":"Tagline (e.g. Pure tea, fresh taste)","✖ क्लियर":"✖ Clear",
+"📤 WhatsApp शेयर":"📤 WhatsApp share","⏳ PDF बन रही है...":"⏳ Creating PDF...","📄 PDF तैयार है":"📄 PDF is ready",
+"📤 WhatsApp पर भेजें":"📤 Send on WhatsApp","⬇ PDF डाउनलोड":"⬇ Download PDF",
+"PDF तैयार है। नीचे दबाने पर WhatsApp खुलेगा और PDF साथ में जुड़ी होगी।":"PDF is ready. Tap below to open WhatsApp with the PDF attached.",
+"PDF डाउनलोड हो गई। WhatsApp खुलने पर 📎 से इस PDF को अटैच करके भेजें।":"PDF downloaded. When WhatsApp opens, attach this PDF with 📎 and send.",
 "नई बुकिंग":"New booking","बुकिंग सूची":"Booking list","सामान सूची":"Items list","हिसाब":"Accounts","क्लाउड सिंक":"Cloud Sync","सेटिंग्स":"Settings",
 "ग्राहक, तारीख, रकम और एडवांस के साथ बुकिंग दर्ज करें":"Record a booking with customer, date, amount and advance",
 "सभी बुकिंग खोजें, फ़िल्टर करें और एडिट करें":"Search, filter and edit all bookings",
@@ -371,7 +387,7 @@ const EN={
 let LANG=localStorage.getItem(LANG_KEY)==="en"?"en":"hi";
 function t(s){return LANG==="en"&&Object.prototype.hasOwnProperty.call(EN,s)?EN[s]:s}
 function tf(s,v){return t(s).replace(/\{(\w+)\}/g,(m,k)=>v[k]??"")}
-const DYN_SEL="#syncStatus,#authStatus,#bookingList,#itemsListContainer,#bookingDetailContent,#headerBusinessSub,#headerBusinessName,#pdfBizName,#pdfBizSub,#pdfBizPhone,#pdfTableBody,#totalItemsCount,#newBookingBtn,#saveBtn,#langHeaderBtn,#themeBtn,#langMenuBtn,#bulkCount,#itemsSelInfo";
+const DYN_SEL="#syncStatus,#authStatus,#bookingList,#itemsListContainer,#bookingDetailContent,#headerBusinessSub,#headerBusinessContact,#shareInfo,#shareMsgPreview,#headerBusinessName,#pdfBizName,#pdfBizSub,#pdfBizPhone,#pdfTableBody,#totalItemsCount,#newBookingBtn,#saveBtn,#langHeaderBtn,#themeBtn,#langMenuBtn,#bulkCount,#itemsSelInfo";
 function translateStatic(){
  const w=document.createTreeWalker(document.body,NodeFilter.SHOW_TEXT),nodes=[];let n;
  while(n=w.nextNode())nodes.push(n);
@@ -454,13 +470,15 @@ function saveProfileCloud(){cloudSave("profile","main",cleanProfile(profile))}
 
 /* ---------- Business profile & logo ---------- */
 function saveBusinessProfile(){
- profile={...profile,bizName:el("bizNameInput").value.trim()||"WORK MANAGER",ownerName:el("ownerNameInput").value.trim(),bizPhone:el("bizPhoneInput").value.trim(),bizAddress:el("bizAddressInput").value.trim()};
+ profile={...profile,bizName:el("bizNameInput").value.trim()||"WORK MANAGER",ownerName:el("ownerNameInput").value.trim(),bizPhone:el("bizPhoneInput").value.trim(),bizAddress:el("bizAddressInput").value.trim(),tagline:el("taglineInput").value.trim()};
  saveLocal();applyBusinessProfile(profile);saveProfileCloud();alert(t("बिजनेस प्रोफाइल सेव हो गई।"));toggleMenu()
 }
 function applyBusinessProfile(p){
  el("headerBusinessName").textContent=p.bizName||"WORK MANAGER";
- let s=p.ownerName?t("संचालक:")+" "+p.ownerName:"";if(p.bizAddress)s+=(s?" | ":"")+p.bizAddress;
- el("headerBusinessSub").textContent=s||"Smart Booking & Management";
+ el("headerBusinessSub").textContent=p.tagline||"Smart Booking & Management";
+ const ct=[];if(p.ownerName)ct.push(t("संचालक:")+" "+p.ownerName);if(p.bizPhone)ct.push("📞 "+p.bizPhone);if(p.bizAddress)ct.push("📍 "+p.bizAddress);
+ el("headerBusinessContact").textContent=ct.join("\n");
+ el("taglineInput").value=p.tagline||"";
  el("bizNameInput").value=p.bizName||"";el("ownerNameInput").value=p.ownerName||"";
  el("bizPhoneInput").value=p.bizPhone||"";el("bizAddressInput").value=p.bizAddress||"";
  if(p.logo){try{localStorage.setItem(LOGO_KEY,p.logo)}catch(e){}}
@@ -600,6 +618,10 @@ function updateSingleItem(e){
  e.preventDefault();const id=el("modalEditId").value,item=businessItems.find(x=>String(x.id)===String(id));if(!item)return;
  const oldQty=item.qty||"";item.name=el("modalEditName").value.trim();item.qty=el("modalEditQty").value.trim();if(item.qty!==oldQty)item.selected=!!item.qty;saveLocal();saveItemCloud(item);closeEditModal();renderItemsList()
 }
+function clearItem(id){
+ const item=businessItems.find(x=>String(x.id)===String(id));if(!item)return;
+ item.qty="";item.selected=false;saveLocal();saveItemCloud(item);renderItemsList()
+}
 function deleteItem(id){
  if(!confirm(t("इस सामान को डिलीट करें?")))return;
  businessItems=businessItems.filter(x=>String(x.id)!==String(id));saveLocal();cloudDelete("inventory",id);renderItemsList()
@@ -622,8 +644,14 @@ function renderItemsList(){
  <div class="item-row">
  <div style="display:flex;align-items:center;gap:8px;min-width:0"><input type="checkbox" ${it.selected!==false?"checked":""} data-check="${esc(it.id)}">
  <div><b><span class="serial">${i+1}</span>${esc(it.name)}</b><br><input class="qty-input" data-qty="${esc(it.id)}" value="${esc(it.qty||"")}" placeholder="${esc(t("मात्रा"))}"></div></div>
- <div style="white-space:nowrap"><button class="secondary" data-act="item-edit" data-id="${esc(it.id)}">✏️</button><button class="danger" data-act="item-del" data-id="${esc(it.id)}">🗑️</button></div></div>`).join(""):`<p class='small'>${t(all?"कोई सामान नहीं मिला।":"कोई सामान नहीं है।")}</p>`;
+ <div style="white-space:nowrap"><button class="secondary" data-act="item-edit" data-id="${esc(it.id)}">✏️</button><button class="orange" data-act="item-clear" data-id="${esc(it.id)}">${t("✖ क्लियर")}</button></div></div>`).join(""):`<p class='small'>${t(all?"कोई सामान नहीं मिला।":"कोई सामान नहीं है।")}</p>`;
  if(fid){const n=el("itemsListContainer").querySelector('[data-qty="'+(window.CSS&&CSS.escape?CSS.escape(fid):fid)+'"]');if(n){n.focus();try{n.setSelectionRange(fpos,fpos)}catch(e){}}}
+}
+let readyPdf=null;
+function pdfShareMessage(){
+ const m=t("नमस्ते, सामान की सूची की PDF संलग्न है। कृपया समय पर सामान मंगवा कर रखें। धन्यवाद!");
+ const sig=[profile.bizName||"",profile.bizPhone?"📞 "+profile.bizPhone:""].filter(Boolean).join("\n");
+ return sig?m+"\n\n"+sig:m;
 }
 async function downloadAndShareItemsPDF(){
  const list=businessItems.filter(i=>i.selected!==false);
@@ -634,13 +662,34 @@ async function downloadAndShareItemsPDF(){
  el("pdfBizPhone").textContent=profile.bizPhone?t("मोबाइल:")+" "+profile.bizPhone:"";
  el("pdfLogoImg").src=localStorage.getItem(LOGO_KEY)||profile.logo||DEFAULT_LOGO;
  el("pdfTableBody").innerHTML=list.map((it,i)=>`<tr><td style="border:1px solid #ddd;padding:8px;text-align:center">${i+1}</td><td style="border:1px solid #ddd;padding:8px">${esc(it.name)}</td><td style="border:1px solid #ddd;padding:8px">${esc(it.qty||"-")}</td></tr>`).join("");
+ const btn=el("shareItemsBtn"),old=btn?btn.textContent:"";
+ if(btn){btn.disabled=true;btn.textContent=t("⏳ PDF बन रही है...")}
  const box=el("pdfInvoiceTemplate");box.style.display="block";
  try{
-  await html2pdf().from(box).set({margin:10,filename:"Saman-List.pdf",image:{type:"jpeg",quality:.98},html2canvas:{scale:2,useCORS:true},jsPDF:{unit:"mm",format:"a4",orientation:"portrait"},pagebreak:{mode:["css","legacy"],avoid:"tr"}}).save();
-  alert(t("PDF डाउनलोड हो गई। अब WhatsApp में PDF फाइल खुद अटैच करके भेजें।"));
-  const msg=t("नमस्ते, सामान की सूची की PDF संलग्न है। कृपया समय पर सामान मंगवा कर रखें। धन्यवाद!");
-  window.open("https://wa.me/?text="+encodeURIComponent(msg),"_blank")
- }catch(e){console.error(e);alert(t("PDF नहीं बन पाई। कृपया दोबारा प्रयास करें।"))}finally{box.style.display="none"}
+  const blob=await html2pdf().from(box).set({margin:10,filename:"Saman-List.pdf",image:{type:"jpeg",quality:.98},html2canvas:{scale:2,useCORS:true},jsPDF:{unit:"mm",format:"a4",orientation:"portrait"},pagebreak:{mode:["css","legacy"],avoid:"tr"}}).outputPdf("blob");
+  const file=new File([blob],"Saman-List.pdf",{type:"application/pdf"});
+  readyPdf={blob,file,msg:pdfShareMessage()};
+  el("shareInfo").textContent=t("PDF तैयार है। नीचे दबाने पर WhatsApp खुलेगा और PDF साथ में जुड़ी होगी।");
+  el("shareMsgPreview").textContent=readyPdf.msg;
+  el("shareModal").classList.add("show")
+ }catch(e){console.error(e);alert(t("PDF नहीं बन पाई। कृपया दोबारा प्रयास करें।"))}
+ finally{box.style.display="none";if(btn){btn.disabled=false;btn.textContent=old}}
+}
+function closeShareModal(){el("shareModal").classList.remove("show")}
+function downloadReadyPdf(){if(readyPdf)downloadBlob(readyPdf.blob,"Saman-List.pdf")}
+async function sharePdfNow(){
+ if(!readyPdf)return;
+ const f=readyPdf.file,msg=readyPdf.msg;
+ try{
+  if(navigator.canShare&&navigator.canShare({files:[f]})){
+   await navigator.share({files:[f],text:msg,title:"Saman List"});
+   closeShareModal();return
+  }
+ }catch(e){if(e&&e.name==="AbortError")return}
+ // अगर फोन सीधे फाइल शेयर नहीं करता: PDF डाउनलोड + WhatsApp में संदेश तैयार
+ downloadBlob(readyPdf.blob,"Saman-List.pdf");
+ el("shareInfo").textContent=t("PDF डाउनलोड हो गई। WhatsApp खुलने पर 📎 से इस PDF को अटैच करके भेजें।");
+ window.open("https://wa.me/?text="+encodeURIComponent(msg),"_blank")
 }
 
 /* ---------- Bookings ---------- */
@@ -760,6 +809,7 @@ document.addEventListener("click",e=>{
   case "del":deleteBooking(id);break;
   case "item-edit":editItem(id);break;
   case "item-del":deleteItem(id);break;
+  case "item-clear":clearItem(id);break;
  }
 });
 const qtyTimers={},pendingQty=new Set();
