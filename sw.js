@@ -1,6 +1,6 @@
 /* WORK MANAGER — ऑफलाइन चलाने के लिए Service Worker
    ऐप की फाइलें बदलें तो नीचे VERSION का नंबर बढ़ा दें (wm-v2, wm-v3 ...) */
-const VERSION="wm-v1";
+const VERSION="wm-v2";
 const SHELL=["./","./index.html","./manifest.webmanifest","./logo.png","./icon-192.png","./icon-512.png","./icon-maskable-512.png","./apple-touch-icon.png"];
 const CDN=[
  "https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js",
