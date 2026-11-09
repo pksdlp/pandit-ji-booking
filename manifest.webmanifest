@@ -1,19 +1,18 @@
 {
-  "id": "./",
-  "name": "WORK MANAGER",
-  "short_name": "Work Manager",
-  "description": "Smart Booking & Management — बुकिंग, सामान और हिसाब",
-  "start_url": "./index.html",
-  "scope": "./",
-  "display": "standalone",
-  "orientation": "portrait",
-  "background_color": "#fff8ea",
-  "theme_color": "#9b1515",
-  "lang": "hi",
-  "categories": ["business", "productivity"],
-  "icons": [
-    { "src": "./icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
-    { "src": "./icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
-    { "src": "./icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
-  ]
+ "name": "WORK MANAGER",
+ "short_name": "WORK MANAGER",
+ "description": "One App – Complete Business Management",
+ "id": "./",
+ "start_url": "./index.html",
+ "scope": "./",
+ "display": "standalone",
+ "orientation": "portrait",
+ "background_color": "#9b1515",
+ "theme_color": "#9b1515",
+ "lang": "hi",
+ "icons": [
+  {"src": "icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any"},
+  {"src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any"},
+  {"src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable"}
+ ]
 }
