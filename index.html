@@ -96,11 +96,11 @@ input[type=checkbox]:checked::after{content:"";position:absolute;left:6px;top:1p
 .pill{display:inline-block;padding:2px 10px;border-radius:20px;font-size:12.5px;font-weight:800;white-space:nowrap}
 .pill.ok,.pill.done{background:var(--okbg);color:var(--ok)}.pill.wait{background:var(--warnbg);color:var(--warn)}.pill.no{background:var(--badbg);color:var(--bad)}.pill.info{background:var(--infobg);color:var(--info)}.pill.gray{background:var(--soft);color:var(--muted);border:1px solid var(--line)}
 .li{border:1px solid var(--line);border-left:5px solid var(--p);border-radius:12px;padding:11px 12px;margin:9px 0;background:var(--card);box-shadow:var(--sh);cursor:pointer}
-.li.done{border-left-color:var(--ok)}.li.cancel{border-left-color:#9ca3af;opacity:.8}.li.low{border-left-color:#d97706}
+.li.done{border-left:8px solid #ff0000;background:#ffe9e9}body.dark .li.done{background:#4a1212}.li.done .top strong{color:#d90000}.li.done .pill.done{background:#ff0000;color:#fff}.owgrid{display:flex;flex-wrap:wrap;gap:6px}.owgrid .chip{padding:8px 12px}.li.cancel{border-left-color:#9ca3af;opacity:.8}.li.low{border-left-color:#d97706}
 .li .top{display:flex;justify-content:space-between;gap:8px;align-items:baseline;flex-wrap:wrap}.li .top strong{font-size:17.5px;color:var(--p);font-weight:800}body.dark .li .top strong{color:#ff8a80}
 .li .meta{display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin-top:5px}
 .li .acts{display:flex;gap:5px;flex-wrap:wrap;margin-top:7px}
-.sechead{background:var(--ok);color:#fff;padding:8px 12px;border-radius:10px;margin:20px 0 6px;font-weight:800}
+.sechead{background:#ff0000;color:#fff;padding:8px 12px;border-radius:10px;margin:20px 0 6px;font-weight:800}
 .calc{margin-top:10px;padding:9px 11px;border-radius:10px;background:#fff7cf;border:1px solid #e6c34a;color:#5b4300;font-weight:700;font-size:14.5px;white-space:pre-line}body.dark .calc{background:#3d3410;color:#ffe9a0;border-color:#6b5a1a}
 .kv{display:flex;justify-content:space-between;gap:10px;padding:6px 0;border-bottom:1px dashed var(--line)}.kv:last-child{border:0}.kv span:first-child{color:var(--muted)}
 .box{background:var(--soft);border:1px solid var(--line);border-radius:10px;padding:10px}.pre{white-space:pre-line}
@@ -240,6 +240,14 @@ const BT=[
  {k:"other",hi:"अन्य व्यवसाय",en:"Other business",cats:["सामान्य काम","अन्य"]}
 ];
 const btL=k=>{const x=BT.find(a=>a.k===k)||BT[8];return L(x.hi,x.en)};
+const MAIN_WORKS=[["इवेंट एवं मैनेजमेंट","Event & Management"],["सर्विस एवं रिपेयर","Service & Repair"],["कंस्ट्रक्शन एवं कॉन्ट्रैक्ट","Construction & Contract"],["अन्य काम","Other work"]];
+const OTHER_WORKS=[["फोटोग्राफी / वीडियो","Photo / Video"],["डीजे / साउंड","DJ / Sound"],["टेंट / शामियाना","Tent"],["कैटरिंग / खाना","Catering"],["इलेक्ट्रीशियन","Electrician"],["प्लंबर","Plumber"],["पेंटिंग / रंगाई","Painting"],["कारपेंटर","Carpenter"],["वेल्डिंग / फैब्रिकेशन","Welding / Fabrication"],["सफाई / पेस्ट कंट्रोल","Cleaning / Pest control"],["ट्रांसपोर्ट / गाड़ी","Transport / Vehicle"],["एसी / फ्रिज रिपेयर","AC / Fridge repair"],["मेहंदी / मेकअप","Mehndi / Makeup"],["पूजा / कथा","Puja / Katha"]];
+MAIN_WORKS.concat(OTHER_WORKS).forEach(x=>{CATEN[x[0]]=x[1]});
+const OW_KEY="wm_other_works";
+let otherCustom=[];try{otherCustom=JSON.parse(localStorage.getItem(OW_KEY)||"[]");if(!Array.isArray(otherCustom))otherCustom=[]}catch(e){otherCustom=[]}
+const saveOther=()=>{try{localStorage.setItem(OW_KEY,JSON.stringify(otherCustom))}catch(e){}};
+let curMain="",curOther="";
+const otherAll=()=>{const a=OTHER_WORKS.map(x=>x[0]).concat(otherCustom);if(curOther&&!a.includes(curOther))a.push(curOther);return a};
 const OLD_CATS=["चाय स्टॉल","कॉफी स्टॉल","रोटी बनाना","कच्ची रसोई","शादी / पार्टी","अन्य"];
 const MODS=[
  {k:"home",ic:"🏠",hi:"होम",en:"Home",core:1},
@@ -330,6 +338,9 @@ function normW(w){
 }
 const wTotal=w=>Math.round((+w.rate||0)*(+w.days||0));
 const workersSum=a=>(a||[]).reduce((s,w)=>s+wTotal(normW(w)),0);
+const isOwnerW=w=>String(normW(w).cat).replace(/\s+/g,"").indexOf("स्वयं")===0;
+const ownerSum=a=>(a||[]).reduce((s,w)=>s+(isOwnerW(w)?wTotal(normW(w)):0),0);
+const expSum=a=>workersSum(a)-ownerSum(a);
 const validStatus=s=>ST.some(x=>x[0]===s)?s:"पक्की";
 function newBizObj(o){
  const t=o.type||"general",bt=BT.find(x=>x.k===t)||BT[8];
@@ -437,7 +448,7 @@ function ledgerRows(){return memo("lrows",()=>{
  });
  const em=new Map(rows("employees").map(e=>[e.id,e]));
  rows("empPayments").forEach(p=>{const e=em.get(p.empId);out.push({src:"emp",id:p.id,date:p.date,type:"expense",cat:"मजदूरी",amount:num(p.amount),method:p.method||"",note:(e?e.name:"")+(p.note?" • "+p.note:""),rec:p})});
- if(PREF.countWorkers!==false)rows("bookings").forEach(b=>{if(b.status==="रद्द")return;const w=workersSum(b.workers);if(w>0)out.push({src:"bworker",id:b.id,date:b.date,type:"expense",cat:"मजदूरी",amount:w,method:"",note:b.name+" ("+L("बुकिंग के कारीगर","booking workers")+")",rec:b})});
+ if(PREF.countWorkers!==false)rows("bookings").forEach(b=>{if(b.status==="रद्द")return;const g={};(b.workers||[]).map(normW).forEach(w=>{if(isOwnerW(w))return;const t=wTotal(w);if(t>0){const k=String(w.cat||"").trim()||"मजदूरी";g[k]=(g[k]||0)+t}});Object.keys(g).forEach(k=>out.push({src:"bworker",id:b.id,date:b.date,type:"expense",cat:k,amount:g[k],method:"",note:b.name+" ("+L("बुकिंग के कारीगर","booking workers")+")",rec:b}))});
  return out;
 })}
 // किसी अवधि का पूरा सार (नकद आधार पर लाभ = प्राप्त आय − खर्च)
@@ -799,6 +810,14 @@ ACT.bper=t=>{S.bf.per=t.dataset.id;refresh()};ACT.bst=t=>{S.bf.st=t.dataset.id;r
 INP.bdate=t=>{S.bf[t.dataset.k]=t.value;el("blist").innerHTML=bookingListHtml();el("bsum").textContent=bkSummary(filterBookings().filter(b=>b.status!=="रद्द"))};
 
 let formWorkers=[];
+function otherBoxHtml(){
+ const l=otherAll();
+ return `<div class="small muted" style="margin:2px 0 6px">${L("अपना काम चुनें:","Choose your work:")}</div><div class="owgrid">`+l.map((c,i)=>`<button type="button" class="chip${c===curOther?" on":""}" data-act="otherpick" data-id="${i}">${esc(catL(c))}</button>`).join("")+`<button type="button" class="chip" style="border-style:dashed" data-act="othernew">➕ ${L("काम जोड़ें","Add work")}</button></div><div id="owNew" class="hidden" style="display:flex;gap:6px;margin:8px 0"><input id="owNewIn" placeholder="${esc(L("अपना काम लिखें","Write your work"))}"><button type="button" class="btn" style="margin:0;white-space:nowrap" data-act="otheradd">${L("जोड़ें","Add")}</button></div>`;
+}
+CHG.mainwork=t=>{curMain=t.value;const box=el("otherBox"),h=el("bkCat");if(curMain==="अन्य काम"){box.classList.remove("hidden");h.value=curOther||"अन्य काम"}else{box.classList.add("hidden");h.value=curMain}};
+ACT.otherpick=t=>{const c=otherAll()[+t.dataset.id];if(!c)return;curOther=c;el("bkCat").value=c;el("otherBox").innerHTML=otherBoxHtml()};
+ACT.othernew=()=>{const b=el("owNew");b.classList.toggle("hidden");if(!b.classList.contains("hidden"))el("owNewIn").focus()};
+ACT.otheradd=()=>{const i=el("owNewIn"),c=i.value.trim();if(!c)return;if(!otherAll().includes(c)){otherCustom.push(c);saveOther()}curOther=c;el("bkCat").value=c;el("otherBox").innerHTML=otherBoxHtml()};
 ACT.newbooking=(t)=>{closeAllModals();openBookingForm("",t&&t.dataset&&t.dataset.cust?custPre(t.dataset.cust):null)};
 const custPre=id=>{const c=getR("customers",id);return c?{name:c.name,phone:c.phone,address:c.address,customerId:c.id}:null};
 ACT.editbk=t=>{closeAllModals();openBookingForm(t.dataset.id)};
@@ -808,13 +827,15 @@ function openBookingForm(id,pre){
  if(b&&b.category&&!cats.includes(b.category))cats.push(b.category);
  formWorkers=b?(b.workers||[]).map(normW):[];
  const ap=b?getR("payments","adv_"+b.id):null;
- const v=b||{name:pre.name||"",phone:pre.phone||"",address:pre.address||"",customerId:pre.customerId||"",category:cats[0],date:todayStr(),endDate:todayStr(),time:"",amount:"",status:"पक्की",notes:"",payDue:""};
+ const v=b||{name:pre.name||"",phone:pre.phone||"",address:pre.address||"",customerId:pre.customerId||"",category:MAIN_WORKS[0][0],date:todayStr(),endDate:todayStr(),time:"",amount:"",status:"पक्की",notes:"",payDue:""};
+ curMain=MAIN_WORKS.slice(0,3).some(x=>x[0]===v.category)?v.category:"अन्य काम";curOther=(curMain==="अन्य काम"&&v.category!=="अन्य काम")?v.category:"";
  const advV=b?(ap&&!ap.del?num(ap.amount):(ap?0:num(b.advance))):0;
  const body=`<form id="bkForm" data-form="booking"><input type="hidden" name="id" value="${esc(b?b.id:"")}"><input type="hidden" name="customerId" value="${esc(v.customerId||"")}">
  <button type="button" class="btn ghost sm" data-act="pickcust" style="margin:0">👥 ${L("पुराने ग्राहक में से चुनें","Choose existing customer")}</button>
  ${fld(L("ग्राहक का नाम *","Customer name *"),inp("name",v.name,`required list="custList" data-ch="bkname" autocomplete="off" placeholder="${L("नाम","Name")}"`))}
  <datalist id="custList">${rows("customers").map(c=>`<option value="${esc(c.name)}">`).join("")}</datalist>
- <div class="r2">${fld(L("मोबाइल नंबर","Mobile"),inp("phone",v.phone,`type="tel" inputmode="tel" placeholder="${L("नंबर","Number")}"`))}${fld(L("काम / सर्विस","Work / Service"),sel("category",cats.map(c=>[c,catL(c)]),v.category))}</div>
+ <div class="r2">${fld(L("मोबाइल नंबर","Mobile"),inp("phone",v.phone,`type="tel" inputmode="tel" placeholder="${L("नंबर","Number")}"`))}${fld(L("काम / सर्विस","Work / Service"),`<select id="mainWork" data-ch="mainwork">${MAIN_WORKS.map(x=>`<option value="${esc(x[0])}" ${x[0]===curMain?"selected":""}>${esc(L(x[0],x[1]))}</option>`).join("")}</select><input type="hidden" name="category" id="bkCat" value="${esc(v.category)}">`)}</div>
+ <div id="otherBox" class="${curMain==="अन्य काम"?"":"hidden"}">${otherBoxHtml()}</div>
  ${fld(L("स्थान / कार्यक्रम का पता","Location / event address"),inp("address",v.address,`placeholder="${L("पता / गांव","Address / Village")}"`))}
  <div class="r2">${fld(L("काम आरंभ की तिथि *","Work start date *"),inp("date",v.date,`type="date" required data-in="bkdate"`))}${fld(L("काम समाप्ति की तिथि *","Work end date *"),inp("endDate",v.endDate||v.date,`type="date" required data-in="bkdate"`))}</div>
  ${fld(L("समय","Time"),inp("time",v.time,`type="time"`))}
@@ -839,8 +860,8 @@ function updateBookingDays(){
 }
 function updateFormSummary(){
  const f=el("bkForm");if(!f)return;
- const a=num(f.elements.amount.value),adv=num(f.elements.advance.value),w=workersSum(formWorkers);
- el("bkSum").textContent="💰 "+L("पूरा हिसाब","Full summary")+"\n"+L("कुल रकम:","Total amount:")+" "+money(a)+"  |  "+L("एडवांस:","Advance:")+" "+money(adv)+"  |  "+L("बाकी रकम:","Balance due:")+" "+money(a-adv)+"\n👷 "+L("कारीगर भुगतान","Worker payments")+": "+money(w)+"  |  "+L("कुल बचत","Net savings")+": "+money(a-w);
+ const a=num(f.elements.amount.value),adv=num(f.elements.advance.value),w=expSum(formWorkers),ow=ownerSum(formWorkers);
+ el("bkSum").textContent="💰 "+L("पूरा हिसाब","Full summary")+"\n"+L("कुल रकम:","Total amount:")+" "+money(a)+"  |  "+L("एडवांस:","Advance:")+" "+money(adv)+"  |  "+L("बाकी रकम:","Balance due:")+" "+money(a-adv)+"\n👷 "+L("कारीगर / खर्चा","Workers / expenses")+": "+money(w)+(ow>0?"  |  "+L("स्वयं की कमाई","Owner earning")+": "+money(ow):"")+"  |  "+L("कुल बचत","Net savings")+": "+money(a-w);
 }
 INP.bkcalc=()=>updateFormSummary();
 INP.bkdate=t=>{
@@ -887,14 +908,14 @@ ACT.delbk=t=>{
 ACT.details=(t,e)=>{if(e.target.closest("button")&&e.target.closest("button")!==t)return;showBooking(t.dataset.id)};
 function showBooking(id){
  const b=getR("bookings",id);if(!b)return;
- const amt=num(b.amount),pd=paid(b),ws=(b.workers||[]).map(normW),wsum=workersSum(ws),days=daysBetween(b.date,b.endDate||b.date);
+ const amt=num(b.amount),pd=paid(b),ws=(b.workers||[]).map(normW),wsum=expSum(ws),osum=ownerSum(ws),days=daysBetween(b.date,b.endDate||b.date);
  const pays=rows("payments").filter(p=>p.bookingId===b.id).sort((x,y)=>String(x.date).localeCompare(y.date));
  const body=`<div class="h3" style="font-size:21px">${esc(b.name)}</div><div class="muted small">#${esc(bno(b))} • ${esc(catL(b.category))}</div>
  <div class="meta" style="display:flex;gap:6px;flex-wrap:wrap;margin:8px 0"><span class="pill ${stCls(b.status)}">${esc(stLabel(b.status))}</span>${payPill(b)}</div>
  <div class="card"><div class="kv"><span>${L("मोबाइल","Mobile")}</span><b>${esc(b.phone||"-")}</b></div><div class="kv"><span>${L("पता","Address")}</span><b>${esc(b.address||"-")}</b></div>
  <div class="kv"><span>${L("आरंभ तिथि","Start date")}</span><b>${esc(fmtDate(b.date))}${b.time?" • "+esc(fmtTime(b.time)):""}</b></div><div class="kv"><span>${L("समाप्ति तिथि","End date")}</span><b>${esc(fmtDate(b.endDate||b.date))}</b></div><div class="kv"><span>${L("कुल दिन","Total days")}</span><b>${days||"-"}</b></div>
  ${b.payDue?`<div class="kv"><span>${L("भुगतान की अंतिम तारीख","Payment due date")}</span><b>${esc(fmtDate(b.payDue))}</b></div>`:""}</div>
- <div class="calc">💰 ${L("पूरा हिसाब","Full summary")}\n${L("कुल रकम:","Total amount:")} ${money(amt)}\n${L("प्राप्त भुगतान:","Paid:")} ${money(pd)}\n${L("बाकी रकम:","Balance due:")} ${money(Math.max(0,amt-pd))}${ws.length?`\n👷 ${L("कारीगर भुगतान","Worker payments")}: ${money(wsum)}\n${L("कुल बचत","Net savings")}: ${money(amt-wsum)}`:""}</div>
+ <div class="calc">💰 ${L("पूरा हिसाब","Full summary")}\n${L("कुल रकम:","Total amount:")} ${money(amt)}\n${L("प्राप्त भुगतान:","Paid:")} ${money(pd)}\n${L("बाकी रकम:","Balance due:")} ${money(Math.max(0,amt-pd))}${ws.length?`\n👷 ${L("कारीगर / खर्चा","Workers / expenses")}: ${money(wsum)}${osum>0?"\n"+L("स्वयं की कमाई:","Owner earning:")+" "+money(osum):""}\n${L("कुल बचत","Net savings")}: ${money(amt-wsum)}`:""}</div>
  ${ws.length?`<div class="card" style="margin-top:10px"><div class="b">👷 ${L("कारीगर भुगतान:","Worker payments:")}</div><div class="small">${ws.map(w=>"• "+esc(wLabel(w))+" — "+money(w.rate)+" × "+w.days+" "+L("दिन","days")+" = <b>"+money(wTotal(w))+"</b>").join("<br>")}</div></div>`:""}
  <div class="card" style="margin-top:10px"><div class="b" style="display:flex;justify-content:space-between;align-items:center">💳 ${L("भुगतान का इतिहास","Payment history")}<button class="btn sm" data-act="addpay" data-id="${esc(b.id)}" style="margin:0">➕ ${L("भुगतान","Payment")}</button></div>
  ${pays.length?pays.map(p=>`<div class="kv"><span>${esc(fmtDate(p.date))} • ${esc(ptL(p.type))} • ${esc(pmL(p.method))}${p.note?"<br><small>"+esc(p.note)+"</small>":""}</span><span><b>${money(p.amount)}</b> <button class="btn sm ghost" data-act="editpay" data-id="${esc(p.id)}" style="margin:0">✏️</button></span></div>`).join(""):`<div class="small muted">${L("अभी कोई भुगतान दर्ज नहीं।","No payment recorded yet.")}</div>`}</div>
@@ -918,8 +939,10 @@ ACT.wabk=t=>{const b=getR("bookings",t.dataset.id);if(!b)return;window.open("htt
 
 /* ---------- कारीगर / आदमियों का भुगतान (पुराना फीचर, दिन और हाजिरी के साथ) ---------- */
 let workersDraft=[];
-const WCAT_KEY=OLD.wcat,WRATE_KEY=OLD.wrate,DEFAULT_CATS=["बर्तन वाला","रसोईया","सफाई वाला","हलवाई","वेटर","सहायक"];
-let workerCats=sp(localStorage.getItem(WCAT_KEY),null);if(!Array.isArray(workerCats)||!workerCats.length)workerCats=DEFAULT_CATS.slice();
+const WCAT_KEY=OLD.wcat,WRATE_KEY=OLD.wrate;
+const DEFAULT_CATS=["स्वयं (ऑनर)","हलवाई","ड्राइवर","हेल्पर","खुदरा खर्चा"],OLD_DEF_CATS=["बर्तन वाला","रसोईया","सफाई वाला","वेटर","सहायक"];
+const WCAT_EN={"स्वयं (ऑनर)":"Self (Owner)","हलवाई":"Halwai (Cook)","ड्राइवर":"Driver","हेल्पर":"Helper","खुदरा खर्चा":"Misc. expense"};
+let workerCats=sp(localStorage.getItem(WCAT_KEY),null);workerCats=DEFAULT_CATS.concat((Array.isArray(workerCats)?workerCats:[]).filter(c=>c&&!DEFAULT_CATS.includes(c)&&!OLD_DEF_CATS.includes(c)));
 let workerRates=sp(localStorage.getItem(WRATE_KEY),{});if(!workerRates||typeof workerRates!=="object"||Array.isArray(workerRates))workerRates={};
 const saveWorkerPrefs=()=>{try{localStorage.setItem(WCAT_KEY,JSON.stringify(workerCats));localStorage.setItem(WRATE_KEY,JSON.stringify(workerRates))}catch(e){}};
 const wLabel=w=>{const c=String(w.cat||"").trim(),n=String(w.name||"").trim();return c&&n?c+" – "+n:(c||n||L("कारीगर","Worker"))};
@@ -946,10 +969,10 @@ ACT.openworkers=()=>{
  workersDraft=formWorkers.map(normW);
  openModal("👷 "+L("कारीगर / आदमियों का भुगतान","Workers / labour payment"),`<div class="calc" id="wDays"></div>
  <button type="button" class="btn sec" data-act="wsetdays">📆 ${L("सभी के दिन = काम के दिन","Set all days = work days")}</button>
- ${fld(L("जल्दी जोड़ें (कैटेगरी और रोज़ का वेतन)","Quick add (category and daily wage)"),`<textarea id="wQuick" rows="2" placeholder="${L("जैसे: बर्तन वाला 800, रसोईया 1000, सफाई वाला 700","e.g. Dishwasher 800, Cook 1000, Cleaner 700")}"></textarea>`)}
+ ${fld(L("जल्दी जोड़ें (कैटेगरी और रोज़ का वेतन)","Quick add (category and daily wage)"),`<textarea id="wQuick" rows="2" placeholder="${L("जैसे: इलेक्ट्रीशियन, वेटर, पेंटर आदि...","e.g. Electrician, Waiter, Painter etc...")}"></textarea>`)}
  <button type="button" class="btn" data-act="wquick">➕ ${L("जोड़ें","Add")}</button>
  ${fld(L("कैटेगरी चुनें / अपनी जोड़ें","Choose a category / add your own"),`<div id="wChips"></div>`)}
- <div style="display:flex;gap:6px;margin-top:8px"><input id="wNewCat" placeholder="${L("अपनी कैटेगरी लिखें (जैसे: ड्राइवर)","Write your own category (e.g. Driver)")}"><button type="button" class="btn" style="margin:0;white-space:nowrap" data-act="wnewcat">+ ${L("कैटेगरी","Category")}</button></div>
+ <button type="button" class="chip" style="margin-top:8px;border-style:dashed" data-act="wcatshow">➕ ${L("कैटेगरी जोड़ें","Add category")}</button><div id="wNewRow" class="hidden" style="display:flex;gap:6px;margin-top:8px"><input id="wNewCat" placeholder="${L("अपनी कैटेगरी लिखें (जैसे: पेंटर)","Write your own category (e.g. Painter)")}"><button type="button" class="btn" style="margin:0;white-space:nowrap" data-act="wnewcat">+ ${L("कैटेगरी","Category")}</button></div>
  <hr style="margin:14px 0;border:0;border-top:1px solid var(--line)"><div id="wList"></div>
  <div class="calc">${L("कुल कारीगर भुगतान:","Total workers payment:")} <b id="wTotal">₹0</b></div>
  <p class="small muted">${L("💡 कैटेगरी, नाम, रोज़ का वेतन और दिन (हाजिरी) बदल सकते हैं। कुल = वेतन × दिन। यह बुकिंग के साथ सेव होगा।","💡 You can edit category, name, daily wage and days. Total = wage × days. It is saved with the booking.")}</p>
@@ -960,7 +983,7 @@ function renderWorkers(){
  const dd=defaultDays();el("wDays").textContent="📆 "+L("काम के दिन:","Work days:")+" "+(dd||"-");
  el("wList").innerHTML=workersDraft.length?workersDraft.map((w,i)=>`<div class="wcard"><div class="wr1"><input data-in="wf" data-k="cat" data-i="${i}" value="${esc(w.cat)}" placeholder="${esc(L("कैटेगरी (जैसे रसोईया)","Category (e.g. Cook)"))}"><input data-in="wf" data-k="name" data-i="${i}" value="${esc(w.name)}" placeholder="${esc(L("नाम (वैकल्पिक)","Name (optional)"))}"><button type="button" class="btn danger" style="margin:0" data-act="wdel" data-id="${i}">🗑️</button></div>
  <div class="wr2"><div><small>${L("₹ प्रतिदिन","₹ per day")}</small><input data-in="wf" data-k="rate" data-i="${i}" type="number" inputmode="decimal" min="0" value="${w.rate||""}" placeholder="₹"></div><div><small>${L("दिन (हाजिरी)","Days (attendance)")}</small><input data-in="wf" data-k="days" data-i="${i}" type="number" inputmode="decimal" min="0" step="0.5" value="${w.days||""}" placeholder="0"></div><div class="wtot"><small>${L("कुल","Total")}</small><b data-wt="${i}">${money(wTotal(w))}</b></div></div></div>`).join(""):`<p class="small muted">${L("अभी कोई कारीगर नहीं जुड़ा।","No workers added yet.")}</p>`;
- el("wChips").innerHTML=workerCats.map((c,i)=>`<span style="display:inline-flex;align-items:center"><button type="button" class="chip" style="margin:3px 3px 0 0" data-act="wchip" data-id="${i}">+ ${esc(DEFAULT_CATS.includes(c)?L(c,{"बर्तन वाला":"Dishwasher","रसोईया":"Cook","सफाई वाला":"Cleaner","हलवाई":"Halwai","वेटर":"Waiter","सहायक":"Helper"}[c]):c)}</button>${DEFAULT_CATS.includes(c)?"":`<button type="button" class="chip" style="background:#7f1010;color:#fff" data-act="wcatdel" data-id="${i}">×</button>`}</span>`).join("");
+ el("wChips").innerHTML=workerCats.map((c,i)=>`<span style="display:inline-flex;align-items:center"><button type="button" class="chip" style="margin:3px 3px 0 0" data-act="wchip" data-id="${i}">+ ${esc(DEFAULT_CATS.includes(c)?L(c,WCAT_EN[c]):c)}</button>${DEFAULT_CATS.includes(c)?"":`<button type="button" class="chip" style="background:#7f1010;color:#fff" data-act="wcatdel" data-id="${i}">×</button>`}</span>`).join("");
  el("wTotal").textContent=money(workersSum(workersDraft));
 }
 INP.wf=t=>{
@@ -971,8 +994,9 @@ INP.wf=t=>{
 };
 ACT.wdel=t=>{workersDraft.splice(+t.dataset.id,1);renderWorkers()};
 ACT.wchip=t=>{const c=workerCats[+t.dataset.id];workersDraft.push({cat:c,name:"",rate:workerRates[c]||0,days:defaultDays()});renderWorkers()};
+ACT.wcatshow=()=>{const r=el("wNewRow");r.classList.toggle("hidden");if(!r.classList.contains("hidden"))el("wNewCat").focus()};
 ACT.wcatdel=t=>{workerCats.splice(+t.dataset.id,1);saveWorkerPrefs();renderWorkers()};
-ACT.wnewcat=()=>{const i=el("wNewCat"),c=i.value.trim();if(!c)return;if(!workerCats.includes(c))workerCats.push(c);saveWorkerPrefs();i.value="";workersDraft.push({cat:c,name:"",rate:workerRates[c]||0,days:defaultDays()});renderWorkers()};
+ACT.wnewcat=()=>{const i=el("wNewCat"),c=i.value.trim();if(!c)return;if(!workerCats.includes(c))workerCats.push(c);saveWorkerPrefs();i.value="";el("wNewRow").classList.add("hidden");workersDraft.push({cat:c,name:"",rate:workerRates[c]||0,days:defaultDays()});renderWorkers()};
 ACT.wsetdays=()=>{const n=defaultDays();workersDraft.forEach(w=>{w.days=n});renderWorkers()};
 ACT.wquick=()=>{const bx=el("wQuick"),l=parseWorkers(bx.value);if(!l.length)return;l.forEach(w=>workersDraft.push({cat:w.name||L("कारीगर","Worker"),name:"",rate:w.amount||workerRates[w.name]||0,days:defaultDays()}));bx.value="";renderWorkers()};
 ACT.wapply=t=>{
