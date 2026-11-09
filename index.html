@@ -29,7 +29,7 @@ window.addEventListener("error",function(e){
 body.dark{--bg:#150f0d;--card:#231a17;--text:#f3e6d6;--muted:#bba48d;--line:#3d2d27;--soft:#2e211d;--input:#2e211d;--okbg:#14391f;--warnbg:#45330f;--badbg:#4a1a1a;--infobg:#172a4f;--sh:0 1px 3px rgba(0,0,0,.5)}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html{-webkit-text-size-adjust:100%}
-body{margin:0;background:var(--bg);color:var(--text);font:16px/1.5 "Noto Sans Devanagari","Mangal",system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;padding-bottom:calc(84px + env(safe-area-inset-bottom))}
+body{margin:0;background:var(--bg);color:var(--text);font:16px/1.5 "Noto Sans Devanagari","Mangal",system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;padding-bottom:calc(16px + env(safe-area-inset-bottom))}
 .hidden{display:none!important}
 button{font-family:inherit}
 /* splash */
@@ -39,7 +39,8 @@ button{font-family:inherit}
 #splash.out{opacity:0;pointer-events:none}
 #offBar{position:fixed;left:0;right:0;bottom:0;z-index:3000;background:#5e0b0b;color:#fff;font-size:13px;text-align:center;padding:7px 10px}
 /* layout */
-#topbar{position:sticky;top:0;z-index:60;background:linear-gradient(135deg,#8e1111,#b71c1c 60%,#d32f2f);color:#fff;display:flex;align-items:center;gap:6px;padding:8px 10px;padding-top:calc(8px + env(safe-area-inset-top));box-shadow:0 2px 12px rgba(80,10,10,.4)}
+#stick{position:sticky;top:0;z-index:60}
+#topbar{position:relative;background:linear-gradient(135deg,#8e1111,#b71c1c 60%,#d32f2f);color:#fff;display:flex;align-items:center;gap:6px;padding:8px 10px;padding-top:calc(8px + env(safe-area-inset-top));box-shadow:0 2px 12px rgba(80,10,10,.4)}
 .tb-biz{display:flex;align-items:center;gap:8px;min-width:0;flex:1;background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.3);border-radius:30px;padding:4px 12px 4px 4px;color:#fff;font-size:15px;font-weight:700;cursor:pointer;text-align:left}
 .tb-biz img{width:32px;height:32px;border-radius:50%;object-fit:cover;background:#fff;border:2px solid #fff}
 .tb-biz span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -47,11 +48,11 @@ button{font-family:inherit}
 .tb-btn b{position:absolute;top:-4px;right:-4px;background:#fdd891;color:#7a1010;border-radius:10px;font-size:11px;min-width:18px;height:18px;line-height:18px;text-align:center;padding:0 4px}
 .dot{width:10px;height:10px;border-radius:50%;background:#9ca3af;display:inline-block}.dot.ok{background:#22c55e}.dot.busy{background:#f59e0b}.dot.err{background:#ef4444}
 #app{padding:12px;max-width:1000px;margin:0 auto}
-#bnav{position:fixed;left:0;right:0;bottom:0;z-index:900;background:var(--card);border-top:1px solid var(--line);display:flex;padding:6px 6px calc(6px + env(safe-area-inset-bottom));box-shadow:0 -4px 16px rgba(60,30,10,.12)}
+#bnav{background:var(--card);border-bottom:1px solid var(--line);display:flex;gap:4px;padding:6px 8px;box-shadow:0 4px 12px rgba(60,30,10,.10)}
 #bnav button{flex:1;background:none;border:0;color:var(--muted);font-size:11.5px;font-weight:700;display:flex;flex-direction:column;align-items:center;gap:1px;padding:4px 0;cursor:pointer;border-radius:12px;min-width:0}
-#bnav button span{font-size:22px;line-height:1.15}
+#bnav button span{font-size:21px;line-height:1.15}
 #bnav button.on{color:var(--p);background:var(--soft)}body.dark #bnav button.on{color:#ff8a80}
-#bnav button.fab{flex:0 0 58px}#bnav button.fab span{background:var(--p);color:#fff;width:50px;height:50px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:28px;margin-top:-22px;box-shadow:0 4px 14px rgba(183,28,28,.5);border:3px solid var(--card)}
+#bnav button.fab{flex:0 0 58px}#bnav button.fab span{background:var(--p);color:#fff;width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:26px;box-shadow:0 3px 10px rgba(183,28,28,.45)}
 #side{display:none}
 @media(min-width:900px){
  body{padding-bottom:24px}#bnav{display:none}
@@ -68,9 +69,20 @@ button{font-family:inherit}
 .pagehead{display:flex;align-items:center;justify-content:space-between;gap:8px;margin:2px 0 10px;flex-wrap:wrap}
 .pagehead h2{margin:0;font-size:21px;color:var(--p);font-weight:800}body.dark .pagehead h2{color:#ff8a80}
 .muted{color:var(--muted)}.small{font-size:13.5px}.b{font-weight:700}.right{text-align:right}.center{text-align:center}
-.hero{background:linear-gradient(135deg,#8e1111,#b71c1c 55%,#d32f2f);color:#fff;border-radius:20px;padding:16px;text-align:center;border-bottom:5px solid var(--gold);box-shadow:0 6px 18px rgba(155,21,21,.35);margin-bottom:12px}
-.hero img{width:84px;height:84px;border-radius:50%;object-fit:cover;border:3px solid #fff;background:#fff}
-.hero h1{margin:8px 0 2px;font-size:23px}.hero .tag{font-style:italic;color:#ffe9c2}.hero .ct{margin-top:6px;font-size:13.5px;white-space:pre-line;opacity:.95}
+.prof{background:var(--card);border:1px solid var(--line);border-radius:20px;box-shadow:var(--sh);margin-bottom:14px;overflow:hidden}
+.prof-cover{height:78px;background:linear-gradient(135deg,#6d0b0b,#b71c1c 55%,#d32f2f);position:relative;border-bottom:4px solid var(--gold)}
+.prof-cover:after{content:"";position:absolute;inset:0;background:radial-gradient(circle at 85% -20%,rgba(255,255,255,.22),transparent 55%)}
+.prof-head{text-align:center;padding:0 16px 14px;margin-top:-46px;position:relative}
+.prof-logo{width:92px;height:92px;margin:0 auto;border-radius:50%;background:#fff;padding:4px;border:3px solid var(--gold);box-shadow:0 6px 18px rgba(80,10,10,.30)}
+.prof-logo img{width:100%;height:100%;border-radius:50%;object-fit:cover;display:block}
+.prof-head h1{margin:10px 0 2px;font-size:22px;line-height:1.25;color:var(--p);font-weight:800;letter-spacing:.2px}body.dark .prof-head h1{color:#ff8a80}
+.prof-head .tag{font-size:13.5px;color:var(--muted);font-style:italic}
+.prof-head .tag:after{content:"";display:block;width:46px;height:3px;border-radius:3px;background:var(--gold);margin:9px auto 0}
+.prof-ct{display:grid;grid-template-columns:1fr;gap:8px;padding:0 12px 14px}
+@media(min-width:560px){.prof-ct{grid-template-columns:1fr 1fr}}
+.pc{display:flex;align-items:center;gap:10px;background:var(--soft);border:1px solid var(--line);border-radius:12px;padding:8px 10px;min-width:0;color:var(--text);text-decoration:none}
+.pc i{font-style:normal;flex:none;width:34px;height:34px;border-radius:10px;background:var(--card);border:1px solid var(--line);display:flex;align-items:center;justify-content:center;font-size:17px}
+.pc div{min-width:0;line-height:1.3}.pc small{display:block;font-size:11.5px;color:var(--muted);font-weight:700}.pc b{display:block;font-size:14px;overflow-wrap:anywhere}
 .grid{display:grid;gap:10px}.g2{grid-template-columns:1fr 1fr}.g3{grid-template-columns:repeat(2,1fr)}.g4{grid-template-columns:repeat(2,1fr)}
 @media(min-width:640px){.g3{grid-template-columns:repeat(3,1fr)}.g4{grid-template-columns:repeat(4,1fr)}.cols2{display:grid;grid-template-columns:1fr 1fr;gap:12px}}
 .kpi{background:var(--card);border:1px solid var(--line);border-left:5px solid var(--p);border-radius:12px;padding:10px 12px;box-shadow:var(--sh);cursor:pointer;min-width:0}
@@ -119,7 +131,7 @@ table.tb{width:100%;border-collapse:collapse;font-size:14px}table.tb th{backgrou
 .sheet-b{padding:12px 16px 20px;overflow-y:auto;-webkit-overflow-scrolling:touch}
 @media(min-width:700px){.modal{align-items:center;padding:20px}.sheet{border-radius:18px}}
 .pick{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.pick button{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px 4px;font-size:13px;font-weight:700;color:var(--text);cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:4px}.pick button span{font-size:26px}
-#toasts{position:fixed;left:0;right:0;bottom:calc(94px + env(safe-area-inset-bottom));display:flex;flex-direction:column;align-items:center;gap:6px;z-index:5000;pointer-events:none}
+#toasts{position:fixed;left:0;right:0;bottom:calc(24px + env(safe-area-inset-bottom));display:flex;flex-direction:column;align-items:center;gap:6px;z-index:5000;pointer-events:none}
 .toast{background:#2b1d12;color:#fff;border-radius:22px;padding:10px 18px;font-size:14.5px;font-weight:600;box-shadow:0 4px 16px rgba(0,0,0,.4);max-width:92vw;pointer-events:auto}.toast.err{background:#b91c1c}.toast.ok{background:#15803d}.toast button{margin-left:10px;background:#fdd891;color:#7a1010;border:0;border-radius:12px;padding:3px 10px;font-weight:800;cursor:pointer}
 /* worker rows (पुराना फीचर) */
 .wcard{border:1px solid var(--line);border-radius:10px;padding:8px;margin:8px 0;background:var(--card)}
@@ -143,8 +155,7 @@ svg text{fill:var(--muted);font-family:inherit}.legend{display:flex;gap:12px;fle
 <div id="splash"><img id="spLogo" src="./logo.png" alt=""><b id="spName">WORK MANAGER</b><span>One App – Complete Business Management</span></div>
 <div id="offBar" class="hidden"></div>
 <aside id="side"></aside>
-<div id="main"><header id="topbar"></header><main id="app"></main></div>
-<nav id="bnav"></nav>
+<div id="main"><div id="stick"><header id="topbar"></header><nav id="bnav"></nav></div><main id="app"></main></div>
 <div id="modals"></div><div id="toasts"></div>
 <input type="file" id="restoreFile" accept=".json,application/json" hidden>
 <input type="file" id="logoFile" accept="image/*" hidden>
@@ -743,7 +754,8 @@ VIEWS.home=()=>{
  const low=rows("inventory").filter(isLow),ms=monthSeries(6),rem=reminderList().slice(0,4);
  const upc=act.filter(x=>x.status!=="काम पूरा"&&(x.endDate||x.date)>=t).sort((a,c)=>a.date.localeCompare(c.date)).slice(0,5);
  const ct=[b.owner?L("संचालक:","Owner:")+" "+b.owner:"",b.address?"📍 "+b.address:"",b.phone?"📞 "+b.phone:"",b.gst?"GST: "+b.gst:""].filter(Boolean).join("\n");
- return `<div class="hero"><img src="${esc(b.logo||DEFAULT_LOGO)}" alt=""><h1>${esc(b.name||"WORK MANAGER")}</h1><div class="tag">${esc(b.tagline||"One App – Complete Business Management")}</div>${ct?`<div class="ct">${esc(ct)}</div>`:""}</div>
+ const pcs=[[b.owner,"👤",L("संचालक","Owner")],[b.phone,"📞",L("मोबाइल","Mobile")],[b.address,"📍",L("पता","Address")],[b.gst,"🧾","GSTIN"]].filter(x=>x[0]).map(x=>`<${x[1]==="📞"?`a href="tel:${esc(String(x[0]).replace(/[^\d+]/g,""))}"`:"div"} class="pc"><i>${x[1]}</i><div><small>${x[2]}</small><b>${esc(x[0])}</b></div></${x[1]==="📞"?"a":"div"}>`).join("");
+ return `<div class="prof"><div class="prof-cover"></div><div class="prof-head"><div class="prof-logo"><img src="${esc(b.logo||DEFAULT_LOGO)}" alt=""></div><h1>${esc(b.name||"WORK MANAGER")}</h1><div class="tag">${esc(b.tagline||"One App – Complete Business Management")}</div></div>${pcs?`<div class="prof-ct">${pcs}</div>`:""}</div>
  ${b.auto?`<div class="warnbox" data-act="editbiz" style="cursor:pointer">✏️ ${L("अपना बिजनेस प्रोफाइल पूरा करें (नाम, मोबाइल, पता, लोगो) — यहाँ दबाएँ","Complete your business profile (name, phone, address, logo) — tap here")}</div>`:""}
  <div class="grid g4">
  ${modOn("bookings")?kpi("📋",L("कुल बुकिंग","Total bookings"),act.length,"","bookings")+kpi("📅",L("आज की बुकिंग","Today's bookings"),todayB,"info","bookings")+kpi("⏭️",L("आने वाली बुकिंग","Upcoming"),up,"info","bookings")+kpi("✅",L("पूरे हुए काम","Completed"),done,"ok","bookings"):""}
@@ -1434,10 +1446,16 @@ ACT.invpdf=async t=>{
  const i=getR("invoices",t.dataset.id);if(!i)return;
  const b=biz(),c=invCalc(i),p=invPaid(i),isInv=i.type==="invoice",stamp=nowStamp();
  const th="border:1px solid #b71c1c;padding:8px",td="border:1px solid #e3c98a;padding:8px";
+ const lbk=i.bookingId?getR("bookings",i.bookingId):null;
+ const wk=lbk?(lbk.workers||[]).map(normW).filter(w=>!isOwnerW(w)&&wTotal(w)>0):[];
+ const pyl=(lbk?rows("payments").filter(x=>x.bookingId===lbk.id):rows("payments").filter(x=>x.invoiceId===i.id)).sort((x,y)=>String(x.date).localeCompare(String(y.date)));
+ const wkHtml=wk.length?`<div style="margin-top:16px;page-break-inside:avoid"><div style="font-size:16px;font-weight:800;color:#b71c1c;margin-bottom:6px">👷 ${L("कारीगर भुगतान की डीटेल","Worker payment details")}</div><table style="width:100%;border-collapse:collapse;font-size:13.5px"><thead><tr style="background:#b71c1c;color:#fff"><th style="${th}">${L("क्र.","No.")}</th><th style="${th}">${L("कारीगर","Worker")}</th><th style="${th}">${L("रेट","Rate")}</th><th style="${th}">${L("दिन","Days")}</th><th style="${th}">${L("राशि","Amount")}</th></tr></thead><tbody>${wk.map((w,x)=>`<tr style="background:${x%2?"#fff3d6":"#fff"}"><td style="${td};text-align:center">${x+1}</td><td style="${td}">${esc(wLabel(w))}</td><td style="${td};text-align:right">${money(w.rate)}</td><td style="${td};text-align:center">${w.days}</td><td style="${td};text-align:right"><b>${money(wTotal(w))}</b></td></tr>`).join("")}<tr style="background:#fdd891"><td colspan="4" style="${td};text-align:right;font-weight:800;color:#7a1010">${L("कुल कारीगर भुगतान","Total worker payment")}</td><td style="${td};text-align:right;font-weight:800;color:#7a1010">${money(wk.reduce((a,w)=>a+wTotal(w),0))}</td></tr></tbody></table></div>`:"";
+ const pyHtml=pyl.length?`<div style="margin-top:16px;page-break-inside:avoid"><div style="font-size:16px;font-weight:800;color:#b71c1c;margin-bottom:6px">💳 ${L("भुगतान का इतिहास","Payment history")}</div><table style="width:100%;border-collapse:collapse;font-size:13.5px"><thead><tr style="background:#b71c1c;color:#fff"><th style="${th}">${L("क्र.","No.")}</th><th style="${th}">${L("दिनांक","Date")}</th><th style="${th}">${L("प्रकार","Type")}</th><th style="${th}">${L("माध्यम","Method")}</th><th style="${th}">${L("राशि","Amount")}</th></tr></thead><tbody>${pyl.map((q,x)=>`<tr style="background:${x%2?"#fff3d6":"#fff"}"><td style="${td};text-align:center">${x+1}</td><td style="${td}">${esc(fmtDate(q.date))}</td><td style="${td}">${esc(ptL(q.type))}${q.note?"<br><small>"+esc(q.note)+"</small>":""}</td><td style="${td}">${esc(pmL(q.method))}</td><td style="${td};text-align:right"><b>${money(q.amount)}</b></td></tr>`).join("")}<tr style="background:#fdd891"><td colspan="4" style="${td};text-align:right;font-weight:800;color:#7a1010">${L("कुल प्राप्त भुगतान","Total received")}</td><td style="${td};text-align:right;font-weight:800;color:#7a1010">${money(pyl.reduce((a,q)=>a+num(q.amount),0))}</td></tr></tbody></table></div>`:"";
  const html=pdfHeader(b,stamp)+`<div style="margin:14px 0 8px;background:#fdd891;color:#7a1010;text-align:center;padding:10px;border-radius:8px;font-size:20px;font-weight:800">${isInv?L("बिल / INVOICE","INVOICE"):L("कोटेशन / QUOTATION","QUOTATION")}</div>
  <table style="width:100%;font-size:14px;margin-bottom:10px"><tr><td><b>${L("नंबर:","No:")}</b> ${esc(i.no)}</td><td style="text-align:right"><b>${L("दिनांक:","Date:")}</b> ${esc(fmtDate(i.date))}</td></tr><tr><td colspan="2" style="padding-top:6px"><b>${L("ग्राहक:","Customer:")}</b> ${esc(i.name)}${i.phone?" • 📞 "+esc(i.phone):""}${i.address?"<br>📍 "+esc(i.address):""}</td></tr></table>
  <table style="width:100%;border-collapse:collapse;font-size:14px"><thead><tr style="background:#b71c1c;color:#fff"><th style="${th}">${L("क्र.","No.")}</th><th style="${th}">${L("विवरण","Description")}</th><th style="${th}">${L("मात्रा","Qty")}</th><th style="${th}">${L("रेट","Rate")}</th><th style="${th}">${L("राशि","Amount")}</th></tr></thead><tbody>${(i.lines||[]).map((l,x)=>`<tr style="background:${x%2?"#fff3d6":"#fff"}"><td style="${td};text-align:center">${x+1}</td><td style="${td}">${esc(l.d)}</td><td style="${td};text-align:center">${num(l.q)}</td><td style="${td};text-align:right">${money(l.r)}</td><td style="${td};text-align:right"><b>${money(num(l.q)*num(l.r))}</b></td></tr>`).join("")}</tbody></table>
  <table style="width:55%;margin-left:auto;margin-top:10px;font-size:14px;border-collapse:collapse">${[[L("उप-कुल","Subtotal"),money(c.sub)],c.disc?[L("डिस्काउंट","Discount"),"−"+money(c.disc)]:null,num(i.gstPct)?["GST ("+num(i.gstPct)+"%)","+"+money(c.gst)]:null,[L("कुल राशि","Total"),money(c.total),1],isInv?[L("एडवांस / प्राप्त","Advance / Paid"),money(p)]:null,isInv?[L("बाकी राशि","Balance due"),money(Math.max(0,c.total-p)),1]:null].filter(Boolean).map(r=>`<tr><td style="padding:4px 6px;${r[2]?"font-weight:800;color:#b71c1c":""}">${r[0]}</td><td style="padding:4px 6px;text-align:right;${r[2]?"font-weight:800;color:#b71c1c;font-size:16px":""}">${r[1]}</td></tr>`).join("")}</table>
+ ${wkHtml}${pyHtml}
  ${b.billInfo?`<div style="margin-top:14px;font-size:13px;border:1px dashed #b71c1c;border-radius:8px;padding:9px;white-space:pre-line"><b>${L("भुगतान / बैंक विवरण:","Payment / bank details:")}</b>\n${esc(b.billInfo)}</div>`:""}
  ${i.notes||(b.inv&&b.inv.terms)?`<div style="margin-top:10px;font-size:12.5px;white-space:pre-line"><b>${L("नोट / शर्तें:","Notes / terms:")}</b>\n${esc([i.notes,b.inv&&b.inv.terms].filter(Boolean).join("\n"))}</div>`:""}
  <div style="margin-top:20px;background:#fdd891;color:#7a1010;text-align:center;padding:11px;border-radius:8px"><b>🙏 ${L("धन्यवाद!","Thank you!")}</b> ${esc(b.name||"")}</div>`;
