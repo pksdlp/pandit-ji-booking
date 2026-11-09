@@ -1584,40 +1584,62 @@ function pdfHeader(b,stamp){
  ${b.gst?`<div style="font-size:13px;margin-top:3px">GSTIN: ${esc(b.gst)}</div>`:""}
  ${stamp?`<div style="font-size:13px;color:#ffe9c2;margin-top:8px;border-top:1px solid rgba(255,255,255,.35);padding-top:6px">🗓️ ${esc(stamp)}</div>`:""}</div>`;
 }
-async function makePdf(html,name,landscape){
- if(!window.html2pdf)throw new Error("PDF library missing");
+function pdfCanvasBlank(c){
+ // बहुत छोटे नमूने में देखें कि पूरा पेज एक ही रंग (सारा सफ़ेद या सारा काला) तो नहीं है
+ try{
+  const w=60,h=Math.max(1,Math.min(400,Math.round(c.height*w/Math.max(1,c.width))));
+  const t=document.createElement("canvas");t.width=w;t.height=h;
+  const x=t.getContext("2d");x.fillStyle="#fff";x.fillRect(0,0,w,h);x.drawImage(c,0,0,w,h);
+  const d=x.getImageData(0,0,w,h).data,n=w*h;let wh=0,bl=0;
+  for(let i=0;i<d.length;i+=4){
+   if(d[i]>=250&&d[i+1]>=250&&d[i+2]>=250)wh++;
+   else if(d[i]<=8&&d[i+1]<=8&&d[i+2]<=8)bl++;
+  }
+  return wh>=n*.9995||bl>=n*.9995;
+ }catch(e){return false}
+}
+async function makePdfOnce(html,name,landscape,visible,maxScale){
  const W=landscape?960:640;
- // बाहरी आवरण: स्क्रीन के बाहर छिपा रहता है, पर अंदर का box सामान्य जगह (0,0) पर रहता है
- // (पहले box ही left:-12000px पर था, इसलिए html2pdf उसकी कॉपी भी स्क्रीन के बाहर रेंडर करता था → PDF खाली/सफ़ेद आती थी)
+ // तरीका 1: PDF वाला हिस्सा स्क्रीन के बाहर छिपा रहता है (बाहरी आवरण छिपता है, अंदर का box सामान्य जगह पर)
+ // तरीका 2 (बैकअप): पूरे स्क्रीन पर सफ़ेद परत में सामने रेंडर, कुछ फ़ोन में यही चलता है
  const wrap=document.createElement("div");
- wrap.style.cssText="position:fixed;left:-20000px;top:0;width:"+W+"px;pointer-events:none";
+ wrap.style.cssText=visible
+  ?"position:fixed;left:0;top:0;width:100%;height:100%;overflow:auto;z-index:99990;background:#fff"
+  :"position:fixed;left:-20000px;top:0;width:"+W+"px;pointer-events:none";
  const box=document.createElement("div");
  box.style.cssText="width:"+W+"px;background:#fff;color:#222;padding:24px;box-sizing:border-box;font-family:'Noto Sans Devanagari','Mangal',Arial,sans-serif";
- box.innerHTML=html;
- wrap.appendChild(box);document.body.appendChild(wrap);
+ box.innerHTML=html;wrap.appendChild(box);document.body.appendChild(wrap);
  try{
-  // फ़ॉन्ट और सभी तस्वीरें (लोगो आदि) पूरी लोड होने तक रुकें
   try{if(document.fonts&&document.fonts.ready)await document.fonts.ready}catch(e){}
   await Promise.all(Array.from(box.querySelectorAll("img")).map(im=>im.complete&&im.naturalWidth?Promise.resolve():new Promise(r=>{im.onload=im.onerror=r;setTimeout(r,4000)})));
   await new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r)));
-  // मोबाइल में बहुत बड़ा canvas खाली/काला बन जाता है, इसलिए लंबे पेज पर scale अपने-आप घटाएँ
   const H=Math.max(box.scrollHeight,100);
-  const scale=Math.max(1,Math.min(2,Math.sqrt(12000000/(W*H))));
+  const scale=Math.max(1,Math.min(maxScale,Math.sqrt(12000000/(W*H))));
   const blob=await html2pdf().from(box).set({
    margin:10,filename:name,
    image:{type:"jpeg",quality:.95},
-   html2canvas:{scale:scale,useCORS:true,allowTaint:false,backgroundColor:"#ffffff",scrollX:0,scrollY:0,windowWidth:W+40,logging:false},
+   html2canvas:{scale:scale,useCORS:true,backgroundColor:"#ffffff",scrollX:0,scrollY:0,windowWidth:W+40,logging:false},
    jsPDF:{unit:"mm",format:"a4",orientation:landscape?"landscape":"portrait"},
    pagebreak:{mode:["css","legacy"],avoid:"tr"}
-  }).outputPdf("blob");
+  }).toCanvas().get("canvas",c=>{if(pdfCanvasBlank(c))throw new Error("blank canvas")}).outputPdf("blob");
   if(!blob||blob.size<1500)throw new Error("empty pdf");
   return new File([blob],name,{type:"application/pdf"});
  }finally{wrap.remove()}
 }
+async function makePdf(html,name,landscape){
+ if(!window.html2pdf)throw new Error("PDF library missing");
+ const sx=window.scrollX||0,sy=window.scrollY||0;
+ window.scrollTo(0,0); // पेज नीचे स्क्रॉल हो तो html2pdf खाली PDF बना देता है
+ try{
+  try{return await makePdfOnce(html,name,landscape,false,2)}
+  catch(e1){console.warn("PDF try 1 failed:",e1);}
+  return await makePdfOnce(html,name,landscape,true,1.5);
+ }finally{window.scrollTo(sx,sy)}
+}
 let readyPdf=null;
 function showShare(file,msg,phone){
  readyPdf={file,msg,phone,name:file.name};
- openModal(L("📄 PDF तैयार है","📄 PDF is ready"),`<p class="small muted" id="shInfo">${L("PDF तैयार है। नीचे दबाने पर WhatsApp खुलेगा और PDF साथ में जुड़ी होगी।","PDF is ready. Tap below to open WhatsApp with the PDF attached.")}</p><div class="small box pre" style="margin-bottom:10px">${esc(msg)}</div>
+ openModal(L("📄 PDF तैयार है","📄 PDF is ready"),`<p class="small muted" id="shInfo">${L("PDF तैयार है। नीचे दबाने पर WhatsApp खुलेगा और PDF साथ में जुड़ी होगी।","PDF is ready. Tap below to open WhatsApp with the PDF attached.")} (${Math.max(1,Math.round(file.size/1024))} KB • v2)</p><div class="small box pre" style="margin-bottom:10px">${esc(msg)}</div>
  <button class="btn wa block" data-act="pdfshare">📤 ${L("WhatsApp पर भेजें","Send on WhatsApp")}</button><button class="btn sec block" data-act="pdfdl">⬇ ${L("PDF डाउनलोड","Download PDF")}</button><button class="btn danger block" data-act="mclose">${L("बंद करें","Close")}</button>`);
 }
 ACT.pdfdl=()=>{if(readyPdf)downloadBlob(readyPdf.file,readyPdf.name)};
