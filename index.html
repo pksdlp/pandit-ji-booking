@@ -310,7 +310,7 @@ const MODS=[
  {k:"customers",ic:"👥",hi:"ग्राहक",en:"Customers"},
  {k:"payments",ic:"💳",hi:"भुगतान",en:"Payments"},
  {k:"ledger",ic:"📒",hi:"आय-खर्च",en:"Income & Expense"},
- {k:"stock",ic:"📦",hi:"कच्चा माल / सामान",en:"Stock / Items"},
+ {k:"stock",ic:"📋",hi:"सामान सूची",en:"Items list"},
  {k:"invoices",ic:"🧾",hi:"बिल / कोटेशन",en:"Invoice / Quote"},
  {k:"reports",ic:"📊",hi:"रिपोर्ट",en:"Reports"},
  {k:"employees",ic:"👷",hi:"कर्मचारी",en:"Employees"},
@@ -492,7 +492,7 @@ function invCalc(i){
 }
 const itemStock=it=>memo("stk",()=>{const m=new Map();rows("stockMoves").forEach(s=>m.set(s.itemId,(m.get(s.itemId)||0)+(s.type==="in"?1:-1)*num(s.qty)));return m}).get(it.id)||0;
 const stockNow=it=>num(it.openStock)+itemStock(it);
-const isLow=it=>num(it.minStock)>0&&stockNow(it)<=num(it.minStock);
+const isLow=it=>false; // स्टॉक की गिनती हट गई, इसलिए "कम स्टॉक" चेतावनी बंद
 
 function ledgerRows(){return memo("lrows",()=>{
  const out=[],bm=new Map(rows("bookings").map(b=>[b.id,b])),im=new Map(rows("invoices").map(i=>[i.id,i]));
@@ -731,7 +731,7 @@ function refresh(soft){
 }
 function renderAll(){
  S.view=curView();paintChrome();
- try{el("app").innerHTML=VIEWS[S.view]()}catch(e){console.error(e);el("app").innerHTML=`<div class="card">⚠ ${esc(e.message)}</div>`}
+ try{el("app").innerHTML=VIEWS[S.view]();if(S.view==="stock")renderPack()}catch(e){console.error(e);el("app").innerHTML=`<div class="card">⚠ ${esc(e.message)}</div>`}
 }
 function remCount(){try{return reminderList().filter(r=>r.urgent).length}catch(e){return 0}}
 function paintChrome(){paintTop();paintNav();document.body.classList.toggle("dark",themeIsDark());const b=biz(),sl=el("spLogo"),sn=el("spName");if(b&&sl){sl.src=b.logo||DEFAULT_LOGO;sn.textContent=b.name||"हलवाई मैनेजर"}}
@@ -843,7 +843,6 @@ VIEWS.dash=()=>{
  ${kpi("⏳",L("बाकी भुगतान","Pending"),money(all.pending),"warn","payments")}
  ${kpi("📉",L("कुल खर्च","Total expense"),money(all.expense),"bad","ledger")}
  ${kpi("🏆",L("शुद्ध लाभ","Net profit"),money(all.profit),all.profit>=0?"ok":"bad","reports")}
- ${modOn("stock")?kpi("⚠️",L("कम स्टॉक सामान","Low stock"),low.length,low.length?"warn":"","stock"):""}
  </div>
  <div class="cols2" style="margin-top:12px">
  <div class="card"><h3>📊 ${L("पिछले 6 महीने","Last 6 months")}</h3>${barChart(ms,["sales","exp"],["#b71c1c","#f59e0b"])}<div class="legend"><span><i style="background:#b71c1c"></i>${L("बिक्री","Sales")}</span><span><i style="background:#f59e0b"></i>${L("खर्च","Expense")}</span></div></div>
@@ -1291,35 +1290,22 @@ function movesListHtml(){
  const im=new Map(rows("inventory").map(i=>[i.id,i])),l=rows("stockMoves").filter(m=>im.has(m.itemId)).sort((a,b)=>String(b.date).localeCompare(a.date)||String(b.createdAt).localeCompare(a.createdAt));
  return l.length?l.map(m=>{const i=im.get(m.itemId);return `<div class="li ${m.type==="in"?"done":""}"><div class="top"><strong>${m.type==="in"?"➕":"➖"} ${esc(i.name)} × ${num(m.qty)}</strong><span class="small muted">${esc(fmtDate(m.date))}</span></div><div class="small muted">${m.rate?money(m.rate)+" / "+L("इकाई","unit")+" • ":""}${esc(m.supplier||"")}${m.note?" • "+esc(m.note):""}</div><div class="acts"><button class="btn sm danger" data-act="delmove" data-id="${esc(m.id)}">🗑️</button></div></div>`}).join(""):empty("🔁",L("अभी कोई आवक/जावक दर्ज नहीं।","No stock movements yet."));
 }
-VIEWS.stock=()=>{
- const items=rows("inventory"),low=items.filter(isLow),val=items.reduce((s,i)=>s+Math.max(0,stockNow(i))*num(i.buy),0);
- return pageHead("📦 "+L("स्टॉक / सामान","Stock / Items"),`<button class="btn" data-act="newitem">➕ ${L("नया सामान","New item")}</button><button class="btn sec" data-act="packing">📋 ${L("सामान सूची PDF","Items list PDF")}</button>`)+
- `<div class="grid g3"><div class="kpi"><div class="l">📦 ${L("कुल सामान","Total items")}</div><div class="v">${items.length}</div></div><div class="kpi ${low.length?"warn":"ok"}"><div class="l">⚠️ ${L("कम स्टॉक","Low stock")}</div><div class="v">${low.length}</div></div><div class="kpi info"><div class="l">💰 ${L("स्टॉक का मूल्य","Stock value")}</div><div class="v">${money(val)}</div></div></div>
- ${low.length?`<div class="warnbox" style="margin-top:12px">⚠️ ${L("कम स्टॉक: ","Low stock: ")}${low.slice(0,6).map(i=>esc(i.name)+" ("+stockNow(i)+")").join(", ")}</div>`:""}
- <div class="card" style="margin-top:12px">${chipsHtml([["items",L("सामान","Items")],["moves",L("आवक / जावक का रिकॉर्ड","In / Out records")]],S.sf.tab,"stab")}${S.sf.tab==="items"?`<div class="search"><input value="${esc(S.sf.q)}" data-in="sq" placeholder="${L("सामान खोजें...","Search items...")}"></div>`:""}</div>
- <div id="slist">${S.sf.tab==="items"?stockListHtml():movesListHtml()}</div>`;
-};
+VIEWS.stock=()=>pageHead("📋 "+L("सामान सूची","Items list"),`<button class="btn" data-act="newitem">➕ ${L("नया सामान","New item")}</button>`)+`<div class="card" style="margin-top:10px">${packBodyHtml()}</div>`;
 ACT.stab=t=>{S.sf.tab=t.dataset.id;refresh()};
 INP.sq=t=>{S.sf.q=t.value;el("slist").innerHTML=stockListHtml()};
 ACT.newitem=()=>{closeAllModals();openItemForm("")};
 ACT.edititem=t=>{closeAllModals();openItemForm(t.dataset.id)};
 function openItemForm(id){
- const i=id?getR("inventory",id):{name:"",category:"",unit:"",buy:"",sell:"",minStock:"",supplier:"",buyDate:"",qty:""};
+ const i=id?getR("inventory",id):{name:"",qty:""};
  openModal(id?L("✏️ सामान एडिट","✏️ Edit item"):L("➕ नया सामान","➕ New item"),`<form data-form="item"><input type="hidden" name="id" value="${esc(id)}">
- ${fld(L("सामान का नाम *","Item name *"),inp("name",i.name,"required"))}
- <div class="r2">${fld(L("कैटेगरी","Category"),inp("category",i.category||""))}${fld(L("इकाई (पीस/किलो...)","Unit (pcs/kg...)"),inp("unit",i.unit||""))}</div>
- <div class="r2">${fld(L("खरीद मूल्य ₹","Buy price ₹"),inp("buy",i.buy||"",'type="number" inputmode="decimal" min="0" step="any"'))}${fld(L("बिक्री मूल्य ₹","Sell price ₹"),inp("sell",i.sell||"",'type="number" inputmode="decimal" min="0" step="any"'))}</div>
- <div class="r2">${fld(L("वर्तमान स्टॉक","Current stock"),inp("stock",id?stockNow(i):"",'type="number" inputmode="decimal" step="any" placeholder="0"'))}${fld(L("न्यूनतम स्टॉक सीमा","Minimum stock limit"),inp("minStock",i.minStock||"",'type="number" inputmode="decimal" min="0" step="any" placeholder="0"'))}</div>
- <div class="r2">${fld(L("सप्लायर का नाम","Supplier"),inp("supplier",i.supplier||""))}${fld(L("खरीदने की तारीख","Purchase date"),inp("buyDate",i.buyDate||"",'type="date"'))}</div>
- ${fld(L("मंगवाने की मात्रा (सामान सूची PDF के लिए)","Quantity to arrange (for Items list PDF)"),inp("qty",i.qty||"",`placeholder="${L("जैसे: 50 पीस","e.g. 50 pcs")}"`))}
+ ${fld(L("सामान / कच्चे माल का नाम *","Item / raw material name *"),inp("name",i.name,"required"))}
+ ${fld(L("मात्रा / क्वांटिटी","Quantity"),inp("qty",i.qty||"",`placeholder="${L("जैसे: 50 किलो","e.g. 50 kg")}"`))}
  <button class="btn" type="submit">${L("सेव करें","Save")}</button><button type="button" class="btn sec" data-act="mclose">${L("रद्द करें","Cancel")}</button></form>`,{sticky:true});
 }
 FORMS.item=f=>{
  const d=fd(f);if(!d.name)return false;
  const old=d.id?getR("inventory",d.id):null;
- const rec=Object.assign({id:d.id||uid(),ord:(rows("inventory").reduce((m,x)=>Math.max(m,x.ord||0),0)+1),selected:!!d.qty},old||{},{name:d.name,category:d.category,unit:d.unit,buy:num(d.buy),sell:num(d.sell),minStock:num(d.minStock),supplier:d.supplier,buyDate:d.buyDate,qty:d.qty});
- const net=old?itemStock(old):0;
- if(d.stock!==""&&d.stock!=null)rec.openStock=num(d.stock)-net;else rec.openStock=num(rec.openStock);
+ const rec=Object.assign({id:d.id||uid(),ord:(rows("inventory").reduce((m,x)=>Math.max(m,x.ord||0),0)+1),selected:!!d.qty,category:"",unit:"",buy:0,sell:0,openStock:0,minStock:0,supplier:"",buyDate:""},old||{},{name:d.name,qty:d.qty});
  if(old&&old.qty!==d.qty)rec.selected=!!d.qty;
  put("inventory",rec);toast(L("सामान सेव हो गया।","Item saved."),"ok");
 };
@@ -1357,17 +1343,14 @@ ACT.itemhist=t=>{
 
 /* ----- सामान सूची (पुराना फीचर: टिक, मात्रा, एक साथ जोड़ना, PDF + WhatsApp शेयर) ----- */
 const packItems=()=>rows("inventory").sort((a,b)=>(a.ord||0)-(b.ord||0));
-ACT.packing=()=>{
- closeAllModals();
- openModal("📦 "+L("सामान की सूची (मंगवाने के लिए)","Items list (to arrange)"),`<div style="display:flex;justify-content:space-between;align-items:center;gap:8px"><h4 style="color:var(--p);margin:0">${L("कुल सामान","Total items")} (<span id="pkTotal">0</span>)</h4><button class="btn wa" id="pkShare" data-act="packpdf">📤 ${L("WhatsApp शेयर","WhatsApp share")}</button></div>
+function packBodyHtml(){return `<div style="display:flex;justify-content:space-between;align-items:center;gap:8px"><h4 style="color:var(--p);margin:0">${L("कुल सामान","Total items")} (<span id="pkTotal">0</span>)</h4><button class="btn wa" id="pkShare" data-act="packpdf">📤 ${L("WhatsApp शेयर","WhatsApp share")}</button></div>
  <input id="pkSearch" data-in="pksearch" placeholder="🔎 ${L("सामान खोजें...","Search items...")}" style="margin-top:10px"><div class="small muted" id="pkInfo" style="margin-top:6px"></div><div id="packList" style="margin-top:6px"></div>
  <hr style="margin:16px 0;border:0;border-top:1px solid var(--line)">
  <div><button class="btn sec" data-act="packall" data-v="1">✔ ${L("सभी चुनें","Select all")}</button><button class="btn sec" data-act="packall" data-v="0">✖ ${L("कोई नहीं","Select none")}</button><button class="btn danger" data-act="packdel">🗑️ ${L("चुने हुए हटाएं","Delete selected")}</button></div>
  ${fld(L("सामान एक साथ जोड़ें (कॉमा , से अलग करें)","Add many items at once (separate with comma ,)"),`<textarea id="pkBulk" rows="4" data-in="pkbulk" placeholder="${L("जैसे: टेंट, कुर्सी, दरी, माइक:2, गैस सिलेंडर:3 पीस","e.g. Tent, Chair, Mat, Mic:2, Gas cylinder:3 pcs")}"></textarea>`)}
  <div class="small muted" id="pkBulkCnt"></div><button class="btn" data-act="packadd">➕ ${L("सभी सामान जोड़ें","Add all items")}</button><button class="btn sec" data-act="packclear">${L("साफ़ करें","Clear")}</button>
- <p class="small muted">${L("💡 हर सामान कॉमा (,) से अलग लिखें। मात्रा भी डालनी हो तो नाम के बाद : लगाएँ, जैसे दरी:10। जिस सामान में मात्रा भरी हो वह अपने-आप चुना (हरा टिक) हो जाता है। एक बार में 500 तक सामान डाल सकते हैं।","💡 Write each item separated by a comma (,). To add quantity, put : after the name, e.g. Mat:10. An item with a quantity is selected automatically (green tick). You can add up to 500 items at once.")}</p>`,{wide:true,sticky:true});
- renderPack();
-};
+ <p class="small muted">${L("💡 हर सामान कॉमा (,) से अलग लिखें। मात्रा भी डालनी हो तो नाम के बाद : लगाएँ, जैसे दरी:10। जिस सामान में मात्रा भरी हो वह अपने-आप चुना (हरा टिक) हो जाता है। एक बार में 500 तक सामान डाल सकते हैं।","💡 Write each item separated by a comma (,). To add quantity, put : after the name, e.g. Mat:10. An item with a quantity is selected automatically (green tick). You can add up to 500 items at once.")}</p>`}
+ACT.packing=()=>{closeAllModals();go("stock")};
 function packVisible(){const q=(el("pkSearch")?el("pkSearch").value:"").trim().toLowerCase();return packItems().map((it,i)=>({it,i})).filter(x=>!q||String(x.it.name||"").toLowerCase().includes(q))}
 function packInfo(){const all=packItems(),sel=all.filter(i=>i.selected!==false).length;el("pkTotal").textContent=all.length;el("pkInfo").textContent=L("चुने हुए: ","Selected: ")+sel+" / "+L("कुल: ","Total: ")+all.length}
 function renderPack(){
@@ -1425,10 +1408,10 @@ ACT.packpdf=async t=>{
  const list=packItems().filter(i=>i.selected!==false);
  if(!list.length){toast(L("कम से कम एक सामान चुनें।","Select at least one item."),"err");return}
  const stamp=nowStamp(),name="Saman-List-"+fileStamp()+".pdf",b=biz();
- const html=pdfHeader(b,stamp)+`<h3 style="text-align:center;color:#b71c1c;margin:14px 0 10px">📦 ${L("मंगवाने वाले सामान की सूची","List of items to arrange")}</h3>
+ const html=pdfHeader(b,stamp)+`<h3 style="text-align:center;color:#b71c1c;margin:14px 0 10px">📦 ${L("मंगवाने वाले सामान / कच्चे माल की सूची","List of items to arrange")}</h3>
  <table style="width:100%;border-collapse:collapse;font-size:15px"><thead><tr style="background:#b71c1c;color:#fff"><th style="border:1px solid #b71c1c;padding:9px">${L("क्र.","No.")}</th><th style="border:1px solid #b71c1c;padding:9px">${L("सामान का नाम","Item name")}</th><th style="border:1px solid #b71c1c;padding:9px">${L("मात्रा","Quantity")}</th></tr></thead><tbody>${list.map((it,i)=>`<tr style="background:${i%2?"#fff3d6":"#fff"}"><td style="border:1px solid #e3c98a;padding:8px;text-align:center;color:#b71c1c;font-weight:bold">${i+1}</td><td style="border:1px solid #e3c98a;padding:8px;font-weight:600">${esc(it.name)}</td><td style="border:1px solid #e3c98a;padding:8px;color:#7a1010;font-weight:bold">${esc(it.qty||"-")}</td></tr>`).join("")}</tbody></table>
- <div style="margin-top:22px;background:#fdd891;color:#7a1010;text-align:center;padding:12px;border-radius:8px"><b>${L("नोट:","Note:")}</b> ${L("कृपया उपरोक्त सामान समय पर मंगवा कर रखें। धन्यवाद!","Please arrange the above items on time. Thank you!")}</div>`;
- const msg=[L("नमस्ते, सामान की सूची की PDF संलग्न है। कृपया समय पर सामान मंगवा कर रखें। धन्यवाद!","Hello, the PDF of the items list is attached. Please arrange the items on time. Thank you!"),"🗓️ "+stamp,[b.name,bizPh(b)?"📞 "+bizPh(b):""].filter(Boolean).join("\n")].filter(Boolean).join("\n\n");
+ <div style="margin-top:22px;background:#fdd891;color:#7a1010;text-align:center;padding:12px;border-radius:8px"><b>${L("नोट:","Note:")}</b> ${L("कृपया सामान/कच्चा माल समय पर मंगवा कर रखें। धन्यवाद!","Please arrange the items / raw material on time. Thank you!")}</div>`;
+ const msg=[L("नमस्ते, सामान की सूची की PDF संलग्न है। कृपया सामान/कच्चा माल समय पर मंगवा कर रखें। धन्यवाद!","Hello, the PDF of the items list is attached. Please arrange the items / raw material on time. Thank you!"),"🗓️ "+stamp,[b.name,bizPh(b)?"📞 "+bizPh(b):""].filter(Boolean).join("\n")].filter(Boolean).join("\n\n");
  await pdfAndShare(html,name,msg,"",t);
 };
 ACT.newitem2=()=>ACT.newitem();
@@ -1888,7 +1871,7 @@ function repRange(){const F=S.rf;return perRange(F.per,F.from,F.to)}
 VIEWS.reports=()=>{
  const F=S.rf,[a,z]=repRange(),R=buildReport(F.type,a,z);
  return pageHead("📊 "+L("रिपोर्ट","Reports"),`<button class="btn wa" data-act="reppdf">📄 PDF</button><button class="btn sec" data-act="repcsv">📥 Excel / CSV</button>`)+
- `<div class="card">${chipsHtml([["summary",L("हिसाब (दैनिक/साप्ताहिक/मासिक/वार्षिक)","Accounts (daily/weekly/monthly/yearly)")],["bookings",L("बुकिंग","Bookings")],["customers",L("ग्राहक","Customers")],["stock",L("स्टॉक","Stock")],["ledger",L("आय-खर्च","Income-Expense")]],F.type,"rtype")}
+ `<div class="card">${chipsHtml([["summary",L("हिसाब (दैनिक/साप्ताहिक/मासिक/वार्षिक)","Accounts (daily/weekly/monthly/yearly)")],["bookings",L("बुकिंग","Bookings")],["customers",L("ग्राहक","Customers")],["ledger",L("आय-खर्च","Income-Expense")]],F.type,"rtype")}
  ${F.type==="stock"?"":`${perChips(F.per,"rper",true)}${dateRangeInputs(F,"rdate")}`}<div class="small muted">${L("अवधि: ","Period: ")}<b>${esc(R.per)}</b></div></div>
  <h3 class="h3">${esc(R.title)}</h3>${R.sections.map(s=>`<div class="card"><h3>${esc(s.title)}</h3>${reportTable(s)}</div>`).join("")}
  <div class="small muted">${L("ℹ️ लाभ = प्राप्त आय − खर्च (नकद आधार)। बिक्री = बुकिंग की कुल रकम + अकेले बिल + सामान बिक्री।","ℹ️ Profit = income received − expenses (cash basis). Sales = booking totals + standalone bills + item sales.")}</div>`;
@@ -1914,7 +1897,7 @@ function searchHtml(q){
  const sec=(t,l)=>l.length?`<h3 class="h3" style="margin-top:12px">${t} (${l.length})</h3>`+l.join(""):"";
  out+=sec("📋 "+L("बुकिंग","Bookings"),rows("bookings").filter(b=>has(b.name,b.phone,bno(b),b.category,catL(b.category),b.address,b.date,fmtDate(b.date),fmtDate(b.endDate),b.notes)).slice(0,10).map(bookingCard));
  out+=sec("👥 "+L("ग्राहक","Customers"),rows("customers").filter(c=>has(c.name,c.phone,c.address,c.notes)).slice(0,10).map(c=>`<div class="li" data-act="custdetail" data-id="${esc(c.id)}" data-av="${esc(avL(c.name))}"><div class="top"><strong>${esc(c.name)}</strong><span class="small muted">${esc(c.phone||"")}</span></div><div class="small muted">${esc(c.address||"")}</div></div>`));
- out+=sec("📦 "+L("सामान","Items"),rows("inventory").filter(i=>has(i.name,i.category,i.supplier)).slice(0,10).map(i=>`<div class="li" data-act="go" data-id="stock"><div class="top"><strong>${esc(i.name)}</strong><span class="pill ${isLow(i)?"wait":"ok"}">${stockNow(i)} ${esc(i.unit||"")}</span></div></div>`));
+ out+=sec("📦 "+L("सामान","Items"),rows("inventory").filter(i=>has(i.name,i.category,i.supplier)).slice(0,10).map(i=>`<div class="li" data-act="go" data-id="stock"><div class="top"><strong>${esc(i.name)}</strong>${i.qty?`<span class="pill ok">${esc(i.qty)}</span>`:""}</div></div>`));
  out+=sec("🧾 "+L("बिल / कोटेशन","Bills / Quotes"),rows("invoices").filter(i=>has(i.name,i.phone,i.no,i.date,fmtDate(i.date))).slice(0,10).map(i=>`<div class="li" data-act="invdetail" data-id="${esc(i.id)}"><div class="top"><strong>${esc(i.name)}</strong><span class="small muted">${esc(i.no)}</span></div><div class="small">${money(invCalc(i).total)}</div></div>`));
  out+=sec("📒 "+L("आय-खर्च","Income-Expense"),ledgerRows().filter(r=>has(r.cat,catL(r.cat),r.note,r.date,fmtDate(r.date),String(r.amount))).slice(0,10).map(r=>`<div class="li" data-act="ledrow" data-src="${r.src}" data-id="${esc(r.id)}"><div class="top"><strong>${r.type==="expense"?"−":"+"}${money(r.amount)}</strong><span class="small muted">${esc(fmtDate(r.date))}</span></div><div class="small">${esc(catL(r.cat))} ${esc(r.note)}</div></div>`));
  out+=sec("👷 "+L("कर्मचारी","Employees"),rows("employees").filter(e=>has(e.name,e.phone,e.role)).slice(0,10).map(e=>`<div class="li" data-act="empdetail" data-id="${esc(e.id)}" data-av="${esc(avL(e.name))}"><div class="top"><strong>${esc(e.name)}</strong><span class="small muted">${esc(e.role||"")}</span></div></div>`));
@@ -1953,7 +1936,7 @@ ACT.tpurge=t=>{if(!confirm(L("यह हमेशा के लिए हट ज
 ACT.trashempty=()=>{const l=trashItems();if(!l.length)return;if(!confirm(L("बिन की सभी "+l.length+" चीज़ें हमेशा के लिए हटाएँ? यह वापस नहीं होगा।","Permanently delete all "+l.length+" items in the bin? This cannot be undone.")))return;l.forEach(x=>purge(x.c,x.r.id));refresh()};
 
 /* ---------- व्यवसाय प्रोफाइल ---------- */
-const TOG=[["bookings","📋",L("बुकिंग","Bookings")],["customers","👥",L("ग्राहक","Customers")],["payments","💳",L("भुगतान","Payments")],["ledger","📒",L("आय-खर्च","Income & Expense")],["stock","📦",L("स्टॉक / सामान","Stock / Items")],["invoices","🧾",L("बिल / कोटेशन","Invoice / Quote")],["reports","📊",L("रिपोर्ट","Reports")],["employees","👷",L("कर्मचारी","Employees")],["reminders","🔔",L("रिमाइंडर","Reminders")]];
+const TOG=[["bookings","📋",L("बुकिंग","Bookings")],["customers","👥",L("ग्राहक","Customers")],["payments","💳",L("भुगतान","Payments")],["ledger","📒",L("आय-खर्च","Income & Expense")],["stock","📋",L("सामान सूची","Items list")],["invoices","🧾",L("बिल / कोटेशन","Invoice / Quote")],["reports","📊",L("रिपोर्ट","Reports")],["employees","👷",L("कर्मचारी","Employees")],["reminders","🔔",L("रिमाइंडर","Reminders")]];
 ACT.editbiz=()=>{closeAllModals();openBizForm(ACTIVE)};
 ACT.newbiz=()=>{closeAllModals();openBizForm("")};
 let LOGO_TARGET=null;
