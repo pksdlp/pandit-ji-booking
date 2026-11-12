@@ -236,6 +236,17 @@ body.dark #app .li .top strong{color:#ffd9d4;background:#5a3a14}
 #bnav button.on{color:#f9dfae!important}
 #bnav button.on span{background:#6b3a1a!important}
 #bnav button.addb span{background:#f2d7aa!important;color:#3a1b09!important;border:3px solid var(--acc)}
+/* नेविगेशन पट्टी सबसे ऊपर (स्क्रीन पर चिपकी), ＋ बटन बीच में, सपाट */
+@media(max-width:899px){
+#stick{display:contents}
+#bnav{position:sticky!important;top:0;bottom:auto!important;z-index:80;border-top:0!important;border-bottom:3px solid var(--acc)!important;padding:8px 6px 8px!important;padding-top:calc(8px + env(safe-area-inset-top))!important;box-shadow:none!important;align-items:center}
+#topbar{padding-top:10px}
+#topbar[data-big="1"]{padding-top:14px}
+#bnav button.addb{flex:0 0 64px;align-self:center}
+#bnav button.addb span{margin-top:0!important;box-shadow:none!important;width:44px;height:44px}
+body{padding-bottom:calc(24px + env(safe-area-inset-bottom))}
+#toasts{bottom:calc(24px + env(safe-area-inset-bottom))}
+}
 </style>
 </head>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -245,7 +256,7 @@ body.dark #app .li .top strong{color:#ffd9d4;background:#5a3a14}
 <div id="splash"><img id="spLogo" src="./logo.png" alt=""><b id="spName">हलवाई मैनेजर</b><span>हर कार्यक्रम का पूरा हिसाब — एक ऐप में</span></div>
 <div id="offBar" class="hidden"></div>
 <aside id="side"></aside>
-<div id="main"><div id="stick"><header id="topbar"></header><nav id="bnav"></nav></div><main id="app"></main></div>
+<div id="main"><div id="stick"><nav id="bnav"></nav><header id="topbar"></header></div><main id="app"></main></div>
 <div id="modals"></div><div id="toasts"></div>
 <input type="file" id="restoreFile" accept=".json,application/json" hidden>
 <input type="file" id="logoFile" accept="image/*" hidden>
