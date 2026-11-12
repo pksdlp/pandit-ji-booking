@@ -544,6 +544,24 @@ function openModal(title,body,o){
 }
 function closeModal(d){d=d||[].slice.call(el("modals").children).pop();if(d)d.remove()}
 function closeAllModals(){el("modals").innerHTML=""}
+/* ---------- मोबाइल का बैक बटन: पहले खुली शीट/मेन्यू बंद हों, ऐप न बंद हो ---------- */
+let WMIGN=0;
+const wmOpen=()=>el("modals").children.length>0||!!document.getElementById("waov");
+function wmPush(){const s=history.state;if(s&&s.wm===1)return;if(s&&s.wm===2){history.replaceState({wm:1},"");return}history.pushState({wm:1},"")}
+function wmPop(){const s=history.state;if(s&&s.wm===1&&!wmOpen()){WMIGN++;history.back()}}
+window.addEventListener("popstate",()=>{
+ if(WMIGN>0){WMIGN--;return}
+ const ov=document.getElementById("waov");
+ if(ov){ov.remove();if(wmOpen())history.pushState({wm:1},"");return}
+ const ms=el("modals").children;
+ if(ms.length){ms[ms.length-1].remove();if(ms.length)history.pushState({wm:1},"");return}
+ if(history.state&&history.state.wm)history.back();
+});
+(function(){const om=openModal,cm=closeModal,ca=closeAllModals;
+ openModal=function(){const d=om.apply(this,arguments);wmPush();return d};
+ closeModal=function(d){cm(d);wmPop()};
+ closeAllModals=function(){ca();if(history.state&&history.state.wm===1)history.replaceState({wm:2},"")};
+})();
 const topModal=()=>[].slice.call(el("modals").children).pop();
 
 /* ---------- Cloud Sync (Firebase) ---------- */
@@ -704,7 +722,7 @@ const dateRangeInputs=(F,act)=>F.per==="custom"?`<div class="r2"><div>${fld(L("�
 
 /* ---------- रूटिंग और रेंडर ---------- */
 function curView(){let v=location.hash.replace(/^#\/?/,"")||"home";if(!VIEWS[v])v="home";const m=MODS.find(x=>x.k===v);if(m&&!m.core&&!modOn(v))v="home";return v}
-function go(v){if(location.hash!=="#/"+v)location.hash="#/"+v;else{S.view=v;refresh()}}
+function go(v){if(location.hash!=="#/"+v){S.pushed=true;location.hash="#/"+v}else{S.view=v;refresh()}}
 window.addEventListener("hashchange",()=>{closeAllModals();S.view=curView();refresh();window.scrollTo(0,0)});
 let rT=0;
 function refresh(soft){
@@ -754,25 +772,25 @@ document.addEventListener("submit",e=>{
  e.preventDefault();
  const h=FORMS[f.dataset.form];if(!h)return;
  let r;try{r=h(f)}catch(x){console.error(x);toast("⚠ "+x.message,"err");return}
- if(r!==false){const m=f.closest(".modal");if(m)m.remove();refresh()}
+ if(r!==false){const m=f.closest(".modal");if(m)m.remove();wmPop();refresh()}
 });
-ACT.mclose=t=>{const m=t.closest(".modal");if(m)m.remove()};
+ACT.mclose=t=>{const m=t.closest(".modal");if(m)m.remove();wmPop()};
 ACT.go=t=>{closeAllModals();go(t.dataset.id)};
 ACT.lang=()=>{LANG=LANG==="en"?"hi":"en";localStorage.setItem(OLD.lang,LANG);document.documentElement.lang=LANG;updateOffBar();refresh()};
-function closeWaMenu(){const o=document.getElementById("waov");if(o)o.remove()}
+function closeWaMenu(nav){const o=document.getElementById("waov");if(!o)return;o.remove();if(nav){if(history.state&&history.state.wm===1)history.replaceState({wm:2},"")}else wmPop()}
 ACT.menu=()=>{
  if(document.getElementById("waov")){closeWaMenu();return}
  const n=remCount(),it=(act,ic,t,id,badge)=>`<button data-act="${act}"${id?` data-id="${id}"`:""}><span>${ic}</span>${t}${badge?`<b>${badge}</b>`:""}</button>`;
  const mods=MODS.filter(m=>!m.hidden&&m.k!=="home"&&m.k!=="settings"&&m.k!=="trash"&&(m.core||modOn(m.k)));
  const html=it("mprof","👤",L("प्रोफाइल","Profile"))+it("mgo","⚙️",L("सेटिंग्स","Settings"),"settings")+mods.map(m=>it("mgo",m.ic,L(m.hi,m.en),m.k,m.k==="reminders"&&n?n:0)).join("")+it("mgo","📊",L("डैशबोर्ड","Dashboard"),"dash")+it("mgo","🗑️",L("रीसायकल बिन","Recycle bin"),"trash")+it("mbiz","🔁",L("व्यवसाय बदलें","Switch business"))+it("mlang","🌐",LANG==="en"?"हिंदी":"English");
- const o=document.createElement("div");o.id="waov";o.className="wa-ov";o.setAttribute("data-act","wamclose");o.innerHTML=`<div class="wa-menu">${html}</div>`;document.body.appendChild(o);
+ const o=document.createElement("div");o.id="waov";o.className="wa-ov";o.setAttribute("data-act","wamclose");o.innerHTML=`<div class="wa-menu">${html}</div>`;document.body.appendChild(o);wmPush();
 };
 ACT.wamclose=closeWaMenu;
-ACT.mgo=t=>{closeWaMenu();closeAllModals();go(t.dataset.id)};
-ACT.mprof=()=>{closeWaMenu();ACT.editbiz()};
-ACT.mbiz=()=>{closeWaMenu();ACT.bizswitch()};
-ACT.mlang=()=>{closeWaMenu();ACT.lang()};
-ACT.goback=()=>{closeAllModals();go("home")};
+ACT.mgo=t=>{closeWaMenu(true);closeAllModals();go(t.dataset.id)};
+ACT.mprof=()=>{closeWaMenu(true);ACT.editbiz()};
+ACT.mbiz=()=>{closeWaMenu(true);ACT.bizswitch()};
+ACT.mlang=()=>{closeWaMenu(true);ACT.lang()};
+ACT.goback=()=>{closeAllModals();if(S.pushed&&history.length>1)history.back();else go("home")};
 ACT.more=()=>{
  const d=openModal(L("सभी सेक्शन","All sections"),`<div class="pick">${MODS.filter(m=>!m.hidden&&(m.core||modOn(m.k))).map(m=>`<button data-act="go" data-id="${m.k}"><span>${m.ic}</span>${L(m.hi,m.en)}</button>`).join("")}</div>`);
 };
