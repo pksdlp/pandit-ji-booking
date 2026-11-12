@@ -963,7 +963,8 @@ function openBookingForm(id,pre){
  <div class="small muted" style="margin:0 0 8px">${L("💡 कारीगर / स्वयं का भुगतान जोड़ते ही उसका कुल योग 'कुल रकम' में अपने-आप आ जाता है (चाहें तो बदल सकते हैं)।","💡 The total of workers / own payment is filled into 'Total amount' automatically (you can still edit it).")}</div>
   <div class="r2">${fld(L("कुल रकम ₹ *","Total amount ₹ *"),inp("amount",v.amount,`type="number" inputmode="decimal" min="0" step="any" required placeholder="0" data-in="amtmanual"`))}${fld(L("एडवांस ₹","Advance ₹"),inp("advance",advV||0,`type="number" inputmode="decimal" min="0" step="any" data-in="bkcalc"`))}</div>
  <div class="r2">${fld(L("एडवांस का माध्यम","Advance method"),sel("advMethod",PM.map(m=>[m[0],pmL(m[0])]),ap?ap.method:"कैश"))}${fld(L("भुगतान की अंतिम तारीख","Payment due date"),inp("payDue",v.payDue||"",`type="date"`))}</div>
- <div class="calc" id="bkSum"></div>
+ <div class="sect" style="border:2px dashed #15803d;border-radius:12px;padding:8px 10px;margin:8px 0;background:rgba(21,128,61,.07)">${fld(L("💵 मेरी बचत ₹ (सिर्फ़ मालिक के लिए)","💵 My saving ₹ (owner only)"),inp("ownerSaving",v.ownerSaving||"",'type="number" inputmode="decimal" min="0" step="any" placeholder="0" data-in="bkcalc"'))}<div class="small muted">🔒 ${L("यह रकम ग्राहक की PDF / बिल में नहीं जाती। जैसे: ग्राहक को कारीगर ₹1000 दिखाया, दिए ₹800 → यहाँ ₹200 लिखें।","This amount never goes into the customer PDF / bill. E.g. worker shown as ₹1000, paid ₹800 → enter ₹200.")}</div></div>
+<div class="calc" id="bkSum"></div>
  ${fld(L("काम की स्थिति","Work status"),sel("status",ST.map(s=>[s[0],stLabel(s[0])]),v.status))}
  <div class="small muted">${L("ℹ️ काम की तारीख बीतने पर भी बुकिंग अपने-आप पूरी नहीं होती — काम पूरा होने पर आप खुद स्टेटस बदलें।","ℹ️ A booking is never completed automatically — you confirm it yourself.")}</div>
  ${fld(L("नोट्स","Notes"),`<textarea name="notes" placeholder="${L("अतिरिक्त जानकारी","Additional information")}">${esc(v.notes||"")}</textarea>`)}
@@ -979,8 +980,8 @@ function updateBookingDays(){
 }
 function updateFormSummary(){
  const f=el("bkForm");if(!f)return;
- const a=num(f.elements.amount.value),adv=num(f.elements.advance.value),w=expSum(formWorkers),ow=ownerSum(formWorkers);
- el("bkSum").textContent="💰 "+L("पूरा हिसाब","Full summary")+"\n"+L("कुल रकम:","Total amount:")+" "+money(a)+"  |  "+L("एडवांस:","Advance:")+" "+money(adv)+"  |  "+L("बाकी रकम:","Balance due:")+" "+money(a-adv)+"\n👷 "+L("कारीगर / खर्चा","Workers / expenses")+": "+money(w)+(ow>0?"  |  "+L("स्वयं की कमाई","Owner earning")+": "+money(ow):"")+"  |  "+L("कुल बचत","Net savings")+": "+money(a-w);
+ const a=num(f.elements.amount.value),adv=num(f.elements.advance.value),w=expSum(formWorkers),ow=ownerSum(formWorkers),sv=num(f.elements.ownerSaving&&f.elements.ownerSaving.value);
+ el("bkSum").textContent="💰 "+L("पूरा हिसाब","Full summary")+"\n"+L("कुल रकम:","Total amount:")+" "+money(a)+"  |  "+L("एडवांस:","Advance:")+" "+money(adv)+"  |  "+L("बाकी रकम:","Balance due:")+" "+money(a-adv)+"\n👷 "+L("कारीगर / खर्चा","Workers / expenses")+": "+money(w)+(ow>0?"  |  "+L("स्वयं की कमाई","Owner earning")+": "+money(ow):"")+(sv>0?"  |  "+L("मेरी बचत","My saving")+": "+money(sv):"")+"  |  "+L("कुल बचत","Net savings")+": "+money(a-w+sv);
 }
 
 /* ---------- रोज़ के काम (तारीख के अनुसार) ---------- */
@@ -1048,7 +1049,7 @@ FORMS.booking=f=>{
  const sd=d.date,ed=d.endDate||sd;
  if(parseYMD(ed)<parseYMD(sd)){toast(L("समाप्ति की तिथि आरंभ की तिथि से पहले नहीं हो सकती।","End date cannot be before the start date."),"err");return false}
  const id=d.id||uid(),old=d.id?getR("bookings",d.id):null,cid=ensureCustomer(d.name,d.phone,d.address);
- const bk=Object.assign({},old||{},{id,no:old&&old.no?old.no:nextNo("bookings","B-"),customerId:cid,name:d.name,phone:d.phone,category:d.category,date:sd,endDate:ed,time:d.time||"",address:d.address,amount,advance,status:d.status,notes:d.notes,payDue:d.payDue||"",guests:num(d.guests),rate:num(d.rate),menu:d.menu||"",dayTasks:cleanTasks(),workers:formWorkers.map(normW).map(w=>({cat:w.cat,name:w.name,rate:w.rate,days:w.days,amount:wTotal(w)})),createdAt:old?old.createdAt:nowISO()});
+ const bk=Object.assign({},old||{},{id,no:old&&old.no?old.no:nextNo("bookings","B-"),customerId:cid,name:d.name,phone:d.phone,category:d.category,date:sd,endDate:ed,time:d.time||"",address:d.address,amount,advance,status:d.status,notes:d.notes,payDue:d.payDue||"",guests:num(d.guests),rate:num(d.rate),menu:d.menu||"",dayTasks:cleanTasks(),ownerSaving:num(d.ownerSaving),workers:formWorkers.map(normW).map(w=>({cat:w.cat,name:w.name,rate:w.rate,days:w.days,amount:wTotal(w)})),createdAt:old?old.createdAt:nowISO()});
  put("bookings",bk);
  const ap=getR("payments","adv_"+id);
  if(advance>0){const rec=Object.assign({id:"adv_"+id,date:todayStr(),type:"advance",note:""},ap||{},{bookingId:id,customerId:cid,amount:advance,method:d.advMethod||"कैश"});delete rec.del;delete rec.delAt;put("payments",rec)}
@@ -1062,14 +1063,14 @@ ACT.delbk=t=>{
 ACT.details=(t,e)=>{if(e.target.closest("button")&&e.target.closest("button")!==t)return;showBooking(t.dataset.id)};
 function showBooking(id){
  const b=getR("bookings",id);if(!b)return;
- const amt=num(b.amount),pd=paid(b),ws=(b.workers||[]).map(normW),wsum=expSum(ws),osum=ownerSum(ws),days=daysBetween(b.date,b.endDate||b.date);
+ const amt=num(b.amount),pd=paid(b),ws=(b.workers||[]).map(normW),wsum=expSum(ws),osum=ownerSum(ws),sv=num(b.ownerSaving),days=daysBetween(b.date,b.endDate||b.date);
  const pays=rows("payments").filter(p=>p.bookingId===b.id).sort((x,y)=>String(x.date).localeCompare(y.date));
  const body=`<div class="h3" style="font-size:21px">${esc(b.name)}</div><div class="muted small">#${esc(bno(b))} • ${esc(catL(b.category))}</div>
  <div class="meta" style="display:flex;gap:6px;flex-wrap:wrap;margin:8px 0"><span class="pill ${stCls(b.status)}">${esc(stLabel(b.status))}</span>${payPill(b)}</div>
  <div class="card"><div class="kv"><span>${L("मोबाइल","Mobile")}</span><b>${esc(b.phone||"-")}</b></div><div class="kv"><span>${L("पता","Address")}</span><b>${esc(b.address||"-")}</b></div>
  <div class="kv"><span>${L("आरंभ तिथि","Start date")}</span><b>${esc(fmtDate(b.date))}${b.time?" • "+esc(fmtTime(b.time)):""}</b></div><div class="kv"><span>${L("समाप्ति तिथि","End date")}</span><b>${esc(fmtDate(b.endDate||b.date))}</b></div><div class="kv"><span>${L("कुल दिन","Total days")}</span><b>${days||"-"}</b></div>${b.guests?`<div class="kv"><span>${L("मेहमान / प्लेट","Guests / plates")}</span><b>${esc(b.guests)}${b.rate?" × "+money(b.rate):""}</b></div>`:""}${b.menu?`<div class="kv"><span>${L("मेन्यू","Menu")}</span><b style="white-space:pre-line;text-align:right">${esc(b.menu)}</b></div>`:""}
  ${b.payDue?`<div class="kv"><span>${L("भुगतान की अंतिम तारीख","Payment due date")}</span><b>${esc(fmtDate(b.payDue))}</b></div>`:""}</div>
- <div class="calc">💰 ${L("पूरा हिसाब","Full summary")}\n${L("कुल रकम:","Total amount:")} ${money(amt)}\n${L("प्राप्त भुगतान:","Paid:")} ${money(pd)}\n${L("बाकी रकम:","Balance due:")} ${money(Math.max(0,amt-pd))}${ws.length?`\n👷 ${L("कारीगर / खर्चा","Workers / expenses")}: ${money(wsum)}${osum>0?"\n"+L("स्वयं की कमाई:","Owner earning:")+" "+money(osum):""}\n${L("कुल बचत","Net savings")}: ${money(amt-wsum)}`:""}</div>
+ <div class="calc">💰 ${L("पूरा हिसाब","Full summary")}\n${L("कुल रकम:","Total amount:")} ${money(amt)}\n${L("प्राप्त भुगतान:","Paid:")} ${money(pd)}\n${L("बाकी रकम:","Balance due:")} ${money(Math.max(0,amt-pd))}${(ws.length||sv>0)?`\n👷 ${L("कारीगर / खर्चा","Workers / expenses")}: ${money(wsum)}${osum>0?"\n"+L("स्वयं की कमाई:","Owner earning:")+" "+money(osum):""}${sv>0?"\n💵 "+L("मेरी बचत:","My saving:")+" "+money(sv):""}\n${L("कुल बचत","Net savings")}: ${money(amt-wsum+sv)}`:""}</div>
  ${ws.length?`<div class="card" style="margin-top:10px"><div class="b">👷 ${L("कारीगर भुगतान:","Worker payments:")}</div><div class="small">${ws.map(w=>"• "+esc(wLabel(w))+" — "+money(w.rate)+" × "+w.days+" "+L("दिन","days")+" = <b>"+money(wTotal(w))+"</b>").join("<br>")}</div></div>`:""}
  ${(b.dayTasks&&b.dayTasks.length)?tasksCardHtml(b.dayTasks):""}
 <div class="card" style="margin-top:10px"><div class="b" style="display:flex;justify-content:space-between;align-items:center">💳 ${L("भुगतान का इतिहास","Payment history")}<button class="btn sm" data-act="addpay" data-id="${esc(b.id)}" style="margin:0">➕ ${L("भुगतान","Payment")}</button></div>
@@ -1574,7 +1575,7 @@ ACT.invpdf=async t=>{
  const b=biz(),c=invCalc(i),p0=invPaid(i),isInv=i.type==="invoice",stamp=nowStamp();
  const th="border:1.5px solid #f0b429;padding:8px",td="border:1.5px solid #f0b429;padding:8px";
  const lbk=i.bookingId?getR("bookings",i.bookingId):null;
- const wk=lbk?(lbk.workers||[]).map(normW).filter(w=>!isOwnerW(w)&&wTotal(w)>0):[];
+ const wk=lbk?(lbk.workers||[]).map(normW).filter(w=>wTotal(w)>0):[];
  const pyl=(lbk?rows("payments").filter(x=>x.bookingId===lbk.id):rows("payments").filter(x=>x.invoiceId===i.id)).sort((x,y)=>String(x.date).localeCompare(String(y.date)));
  const pTot=pyl.reduce((x,q)=>x+num(q.amount),0),p=pyl.length?pTot:p0;
  const gt="width:calc(100% + 3px);margin:-1.5px;border-collapse:collapse;font-size:13.5px";
