@@ -1011,7 +1011,7 @@ INP.amtmanual=t=>{t.dataset.auto="";updateFormSummary()};
 // कुल रकम = (मेहमान × रेट) + कारीगर / स्वयं के भुगतान का कुल योग
 function autoAmount(){
  const f=el("bkForm");if(!f)return;
- const g=num(f.elements.guests.value),r=num(f.elements.rate.value),plate=(g>0&&r>0)?g*r:0,ws=workersSum(formWorkers),tot=Math.round((plate+ws)*100)/100,am=f.elements.amount;
+ const gE=f.elements.guests,rE=f.elements.rate,g=gE?num(gE.value):0,r=rE?num(rE.value):0,plate=(g>0&&r>0)?g*r:0,ws=workersSum(formWorkers),tot=Math.round((plate+ws)*100)/100,am=f.elements.amount;
  if(tot>0){am.value=tot;am.dataset.auto="1"}
  else if(am.dataset.auto==="1"){am.value="";am.dataset.auto=""}
  updateFormSummary();
