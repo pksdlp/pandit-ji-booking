@@ -177,6 +177,18 @@ body.dark #bnav button.on span{background:#5a2a24}
 .chip{border-radius:18px;font-weight:600}.chip.on{background:var(--gold);color:var(--pd);border-color:var(--gold)}
 .sheet{background:var(--card);border-radius:28px 28px 0 0}
 .sheet-h{border-bottom:0}
+
+.tb-title{flex:1;min-width:0;font-size:21px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.wa-ov{position:fixed;inset:0;z-index:3000}
+.wa-menu{position:absolute;top:calc(8px + env(safe-area-inset-top));right:8px;min-width:240px;max-width:calc(100vw - 16px);max-height:82vh;overflow-y:auto;background:var(--card);color:var(--text);border-radius:12px;box-shadow:0 6px 24px rgba(0,0,0,.4);padding:6px 0}
+.wa-menu button{display:flex;align-items:center;gap:16px;width:100%;background:none;border:0;color:var(--text);font-size:16px;padding:13px 18px;text-align:left;cursor:pointer;font-family:inherit}
+.wa-menu button:active{background:var(--soft)}
+.wa-menu button span{width:24px;text-align:center;font-size:18px}
+.wa-menu b{margin-left:auto;background:var(--p);color:#fff;border-radius:10px;font-size:12px;padding:1px 8px}
+.wa-search{padding:4px 2px 8px}.wa-search input{border-radius:26px;background:var(--soft);border:0;padding:12px 18px}
+@media(max-width:899px){body.wa-sub{padding-bottom:24px}body.wa-sub #bnav{display:none}}
+.li[data-av]::before{content:attr(data-av);display:flex;align-items:center;justify-content:center;font-size:23px;font-weight:800;color:var(--p);background-image:none}
+.li.done[data-av]::before{color:#fff}
 </style>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Devanagari:wght@400;600;700;800;900&display=swap" rel="stylesheet">
@@ -703,19 +715,21 @@ function paintSync(){
  if(S.view==="settings"&&el("syncBox"))el("syncBox").innerHTML=syncBoxHtml();
 }
 function paintTop(){
- const b=biz()||{},n=remCount();
- el("topbar").innerHTML=`<button class="tb-biz" data-act="bizswitch"><img src="${esc(b.logo||DEFAULT_LOGO)}" alt=""><span>${esc(b.name||"हलवाई मैनेजर")} ▾</span></button>
- <button class="tb-btn" data-act="go" data-id="search" aria-label="search">🔎</button>
- <button class="tb-btn" data-act="go" data-id="reminders" aria-label="reminders">🔔${n?`<b>${n}</b>`:""}</button>
- <button class="tb-btn" data-act="go" data-id="settings" aria-label="sync"><span class="dot ${SYNC.state==="ok"?"ok":SYNC.state==="busy"?"busy":SYNC.state==="err"?"err":""}"></span></button>
- <button class="tb-btn" data-act="lang" style="font-size:13px;font-weight:800">${LANG==="en"?"हिं":"EN"}</button>`;
+ const b=biz()||{},v=S.view,dot=`<span class="dot ${SYNC.state==="ok"?"ok":SYNC.state==="busy"?"busy":SYNC.state==="err"?"err":""}" style="margin-left:8px"></span>`;
+ const menu=`<button class="tb-btn" data-act="menu" aria-label="menu" style="font-size:26px;font-weight:900">⋮</button>`;
+ if(v==="home"){el("topbar").innerHTML=`<img src="${esc(b.logo||DEFAULT_LOGO)}" alt="" style="width:34px;height:34px;border-radius:50%;object-fit:cover;background:#fff;margin-right:10px"><div class="tb-title">${esc(b.name||"हलवाई मैनेजर")}${dot}</div><button class="tb-btn" data-act="go" data-id="search" aria-label="search">🔎</button>`+menu;return}
+ const m=MODS.find(x=>x.k===v),t=v==="dash"?L("डैशबोर्ड","Dashboard"):m?L(m.hi,m.en):(b.name||"");
+ el("topbar").innerHTML=`<button class="tb-btn" data-act="goback" aria-label="back" style="font-size:24px">←</button><div class="tb-title">${esc(t)}</div>`+menu;
 }
 function paintNav(){
  const v=S.view,on=k=>v===k?"on":"";
  const slot2=["bookings","invoices","stock","customers"].find(modOn),slot4=["ledger","reports","payments"].find(modOn);
  const mk=k=>{const m=MODS.find(x=>x.k===k);return `<button class="${on(k)}" data-act="go" data-id="${k}"><span>${m.ic}</span>${L(m.hi,m.en)}</button>`};
  const shown=["home",slot2,slot4].filter(Boolean);
- el("bnav").innerHTML=mk("home")+(slot2?mk(slot2):"")+`<button class="fab" data-act="quick" aria-label="add"><span>＋</span>${L("जोड़ें","Add")}</button>`+(slot4?mk(slot4):"")+`<button class="${shown.includes(v)?"":"on"}" data-act="more"><span>☰</span>${L("और","More")}</button>`;
+ const tabs=["home","customers","payments","ledger"].filter(k=>k==="home"||modOn(k));
+ const tm=k=>{const m=MODS.find(x=>x.k===k),h=k==="home";return `<button class="${(h?(v==="home"||v==="bookings"):v===k)?"on":""}" data-act="go" data-id="${k}"><span>${h?"📋":m.ic}</span>${h?L("बुकिंग","Bookings"):L(m.hi,m.en)}</button>`};
+ el("bnav").innerHTML=tabs.map(tm).join("")+`<button class="fab" data-act="quick" aria-label="add"><span>＋</span></button>`;
+ document.body.classList.toggle("wa-sub",!tabs.includes(v));
  const bz=biz()||{};
  el("side").innerHTML=`<div class="side-logo"><img src="${esc(bz.logo||DEFAULT_LOGO)}" alt=""><div>हलवाई मैनेजर</div></div>`+MODS.filter(m=>!m.hidden&&(m.core||modOn(m.k))).map(m=>`<button class="${on(m.k)}" data-act="go" data-id="${m.k}"><span>${m.ic}</span>${L(m.hi,m.en)}</button>`).join("");
 }
@@ -738,6 +752,20 @@ document.addEventListener("submit",e=>{
 ACT.mclose=t=>{const m=t.closest(".modal");if(m)m.remove()};
 ACT.go=t=>{closeAllModals();go(t.dataset.id)};
 ACT.lang=()=>{LANG=LANG==="en"?"hi":"en";localStorage.setItem(OLD.lang,LANG);document.documentElement.lang=LANG;updateOffBar();refresh()};
+function closeWaMenu(){const o=document.getElementById("waov");if(o)o.remove()}
+ACT.menu=()=>{
+ if(document.getElementById("waov")){closeWaMenu();return}
+ const n=remCount(),it=(act,ic,t,id,badge)=>`<button data-act="${act}"${id?` data-id="${id}"`:""}><span>${ic}</span>${t}${badge?`<b>${badge}</b>`:""}</button>`;
+ const mods=MODS.filter(m=>!m.hidden&&m.k!=="home"&&m.k!=="settings"&&m.k!=="trash"&&(m.core||modOn(m.k)));
+ const html=it("mprof","👤",L("प्रोफाइल","Profile"))+it("mgo","⚙️",L("सेटिंग्स","Settings"),"settings")+mods.map(m=>it("mgo",m.ic,L(m.hi,m.en),m.k,m.k==="reminders"&&n?n:0)).join("")+it("mgo","📊",L("डैशबोर्ड","Dashboard"),"dash")+it("mgo","🗑️",L("रीसायकल बिन","Recycle bin"),"trash")+it("mbiz","🔁",L("व्यवसाय बदलें","Switch business"))+it("mlang","🌐",LANG==="en"?"हिंदी":"English");
+ const o=document.createElement("div");o.id="waov";o.className="wa-ov";o.setAttribute("data-act","mclose");o.innerHTML=`<div class="wa-menu">${html}</div>`;document.body.appendChild(o);
+};
+ACT.mclose=closeWaMenu;
+ACT.mgo=t=>{closeWaMenu();closeAllModals();go(t.dataset.id)};
+ACT.mprof=()=>{closeWaMenu();ACT.editbiz()};
+ACT.mbiz=()=>{closeWaMenu();ACT.bizswitch()};
+ACT.mlang=()=>{closeWaMenu();ACT.lang()};
+ACT.goback=()=>{closeAllModals();go("home")};
 ACT.more=()=>{
  const d=openModal(L("सभी सेक्शन","All sections"),`<div class="pick">${MODS.filter(m=>!m.hidden&&(m.core||modOn(m.k))).map(m=>`<button data-act="go" data-id="${m.k}"><span>${m.ic}</span>${L(m.hi,m.en)}</button>`).join("")}</div>`);
 };
@@ -773,7 +801,7 @@ function donut(a,b,ca,cb){
  return `<svg viewBox="0 0 120 120" width="130" height="130"><circle cx="60" cy="60" r="${R}" fill="none" stroke="${cb}" stroke-width="16"/><circle cx="60" cy="60" r="${R}" fill="none" stroke="${ca}" stroke-width="16" stroke-dasharray="${C*pa} ${C}" transform="rotate(-90 60 60)"/><text x="60" y="58" font-size="15" font-weight="800" text-anchor="middle" style="fill:var(--text)">${Math.round(pa*100)}%</text><text x="60" y="74" font-size="10" text-anchor="middle">${L("प्राप्त","received")}</text></svg>`;
 }
 const kpi=(ic,l,v,cls,to)=>`<div class="kpi ${cls||""}" data-act="go" data-id="${to}"><div class="l"><span>${ic}</span>${l}</div><div class="v">${v}</div></div>`;
-VIEWS.home=()=>{
+VIEWS.dash=()=>{
  const b=biz()||{},t=todayStr(),all=calc("",""),bks=rows("bookings"),act=bks.filter(x=>x.status!=="रद्द");
  const todayB=act.filter(x=>inR(t,x.date,x.endDate||x.date)).length,up=act.filter(x=>x.date>t&&x.status!=="काम पूरा").length,done=bks.filter(x=>x.status==="काम पूरा").length;
  const low=rows("inventory").filter(isLow),ms=monthSeries(6),rem=reminderList().slice(0,4);
@@ -817,7 +845,7 @@ function filterBookings(){
  });
 }
 function bookingCard(b){
- return `<div class="li ${b.status==="काम पूरा"?"done":b.status==="रद्द"?"cancel":""}" data-act="details" data-id="${esc(b.id)}">
+ return `<div class="li ${b.status==="काम पूरा"?"done":b.status==="रद्द"?"cancel":""}" data-act="details" data-id="${esc(b.id)}" data-av="${esc(avL(b.name))}">
  <div class="top"><strong>${esc(b.name||L("बिना नाम","No name"))}</strong><span class="small muted">📅 ${esc(dateRangeText(b))}</span></div>
  <div class="small muted">#${esc(bno(b))} • ${esc(catL(b.category))}${b.address?" • 📍 "+esc(b.address):""}</div>
  <div class="meta"><span class="pill ${stCls(b.status)}">${esc(stLabel(b.status))}</span>${payPill(b)}<span class="small"><b>${money(b.amount)}</b> • ${L("बाकी","Due")} <b>${money(balance(b))}</b></span></div>
@@ -840,6 +868,11 @@ VIEWS.bookings=()=>{
  ${perChips(F.per,"bper",true,true)}${dateRangeInputs(F,"bdate")}
  ${chipsHtml([["all",L("सभी","All")],["pending",L("पेंडिंग","Pending")],["done",L("पूरी हुई","Completed")],["cancel",L("रद्द","Cancelled")],["due",L("भुगतान बाकी","Payment due")]],F.st,"bst")}
  <div class="small muted" id="bsum">${bkSummary(tot)}</div></div><div id="blist">${bookingListHtml()}</div>`;
+};
+const avL=n=>{const t=String(n||"").trim();return t?Array.from(t)[0].toUpperCase():"👤"};
+VIEWS.home=()=>{
+ const F=S.bf,tot=filterBookings().filter(b=>b.status!=="रद्द");
+ return `<div class="wa-search"><input id="bq" value="${esc(F.q)}" placeholder="${L("बुकिंग खोजें...","Search bookings...")}" data-in="bq"></div>`+chipsHtml([["all",L("सभी","All")],["pending",L("पेंडिंग","Pending")],["done",L("पूरी हुई","Completed")],["cancel",L("रद्द","Cancelled")],["due",L("भुगतान बाकी","Payment due")]],F.st,"bst")+`<div class="small muted" id="bsum" style="padding:2px 14px">${bkSummary(tot)}</div><div id="blist">${bookingListHtml()}</div>`;
 };
 const bkSummary=l=>L("कुल","Total")+" "+l.length+" • "+money(l.reduce((s,b)=>s+num(b.amount),0))+" • "+L("बाकी","Due")+" "+money(l.reduce((s,b)=>s+balance(b),0));
 INP.bq=t=>{S.bf.q=t.value;el("blist").innerHTML=bookingListHtml();el("bsum").textContent=bkSummary(filterBookings().filter(b=>b.status!=="रद्द"))};
@@ -920,7 +953,7 @@ ACT.pickcust=()=>{
 };
 function renderPick(q){
  q=q.toLowerCase();const l=rows("customers").filter(c=>!q||(c.name+" "+c.phone).toLowerCase().includes(q)).sort((a,b)=>String(a.name).localeCompare(b.name)).slice(0,60);
- el("pickList").innerHTML=l.length?l.map(c=>`<div class="li" data-act="pickedcust" data-id="${esc(c.id)}"><div class="top"><strong>${esc(c.name)}</strong><span class="small muted">${esc(c.phone||"")}</span></div><div class="small muted">${esc(c.address||"")}</div></div>`).join(""):empty("👥",L("कोई ग्राहक नहीं मिला","No customer found"));
+ el("pickList").innerHTML=l.length?l.map(c=>`<div class="li" data-act="pickedcust" data-id="${esc(c.id)}" data-av="${esc(avL(c.name))}"><div class="top"><strong>${esc(c.name)}</strong><span class="small muted">${esc(c.phone||"")}</span></div><div class="small muted">${esc(c.address||"")}</div></div>`).join(""):empty("👥",L("कोई ग्राहक नहीं मिला","No customer found"));
 }
 INP.pickq=t=>renderPick(t.value);
 ACT.pickedcust=t=>{
@@ -1058,7 +1091,7 @@ VIEWS.customers=()=>pageHead("👥 "+L("ग्राहक","Customers"),`<butto
 function custListHtml(){
  const q=S.cf.q.trim().toLowerCase();
  const l=rows("customers").filter(c=>!q||(c.name+" "+c.phone+" "+c.address).toLowerCase().includes(q)).map(c=>({c,s:custStats(c)})).sort((a,b)=>String(b.s.last).localeCompare(String(a.s.last))||String(a.c.name).localeCompare(b.c.name));
- return l.length?l.map(({c,s})=>`<div class="li" data-act="custdetail" data-id="${esc(c.id)}"><div class="top"><strong>${esc(c.name)}</strong><span class="small muted">${esc(c.phone||"")}</span></div>
+ return l.length?l.map(({c,s})=>`<div class="li" data-act="custdetail" data-id="${esc(c.id)}" data-av="${esc(avL(c.name))}"><div class="top"><strong>${esc(c.name)}</strong><span class="small muted">${esc(c.phone||"")}</span></div>
  <div class="small muted">${esc(c.address||"")}</div><div class="meta"><span class="pill gray">${s.count} ${L("बुकिंग","bookings")}</span><span class="small">${L("खरीदारी","Total")} <b>${money(s.total)}</b> • ${L("बाकी","Due")} <b style="color:${s.due>0?"var(--bad)":"inherit"}">${money(s.due)}</b></span></div></div>`).join(""):empty("👥",L("कोई ग्राहक नहीं मिला।","No customers found."));
 }
 INP.cq=t=>{S.cf.q=t.value;el("clist").innerHTML=custListHtml()};
@@ -1517,7 +1550,7 @@ VIEWS.employees=()=>{
  `<div class="card"><h3>🗓️ ${L("उपस्थिति","Attendance")}</h3><input type="date" value="${esc(d)}" data-in="attdate">
  ${emps.length?emps.map(e=>{const s=attOf(e.id,d);return `<div class="kv" style="align-items:center"><span style="min-width:0"><b>${esc(e.name)}</b><br><small>${esc(e.role||"")}</small></span><span class="attn" style="width:170px">${[["P",L("उप.","P")],["H",L("आधा","½")],["A",L("अनु.","A")]].map(x=>`<button class="${x[0]} ${s===x[0]?"on":""}" data-act="att" data-id="${esc(e.id)}" data-s="${x[0]}">${x[1]}</button>`).join("")}</span></div>`}).join(""):`<div class="small muted">${L("पहले कर्मचारी जोड़ें।","Add employees first.")}</div>`}</div>
  <div class="card"><h3>💰 ${L("वेतन का हिसाब","Salary summary")}</h3><input type="month" value="${esc(m)}" data-in="attmonth"><div class="grid g3" style="margin-top:8px"><div class="kpi"><div class="l">${L("कमाया","Earned")}</div><div class="v">${money(tot.earned)}</div></div><div class="kpi ok"><div class="l">${L("भुगतान","Paid")}</div><div class="v">${money(tot.paid)}</div></div><div class="kpi warn"><div class="l">${L("बाकी","Due")}</div><div class="v">${money(tot.due)}</div></div></div></div>
- ${emps.map(e=>{const x=empMonth(e,m);return `<div class="li" data-act="empdetail" data-id="${esc(e.id)}"><div class="top"><strong>${esc(e.name)}</strong><span class="small muted">${esc(e.role||"")}${e.phone?" • "+esc(e.phone):""}</span></div><div class="small muted">${money(e.salary)} / ${e.salaryType==="daily"?L("दिन","day"):L("माह","month")} • ${L("उपस्थित","Present")} ${x.P} • ${L("आधा","Half")} ${x.H} • ${L("अनुपस्थित","Absent")} ${x.A}</div><div class="meta"><span class="small">${L("कमाया","Earned")} <b>${money(x.earned)}</b> • ${L("भुगतान","Paid")} <b>${money(x.paid)}</b> • ${L("बाकी","Due")} <b style="color:${x.due>0?"var(--bad)":"inherit"}">${money(x.due)}</b></span></div></div>`}).join("")}
+ ${emps.map(e=>{const x=empMonth(e,m);return `<div class="li" data-act="empdetail" data-id="${esc(e.id)}" data-av="${esc(avL(e.name))}"><div class="top"><strong>${esc(e.name)}</strong><span class="small muted">${esc(e.role||"")}${e.phone?" • "+esc(e.phone):""}</span></div><div class="small muted">${money(e.salary)} / ${e.salaryType==="daily"?L("दिन","day"):L("माह","month")} • ${L("उपस्थित","Present")} ${x.P} • ${L("आधा","Half")} ${x.H} • ${L("अनुपस्थित","Absent")} ${x.A}</div><div class="meta"><span class="small">${L("कमाया","Earned")} <b>${money(x.earned)}</b> • ${L("भुगतान","Paid")} <b>${money(x.paid)}</b> • ${L("बाकी","Due")} <b style="color:${x.due>0?"var(--bad)":"inherit"}">${money(x.due)}</b></span></div></div>`}).join("")}
  <div class="small muted">${L("ℹ️ मासिक वेतन = वेतन × (उपस्थित + आधे दिन/2) ÷ महीने के दिन। जिन दिनों की हाजिरी नहीं भरी वे गिने नहीं जाते।","ℹ️ Monthly pay = salary × (present + half days/2) ÷ days in month. Unmarked days are not counted.")}</div>`;
 };
 INP.attdate=t=>{if(t.value){S.ef.date=t.value;refresh()}};
@@ -1856,11 +1889,11 @@ function searchHtml(q){
  const has=(...a)=>a.join(" ").toLowerCase().includes(q);let out="";
  const sec=(t,l)=>l.length?`<h3 class="h3" style="margin-top:12px">${t} (${l.length})</h3>`+l.join(""):"";
  out+=sec("📋 "+L("बुकिंग","Bookings"),rows("bookings").filter(b=>has(b.name,b.phone,bno(b),b.category,catL(b.category),b.address,b.date,fmtDate(b.date),fmtDate(b.endDate),b.notes)).slice(0,10).map(bookingCard));
- out+=sec("👥 "+L("ग्राहक","Customers"),rows("customers").filter(c=>has(c.name,c.phone,c.address,c.notes)).slice(0,10).map(c=>`<div class="li" data-act="custdetail" data-id="${esc(c.id)}"><div class="top"><strong>${esc(c.name)}</strong><span class="small muted">${esc(c.phone||"")}</span></div><div class="small muted">${esc(c.address||"")}</div></div>`));
+ out+=sec("👥 "+L("ग्राहक","Customers"),rows("customers").filter(c=>has(c.name,c.phone,c.address,c.notes)).slice(0,10).map(c=>`<div class="li" data-act="custdetail" data-id="${esc(c.id)}" data-av="${esc(avL(c.name))}"><div class="top"><strong>${esc(c.name)}</strong><span class="small muted">${esc(c.phone||"")}</span></div><div class="small muted">${esc(c.address||"")}</div></div>`));
  out+=sec("📦 "+L("सामान","Items"),rows("inventory").filter(i=>has(i.name,i.category,i.supplier)).slice(0,10).map(i=>`<div class="li" data-act="go" data-id="stock"><div class="top"><strong>${esc(i.name)}</strong><span class="pill ${isLow(i)?"wait":"ok"}">${stockNow(i)} ${esc(i.unit||"")}</span></div></div>`));
  out+=sec("🧾 "+L("बिल / कोटेशन","Bills / Quotes"),rows("invoices").filter(i=>has(i.name,i.phone,i.no,i.date,fmtDate(i.date))).slice(0,10).map(i=>`<div class="li" data-act="invdetail" data-id="${esc(i.id)}"><div class="top"><strong>${esc(i.name)}</strong><span class="small muted">${esc(i.no)}</span></div><div class="small">${money(invCalc(i).total)}</div></div>`));
  out+=sec("📒 "+L("आय-खर्च","Income-Expense"),ledgerRows().filter(r=>has(r.cat,catL(r.cat),r.note,r.date,fmtDate(r.date),String(r.amount))).slice(0,10).map(r=>`<div class="li" data-act="ledrow" data-src="${r.src}" data-id="${esc(r.id)}"><div class="top"><strong>${r.type==="expense"?"−":"+"}${money(r.amount)}</strong><span class="small muted">${esc(fmtDate(r.date))}</span></div><div class="small">${esc(catL(r.cat))} ${esc(r.note)}</div></div>`));
- out+=sec("👷 "+L("कर्मचारी","Employees"),rows("employees").filter(e=>has(e.name,e.phone,e.role)).slice(0,10).map(e=>`<div class="li" data-act="empdetail" data-id="${esc(e.id)}"><div class="top"><strong>${esc(e.name)}</strong><span class="small muted">${esc(e.role||"")}</span></div></div>`));
+ out+=sec("👷 "+L("कर्मचारी","Employees"),rows("employees").filter(e=>has(e.name,e.phone,e.role)).slice(0,10).map(e=>`<div class="li" data-act="empdetail" data-id="${esc(e.id)}" data-av="${esc(avL(e.name))}"><div class="top"><strong>${esc(e.name)}</strong><span class="small muted">${esc(e.role||"")}</span></div></div>`));
  return out||empty("🔎",L("कुछ नहीं मिला।","Nothing found."));
 }
 VIEWS.search=()=>pageHead("🔎 "+L("खोजें","Search"))+`<div class="card"><div class="search"><input id="gq" value="${esc(S.gq)}" data-in="gq" placeholder="${L("पूरे ऐप में खोजें...","Search the whole app...")}" autofocus></div></div><div id="sres">${searchHtml(S.gq)}</div>`;
