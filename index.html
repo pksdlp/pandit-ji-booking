@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="theme-color" content="#9b1515">
+<meta name="theme-color" content="#3a1b09">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -26,33 +26,33 @@ window.addEventListener("error",function(e){
 <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore-compat.js"></script>
 <style>
-:root{--p:#b71c1c;--pd:#8e1111;--gold:#fdd891;--bg:#f6f1e9;--card:#fff;--text:#2b1d12;--muted:#7a6a5a;--line:#eadfce;--soft:#fbf3e3;--input:#fff;--ok:#15803d;--okbg:#dcfce7;--warn:#b45309;--warnbg:#fef3c7;--bad:#b91c1c;--badbg:#fee2e2;--info:#1d4ed8;--infobg:#dbeafe;--sh:0 1px 3px rgba(60,30,10,.10),0 6px 18px rgba(60,30,10,.07);--r:14px}
-body.dark{--bg:#150f0d;--card:#231a17;--text:#f3e6d6;--muted:#bba48d;--line:#3d2d27;--soft:#2e211d;--input:#2e211d;--okbg:#14391f;--warnbg:#45330f;--badbg:#4a1a1a;--infobg:#172a4f;--sh:0 1px 3px rgba(0,0,0,.5)}
+:root{--p:#4a2410;--pd:#2e1403;--gold:#f2d7aa;--bg:#f7e8c9;--card:#fffaf0;--text:#2e1403;--muted:#7b5a3c;--line:#e3cfa3;--soft:#fbf0d8;--acc:#c8963e;--input:#fff;--ok:#15803d;--okbg:#dcfce7;--warn:#b45309;--warnbg:#fef3c7;--bad:#b91c1c;--badbg:#fee2e2;--info:#1d4ed8;--infobg:#dbeafe;--sh:0 1px 3px rgba(60,30,10,.10),0 6px 18px rgba(60,30,10,.07);--r:14px}
+body.dark{--p:#9a6a38;--pd:#7a4f27;--gold:#5a4020;--bg:#150f0d;--card:#231a17;--text:#f3e6d6;--muted:#bba48d;--line:#3d2d27;--soft:#2e211d;--input:#2e211d;--okbg:#14391f;--warnbg:#45330f;--badbg:#4a1a1a;--infobg:#172a4f;--sh:0 1px 3px rgba(0,0,0,.5)}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html{-webkit-text-size-adjust:100%}
 body{margin:0;background:var(--bg);color:var(--text);font:16px/1.5 "Noto Sans Devanagari","Mangal",system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;padding-bottom:calc(16px + env(safe-area-inset-bottom))}
 .hidden{display:none!important}
 button{font-family:inherit}
 /* splash */
-#splash{position:fixed;inset:0;z-index:99998;background:linear-gradient(160deg,#6d0b0b,#b71c1c 60%,#d32f2f);color:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;text-align:center;transition:opacity .45s}
+#splash{position:fixed;inset:0;z-index:99998;background:linear-gradient(160deg,#2e1403,#4a2410 60%,#6b3a1a);color:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;text-align:center;transition:opacity .45s}
 #splash img{width:112px;height:112px;border-radius:50%;object-fit:cover;border:4px solid #fff;background:#fff;box-shadow:0 8px 28px rgba(0,0,0,.4)}
 #splash b{font-size:26px;letter-spacing:.5px}#splash span{font-size:14px;opacity:.9}
 #splash.out{opacity:0;pointer-events:none}
 #offBar{position:fixed;left:0;right:0;bottom:0;z-index:3000;background:#5e0b0b;color:#fff;font-size:13px;text-align:center;padding:7px 10px}
 /* layout */
 #stick{position:sticky;top:0;z-index:60}
-#topbar{position:relative;background:linear-gradient(135deg,#8e1111,#b71c1c 60%,#d32f2f);color:#fff;display:flex;align-items:center;gap:6px;padding:8px 10px;padding-top:calc(8px + env(safe-area-inset-top));box-shadow:0 2px 12px rgba(80,10,10,.4)}
+#topbar{position:relative;background:linear-gradient(135deg,#2e1403,#4a2410 60%,#6b3a1a);color:#fff;display:flex;align-items:center;gap:6px;padding:8px 10px;padding-top:calc(8px + env(safe-area-inset-top));box-shadow:0 2px 12px rgba(80,10,10,.4)}
 .tb-biz{display:flex;align-items:center;gap:8px;min-width:0;flex:1;background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.3);border-radius:30px;padding:4px 12px 4px 4px;color:#fff;font-size:15px;font-weight:700;cursor:pointer;text-align:left}
 .tb-biz img{width:32px;height:32px;border-radius:50%;object-fit:cover;background:#fff;border:2px solid #fff}
 .tb-biz span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .tb-btn{position:relative;background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.3);color:#fff;border-radius:50%;width:38px;height:38px;font-size:17px;cursor:pointer;flex:none;padding:0;display:flex;align-items:center;justify-content:center}
-.tb-btn b{position:absolute;top:-4px;right:-4px;background:#fdd891;color:#7a1010;border-radius:10px;font-size:11px;min-width:18px;height:18px;line-height:18px;text-align:center;padding:0 4px}
+.tb-btn b{position:absolute;top:-4px;right:-4px;background:#fdd891;color:#3b1c0a;border-radius:10px;font-size:11px;min-width:18px;height:18px;line-height:18px;text-align:center;padding:0 4px}
 .dot{width:10px;height:10px;border-radius:50%;background:#9ca3af;display:inline-block}.dot.ok{background:#22c55e}.dot.busy{background:#f59e0b}.dot.err{background:#ef4444}
 #app{padding:12px;max-width:1000px;margin:0 auto}
 #bnav{background:var(--card);border-bottom:1px solid var(--line);display:flex;gap:4px;padding:6px 8px;box-shadow:0 4px 12px rgba(60,30,10,.10)}
 #bnav button{flex:1;background:none;border:0;color:var(--muted);font-size:11.5px;font-weight:700;display:flex;flex-direction:column;align-items:center;gap:1px;padding:4px 0;cursor:pointer;border-radius:12px;min-width:0}
 #bnav button span{font-size:21px;line-height:1.15}
-#bnav button.on{color:var(--p);background:var(--soft)}body.dark #bnav button.on{color:#ff8a80}
+#bnav button.on{color:var(--p);background:var(--soft)}body.dark #bnav button.on{color:#e8c27a}
 #bnav button.fab{flex:0 0 58px}#bnav button.fab span{background:var(--p);color:#fff;width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:26px;box-shadow:0 3px 10px rgba(183,28,28,.45)}
 #side{display:none}
 @media(min-width:900px){
@@ -66,17 +66,17 @@ button{font-family:inherit}
 }
 /* cards & text */
 .card{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:14px;margin-bottom:12px;box-shadow:var(--sh)}
-.card h3,.h3{margin:0 0 10px;font-size:18px;color:var(--p);font-weight:800}body.dark .card h3,body.dark .h3{color:#ff8a80}
+.card h3,.h3{margin:0 0 10px;font-size:18px;color:var(--p);font-weight:800}body.dark .card h3,body.dark .h3{color:#e8c27a}
 .pagehead{display:flex;align-items:center;justify-content:space-between;gap:8px;margin:2px 0 10px;flex-wrap:wrap}
-.pagehead h2{margin:0;font-size:21px;color:var(--p);font-weight:800}body.dark .pagehead h2{color:#ff8a80}
+.pagehead h2{margin:0;font-size:21px;color:var(--p);font-weight:800}body.dark .pagehead h2{color:#e8c27a}
 .muted{color:var(--muted)}.small{font-size:13.5px}.b{font-weight:700}.right{text-align:right}.center{text-align:center}
 .prof{background:var(--card);border:1px solid var(--line);border-radius:20px;box-shadow:var(--sh);margin-bottom:14px;overflow:hidden}
-.prof-cover{height:78px;background:linear-gradient(135deg,#6d0b0b,#b71c1c 55%,#d32f2f);position:relative;border-bottom:4px solid var(--gold)}
+.prof-cover{height:78px;background:linear-gradient(135deg,#2e1403,#4a2410 55%,#6b3a1a);position:relative;border-bottom:4px solid var(--gold)}
 .prof-cover:after{content:"";position:absolute;inset:0;background:radial-gradient(circle at 85% -20%,rgba(255,255,255,.22),transparent 55%)}
 .prof-head{text-align:center;padding:0 16px 14px;margin-top:-46px;position:relative}
 .prof-logo{width:92px;height:92px;margin:0 auto;border-radius:50%;background:#fff;padding:4px;border:3px solid var(--gold);box-shadow:0 6px 18px rgba(80,10,10,.30)}
 .prof-logo img{width:100%;height:100%;border-radius:50%;object-fit:cover;display:block}
-.prof-head h1{margin:10px 0 2px;font-size:22px;line-height:1.35;color:var(--p);font-weight:700;letter-spacing:normal}body.dark .prof-head h1{color:#ff8a80}
+.prof-head h1{margin:10px 0 2px;font-size:22px;line-height:1.35;color:var(--p);font-weight:700;letter-spacing:normal}body.dark .prof-head h1{color:#e8c27a}
 .prof-head .tag{font-size:13.5px;color:var(--muted);font-style:italic}
 .prof-head .tag:after{content:"";display:block;width:46px;height:3px;border-radius:3px;background:var(--gold);margin:9px auto 0}
 .prof-ct{display:grid;grid-template-columns:1fr;gap:8px;padding:0 12px 14px}
@@ -87,12 +87,12 @@ button{font-family:inherit}
 .grid{display:grid;gap:10px}.g2{grid-template-columns:1fr 1fr}.g3{grid-template-columns:repeat(2,1fr)}.g4{grid-template-columns:repeat(2,1fr)}
 @media(min-width:640px){.g3{grid-template-columns:repeat(3,1fr)}.g4{grid-template-columns:repeat(4,1fr)}.cols2{display:grid;grid-template-columns:1fr 1fr;gap:12px}}
 .kpi{background:var(--card);border:1px solid var(--line);border-left:5px solid var(--p);border-radius:12px;padding:10px 12px;box-shadow:var(--sh);cursor:pointer;min-width:0}
-.kpi .l{font-size:12.5px;color:var(--muted);font-weight:700;display:flex;gap:5px;align-items:center}.kpi .v{font-size:21px;font-weight:800;color:var(--p);margin-top:2px;overflow-wrap:anywhere}body.dark .kpi .v{color:#ff8a80}
+.kpi .l{font-size:12.5px;color:var(--muted);font-weight:700;display:flex;gap:5px;align-items:center}.kpi .v{font-size:21px;font-weight:800;color:var(--p);margin-top:2px;overflow-wrap:anywhere}body.dark .kpi .v{color:#e8c27a}
 .kpi.ok{border-left-color:var(--ok)}.kpi.ok .v{color:var(--ok)}.kpi.warn{border-left-color:#d97706}.kpi.warn .v{color:var(--warn)}.kpi.info{border-left-color:var(--info)}.kpi.info .v{color:var(--info)}
 .kpi.bad .v{color:var(--bad)}
 /* buttons & forms */
 .btn{border:0;border-radius:10px;padding:10px 14px;background:var(--p);color:#fff;font-size:14.5px;font-weight:700;cursor:pointer;margin:3px 3px 0 0;box-shadow:0 1px 2px rgba(0,0,0,.2);transition:transform .08s;display:inline-flex;align-items:center;justify-content:center;gap:5px;text-decoration:none;line-height:1.25}
-.btn:active{transform:scale(.97)}.btn.sec{background:#6b4a2b}.btn.danger{background:#7f1010}.btn.orange{background:#c66b0b}.btn.wa{background:#1fa855}.btn.ghost{background:var(--soft);color:var(--text);box-shadow:none;border:1px solid var(--line)}.btn.sm{padding:6px 10px;font-size:13px;border-radius:8px}.btn.block{display:flex;width:100%;margin-left:0;margin-right:0}.btn[disabled]{opacity:.55}
+.btn:active{transform:scale(.97)}.btn.sec{background:#6b4a2b}.btn.danger{background:#3b1c0a}.btn.orange{background:#c66b0b}.btn.wa{background:#1fa855}.btn.ghost{background:var(--soft);color:var(--text);box-shadow:none;border:1px solid var(--line)}.btn.sm{padding:6px 10px;font-size:13px;border-radius:8px}.btn.block{display:flex;width:100%;margin-left:0;margin-right:0}.btn[disabled]{opacity:.55}
 .fld{margin-top:10px}.fld label{display:block;font-size:13.5px;font-weight:700;color:var(--muted);margin-bottom:4px}
 input,select,textarea{width:100%;padding:11px 12px;border:1px solid var(--line);border-radius:10px;font-size:16px;background:var(--input);color:var(--text);font-family:inherit}
 input:focus,select:focus,textarea:focus{outline:2px solid rgba(183,28,28,.35);border-color:var(--p)}
@@ -110,7 +110,7 @@ input[type=checkbox]:checked::after{content:"";position:absolute;left:6px;top:1p
 .pill.ok,.pill.done{background:var(--okbg);color:var(--ok)}.pill.wait{background:var(--warnbg);color:var(--warn)}.pill.no{background:var(--badbg);color:var(--bad)}.pill.info{background:var(--infobg);color:var(--info)}.pill.gray{background:var(--soft);color:var(--muted);border:1px solid var(--line)}
 .li{border:1px solid var(--line);border-left:5px solid var(--p);border-radius:12px;padding:11px 12px;margin:9px 0;background:var(--card);box-shadow:var(--sh);cursor:pointer}
 .li.done{border-left:8px solid #ff0000;background:#ffe9e9}body.dark .li.done{background:#4a1212}.li.done .top strong{color:#d90000}.li.done .pill.done{background:#ff0000;color:#fff}.owgrid{display:flex;flex-wrap:wrap;gap:6px}.owgrid .chip{padding:8px 12px}.li.cancel{border-left-color:#9ca3af;opacity:.8}.li.low{border-left-color:#d97706}
-.li .top{display:flex;justify-content:space-between;gap:8px;align-items:baseline;flex-wrap:wrap}.li .top strong{font-size:17.5px;color:var(--p);font-weight:800}body.dark .li .top strong{color:#ff8a80}
+.li .top{display:flex;justify-content:space-between;gap:8px;align-items:baseline;flex-wrap:wrap}.li .top strong{font-size:17.5px;color:var(--p);font-weight:800}body.dark .li .top strong{color:#e8c27a}
 .li .meta{display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin-top:5px}
 .li .acts{display:flex;gap:5px;flex-wrap:wrap;margin-top:7px}
 .sechead{background:#ff0000;color:#fff;padding:8px 12px;border-radius:10px;margin:20px 0 6px;font-weight:800}
@@ -127,13 +127,13 @@ table.tb{width:100%;border-collapse:collapse;font-size:14px}table.tb th{backgrou
 .sheet.wide{max-width:900px}
 @keyframes up{from{transform:translateY(40px);opacity:.4}to{transform:none;opacity:1}}
 .sheet-h{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:13px 16px;border-bottom:1px solid var(--line);position:sticky;top:0}
-.sheet-h h3{margin:0;font-size:18px;color:var(--p)}body.dark .sheet-h h3{color:#ff8a80}
+.sheet-h h3{margin:0;font-size:18px;color:var(--p)}body.dark .sheet-h h3{color:#e8c27a}
 .sheet-h .x{background:var(--soft);border:1px solid var(--line);color:var(--text);border-radius:50%;width:34px;height:34px;font-size:15px;cursor:pointer}
 .sheet-b{padding:12px 16px 20px;overflow-y:auto;-webkit-overflow-scrolling:touch}
 @media(min-width:700px){.modal{align-items:center;padding:20px}.sheet{border-radius:18px}}
 .pick{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.pick button{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px 4px;font-size:13px;font-weight:700;color:var(--text);cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:4px}.pick button span{font-size:26px}
 #toasts{position:fixed;left:0;right:0;bottom:calc(24px + env(safe-area-inset-bottom));display:flex;flex-direction:column;align-items:center;gap:6px;z-index:5000;pointer-events:none}
-.toast{background:#2b1d12;color:#fff;border-radius:22px;padding:10px 18px;font-size:14.5px;font-weight:600;box-shadow:0 4px 16px rgba(0,0,0,.4);max-width:92vw;pointer-events:auto}.toast.err{background:#b91c1c}.toast.ok{background:#15803d}.toast button{margin-left:10px;background:#fdd891;color:#7a1010;border:0;border-radius:12px;padding:3px 10px;font-weight:800;cursor:pointer}
+.toast{background:#2b1d12;color:#fff;border-radius:22px;padding:10px 18px;font-size:14.5px;font-weight:600;box-shadow:0 4px 16px rgba(0,0,0,.4);max-width:92vw;pointer-events:auto}.toast.err{background:#b91c1c}.toast.ok{background:#15803d}.toast button{margin-left:10px;background:#fdd891;color:#3b1c0a;border:0;border-radius:12px;padding:3px 10px;font-weight:800;cursor:pointer}
 /* worker rows (पुराना फीचर) */
 .wcard{border:1px solid var(--line);border-radius:10px;padding:8px;margin:8px 0;background:var(--card)}
 .wr1{display:grid;grid-template-columns:1fr 1fr auto;gap:6px;align-items:center}.wr2{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin-top:6px}
@@ -208,11 +208,32 @@ body.dark #bnav button.on span{background:#5a2a24}
 .li::after{left:62px}
 .li[data-av]::before{font-size:20px}
 #app .li .top{flex-wrap:wrap;align-items:center;gap:4px 8px}
-#app .li .top strong{flex:1 1 150px;min-width:0;white-space:normal;overflow:visible;text-overflow:clip;word-break:break-word;line-height:1.3;font-size:17.5px;font-weight:800;color:#8f0000;background:#fff3c4;padding:2px 8px;border-radius:8px}
+#app .li .top strong{flex:1 1 150px;min-width:0;white-space:normal;overflow:visible;text-overflow:clip;word-break:break-word;line-height:1.3;font-size:17.5px;font-weight:800;color:#4a2410;background:#fff3c4;padding:2px 8px;border-radius:8px}
 body.dark #app .li .top strong{color:#ffd9d4;background:#5a3a14}
 #app .li.done .top strong{color:#d90000}
 #app .li .when{flex:0 0 auto;font-size:12.5px;font-weight:800;color:#fff;background:var(--p);padding:3px 10px;border-radius:12px;white-space:nowrap}
 #app .li.done .when{background:#ff0000}
+
+/* ===== पोस्टर वाली थीम: चॉकलेट-ब्राउन + क्रीम + सुनहरा ===== */
+#topbar{background:linear-gradient(180deg,#3a1b09,#2e1403);color:#f7e8c9;border-bottom:3px solid var(--acc)}
+#topbar .tb-btn{color:#f7e8c9}
+#topbar[data-big="1"]{background:linear-gradient(180deg,#f9dfae,#f1cb8c);color:#3a1b09;align-items:flex-start;gap:10px;padding:10px 6px 10px 12px;padding-top:calc(10px + env(safe-area-inset-top))}
+#topbar[data-big="1"] .tb-btn{color:#3a1b09}
+.hlogo{width:64px;height:64px;border-radius:50%;object-fit:cover;background:#fff;border:3px solid var(--acc);flex:none;margin-top:2px}
+.hname{flex:1;min-width:0;text-align:left}
+.hname .n1{font-size:25px;font-weight:900;line-height:1.12;color:#3a1b09;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.hname .n2{font-size:18px;font-weight:800;line-height:1.15;color:#4a2410;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.hname .n3{margin-top:3px}
+.hname .n3 span{display:inline-block;max-width:100%;background:#3a1b09;color:#f9e6bd;font-size:14px;font-weight:800;line-height:1.4;padding:1px 20px;clip-path:polygon(0 0,100% 0,calc(100% - 9px) 50%,100% 100%,0 100%,9px 50%);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;vertical-align:top}
+.hric{display:flex;flex-direction:column;align-items:flex-end;flex:none}
+.hic{display:flex;align-items:center}
+.hph{font-size:11.5px;font-weight:700;color:#4a2410;white-space:nowrap;display:flex;align-items:center}
+.hq{flex:1;min-width:0;border-radius:22px;border:0;background:#fffaf0;color:#2e1403;padding:10px 16px;font-size:16px}
+#bnav{background:#3a1b09!important;border-top:3px solid var(--acc)!important}
+#bnav button{color:#f7e8c9!important}
+#bnav button.on{color:#f9dfae!important}
+#bnav button.on span{background:#6b3a1a!important}
+#bnav button.addb span{background:#f2d7aa!important;color:#3a1b09!important;border:3px solid var(--acc)}
 </style>
 </head>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -564,11 +585,12 @@ function closeModal(d){d=d||[].slice.call(el("modals").children).pop();if(d)d.re
 function closeAllModals(){el("modals").innerHTML=""}
 /* ---------- मोबाइल का बैक बटन: पहले खुली शीट/मेन्यू बंद हों, ऐप न बंद हो ---------- */
 let WMIGN=0;
-const wmOpen=()=>el("modals").children.length>0||!!document.getElementById("waov");
+const wmOpen=()=>el("modals").children.length>0||!!document.getElementById("waov")||!!S.hsearch;
 function wmPush(){const s=history.state;if(s&&s.wm===1)return;if(s&&s.wm===2){history.replaceState({wm:1},"");return}history.pushState({wm:1},"")}
 function wmPop(){const s=history.state;if(s&&s.wm===1&&!wmOpen()){WMIGN++;history.back()}}
 window.addEventListener("popstate",()=>{
  if(WMIGN>0){WMIGN--;return}
+ if(S.hsearch&&!document.getElementById("waov")&&!el("modals").children.length){S.hsearch=false;S.bf.q="";refresh();return}
  const ov=document.getElementById("waov");
  if(ov){ov.remove();if(wmOpen())history.pushState({wm:1},"");return}
  const ms=el("modals").children;
@@ -757,13 +779,26 @@ function paintSync(){
  const d=document.querySelector("#topbar .dot");if(d)d.className="dot "+(SYNC.state==="ok"?"ok":SYNC.state==="busy"?"busy":SYNC.state==="err"?"err":"");
  if(S.view==="settings"&&el("syncBox"))el("syncBox").innerHTML=syncBoxHtml();
 }
-function paintTop(){
- const b=biz()||{},v=S.view,dot=`<span class="dot ${SYNC.state==="ok"?"ok":SYNC.state==="busy"?"busy":SYNC.state==="err"?"err":""}" style="margin-left:8px"></span>`;
- const menu=`<button class="tb-btn" data-act="menu" aria-label="menu" style="font-size:26px;font-weight:900">⋮</button>`;
- if(v==="home"){el("topbar").innerHTML=`<img src="${esc(b.logo||DEFAULT_LOGO)}" alt="" style="width:34px;height:34px;border-radius:50%;object-fit:cover;background:#fff;margin-right:10px"><div class="tb-title">${esc(b.name||"हलवाई मैनेजर")}${dot}</div><button class="tb-btn" data-act="go" data-id="search" aria-label="search">🔎</button>`+menu;return}
- const m=MODS.find(x=>x.k===v),t=v==="dash"?L("डैशबोर्ड","Dashboard"):m?L(m.hi,m.en):(b.name||"");
- el("topbar").innerHTML=`<button class="tb-btn" data-act="goback" aria-label="back" style="font-size:24px">←</button><div class="tb-title">${esc(t)}</div>`+menu;
+function nameLines(n){
+ const w=String(n||"").trim().split(/\s+/).filter(Boolean);if(w.length<=1)return [w.join(" ")];
+ const k=Math.min(3,w.length),base=Math.floor(w.length/k),sz=Array(k).fill(base),ord=k===3?[1,0,2]:[0,1];
+ for(let i=0;i<w.length-base*k;i++)sz[ord[i%ord.length]]++;
+ const out=[];let p=0;sz.forEach(z=>{out.push(w.slice(p,p+z).join(" "));p+=z});return out.filter(Boolean);
 }
+function paintTop(){
+ const b=biz()||{},v=S.view,tb=el("topbar"),dot=`<span class="dot ${SYNC.state==="ok"?"ok":SYNC.state==="busy"?"busy":SYNC.state==="err"?"err":""}" style="margin-left:6px"></span>`;
+ const menu=`<button class="tb-btn" data-act="menu" aria-label="menu" style="font-size:26px;font-weight:900">⋮</button>`;
+ if(v!=="home")S.hsearch=false;
+ tb.dataset.big=(v==="home"&&!S.hsearch)?"1":"0";
+ if(v==="home"&&S.hsearch){tb.innerHTML=`<button class="tb-btn" data-act="hsearchx" aria-label="back" style="font-size:24px">←</button><input id="hq" class="hq" data-in="bq" value="${esc(S.bf.q)}" placeholder="${L("बुकिंग खोजें...","Search bookings...")}">`+menu;return}
+ if(v==="home"){
+  const ln=nameLines(b.name||"हलवाई मैनेजर"),ph=bizPh(b);
+  tb.innerHTML=`<img class="hlogo" src="${esc(b.logo||DEFAULT_LOGO)}" alt=""><div class="hname"><div class="n1">${esc(ln[0])}</div>${ln.length>2?`<div class="n2">${esc(ln[1])}</div>`:""}${ln.length>1?`<div class="n3"><span>${esc(ln[ln.length-1])}</span></div>`:""}</div><div class="hric"><div class="hic"><button class="tb-btn" data-act="hsearch" aria-label="search">🔎</button>${menu}</div><div class="hph">${ph?"📞 "+esc(ph):""}${dot}</div></div>`;return}
+ const m=MODS.find(x=>x.k===v),t=v==="dash"?L("डैशबोर्ड","Dashboard"):m?L(m.hi,m.en):(b.name||"");
+ tb.innerHTML=`<button class="tb-btn" data-act="goback" aria-label="back" style="font-size:24px">←</button><div class="tb-title">${esc(t)}</div>`+menu;
+}
+ACT.hsearch=()=>{S.hsearch=true;wmPush();paintTop();const i=el("hq");if(i)i.focus()};
+ACT.hsearchx=()=>{S.hsearch=false;S.bf.q="";wmPop();refresh()};
 function paintNav(){
  const v=S.view,on=k=>v===k?"on":"";
  const slot2=["bookings","invoices","stock","customers"].find(modOn),slot4=["ledger","reports","payments"].find(modOn);
@@ -867,7 +902,7 @@ VIEWS.dash=()=>{
  ${kpi("🏆",L("शुद्ध लाभ","Net profit"),money(all.profit),all.profit>=0?"ok":"bad","reports")}
  </div>
  <div class="cols2" style="margin-top:12px">
- <div class="card"><h3>📊 ${L("पिछले 6 महीने","Last 6 months")}</h3>${barChart(ms,["sales","exp"],["#b71c1c","#f59e0b"])}<div class="legend"><span><i style="background:#b71c1c"></i>${L("बिक्री","Sales")}</span><span><i style="background:#f59e0b"></i>${L("खर्च","Expense")}</span></div></div>
+ <div class="card"><h3>📊 ${L("पिछले 6 महीने","Last 6 months")}</h3>${barChart(ms,["sales","exp"],["#4a2410","#f59e0b"])}<div class="legend"><span><i style="background:#4a2410"></i>${L("बिक्री","Sales")}</span><span><i style="background:#f59e0b"></i>${L("खर्च","Expense")}</span></div></div>
  <div class="card"><h3>💳 ${L("भुगतान स्थिति","Payment status")}</h3><div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap">${donut(all.income,all.pending,"#15803d","#fbbf24")}<div><div class="legend" style="flex-direction:column;gap:6px"><span><i style="background:#15803d"></i>${L("प्राप्त","Received")}: <b>${money(all.income)}</b></span><span><i style="background:#fbbf24"></i>${L("बाकी","Pending")}: <b>${money(all.pending)}</b></span></div></div></div></div>
  </div>
  ${rem.length?`<div class="card"><h3>🔔 ${L("रिमाइंडर","Reminders")}</h3>${rem.map(remRow).join("")}<button class="btn ghost sm" data-act="go" data-id="reminders">${L("सभी देखें","See all")}</button></div>`:""}
@@ -917,7 +952,7 @@ VIEWS.bookings=()=>{
 const avL=n=>{const t=String(n||"").trim();return t?Array.from(t)[0].toUpperCase():"👤"};
 VIEWS.home=()=>{
  const F=S.bf,tot=filterBookings().filter(b=>b.status!=="रद्द");
- return `<div class="wa-search"><input id="bq" value="${esc(F.q)}" placeholder="${L("बुकिंग खोजें...","Search bookings...")}" data-in="bq"></div>`+chipsHtml([["all",L("सभी","All")],["pending",L("पेंडिंग","Pending")],["done",L("पूरी हुई","Completed")],["cancel",L("रद्द","Cancelled")],["due",L("भुगतान बाकी","Payment due")]],F.st,"bst")+`<div class="small muted" id="bsum" style="padding:2px 14px">${bkSummary(tot)}</div><div id="blist">${bookingListHtml()}</div>`;
+ return chipsHtml([["all",L("सभी","All")],["pending",L("पेंडिंग","Pending")],["done",L("पूरी हुई","Completed")],["cancel",L("रद्द","Cancelled")],["due",L("भुगतान बाकी","Payment due")]],F.st,"bst")+`<div class="small muted" id="bsum" style="padding:2px 14px">${bkSummary(tot)}</div><div id="blist">${bookingListHtml()}</div>`;
 };
 const bkSummary=l=>L("कुल","Total")+" "+l.length+" • "+money(l.reduce((s,b)=>s+num(b.amount),0))+" • "+L("बाकी","Due")+" "+money(l.reduce((s,b)=>s+balance(b),0));
 INP.bq=t=>{S.bf.q=t.value;el("blist").innerHTML=bookingListHtml();el("bsum").textContent=bkSummary(filterBookings().filter(b=>b.status!=="रद्द"))};
@@ -1004,7 +1039,7 @@ function tasksPdfHtml(l){
  l=(l||[]).filter(x=>x&&String(x.task||"").trim());if(!l.length)return "";
  l=l.slice().sort((a,b)=>String(a.date).localeCompare(String(b.date)));
  const td="border:1.5px solid #f0b429;padding:8px 9px";
- return pdfSecOpen("🗓️ "+L("रोज़ के काम (तारीख के अनुसार)","Daily tasks (date-wise)"))+`<table style="width:calc(100% + 3px);margin:-1.5px;border-collapse:collapse;font-size:14.5px"><thead><tr><th style="${td};background:#8f0000;color:#fff;width:11%">${L("क्र.","No.")}</th><th style="${td};background:#8f0000;color:#fff;width:27%">${L("तारीख","Date")}</th><th style="${td};background:#8f0000;color:#fff">${L("काम","Task")}</th></tr></thead><tbody>${l.map((x,i)=>`<tr style="background:${i%2?"#fffaea":"#fff"}"><td style="${td};text-align:center;font-weight:800;color:#8f0000">${i+1}</td><td style="${td};font-weight:700">${esc(fmtDate(x.date))}</td><td style="${td}">${esc(x.task)}</td></tr>`).join("")}</tbody></table>`+pdfSecClose();
+ return pdfSecOpen("🗓️ "+L("रोज़ के काम (तारीख के अनुसार)","Daily tasks (date-wise)"))+`<table style="width:calc(100% + 3px);margin:-1.5px;border-collapse:collapse;font-size:14.5px"><thead><tr><th style="${td};background:#4a2410;color:#fff;width:11%">${L("क्र.","No.")}</th><th style="${td};background:#4a2410;color:#fff;width:27%">${L("तारीख","Date")}</th><th style="${td};background:#4a2410;color:#fff">${L("काम","Task")}</th></tr></thead><tbody>${l.map((x,i)=>`<tr style="background:${i%2?"#fffaea":"#fff"}"><td style="${td};text-align:center;font-weight:800;color:#4a2410">${i+1}</td><td style="${td};font-weight:700">${esc(fmtDate(x.date))}</td><td style="${td}">${esc(x.task)}</td></tr>`).join("")}</tbody></table>`+pdfSecClose();
 }
 INP.bkcalc=()=>updateFormSummary();
 INP.amtmanual=t=>{t.dataset.auto="";updateFormSummary()};
@@ -1137,7 +1172,7 @@ function renderWorkers(){
  const dd=defaultDays();el("wDays").textContent="📆 "+L("काम के दिन:","Work days:")+" "+(dd||"-");
  el("wList").innerHTML=workersDraft.length?workersDraft.map((w,i)=>`<div class="wcard"><div class="wr1"><input data-in="wf" data-k="cat" data-i="${i}" value="${esc(w.cat)}" placeholder="${esc(L("कैटेगरी (जैसे रसोईया)","Category (e.g. Cook)"))}"><input data-in="wf" data-k="name" data-i="${i}" value="${esc(w.name)}" placeholder="${esc(L("नाम (वैकल्पिक)","Name (optional)"))}"><button type="button" class="btn danger" style="margin:0" data-act="wdel" data-id="${i}">🗑️</button></div>
  <div class="wr2"><div><small>${L("₹ प्रतिदिन","₹ per day")}</small><input data-in="wf" data-k="rate" data-i="${i}" type="number" inputmode="decimal" min="0" value="${w.rate||""}" placeholder="₹"></div><div><small>${L("दिन (हाजिरी)","Days (attendance)")}</small><input data-in="wf" data-k="days" data-i="${i}" type="number" inputmode="decimal" min="0" step="0.5" value="${w.days||""}" placeholder="0"></div><div class="wtot"><small>${L("कुल","Total")}</small><b data-wt="${i}">${money(wTotal(w))}</b></div></div></div>`).join(""):`<p class="small muted">${L("अभी कोई कारीगर नहीं जुड़ा।","No workers added yet.")}</p>`;
- el("wChips").innerHTML=workerCats.map((c,i)=>`<span style="display:inline-flex;align-items:center"><button type="button" class="chip" style="margin:3px 3px 0 0" data-act="wchip" data-id="${i}">+ ${esc(DEFAULT_CATS.includes(c)?L(c,WCAT_EN[c]):c)}</button>${DEFAULT_CATS.includes(c)?"":`<button type="button" class="chip" style="background:#7f1010;color:#fff" data-act="wcatdel" data-id="${i}">×</button>`}</span>`).join("");
+ el("wChips").innerHTML=workerCats.map((c,i)=>`<span style="display:inline-flex;align-items:center"><button type="button" class="chip" style="margin:3px 3px 0 0" data-act="wchip" data-id="${i}">+ ${esc(DEFAULT_CATS.includes(c)?L(c,WCAT_EN[c]):c)}</button>${DEFAULT_CATS.includes(c)?"":`<button type="button" class="chip" style="background:#3b1c0a;color:#fff" data-act="wcatdel" data-id="${i}">×</button>`}</span>`).join("");
  el("wTotal").textContent=money(workersSum(workersDraft));
 }
 INP.wf=t=>{
@@ -1466,9 +1501,9 @@ ACT.packpdf=async t=>{
  const list=packItems().filter(i=>i.selected!==false);
  if(!list.length){toast(L("कम से कम एक सामान चुनें।","Select at least one item."),"err");return}
  const stamp=nowStamp(),name="Saman-List-"+fileStamp()+".pdf",b=biz();
- const html=pdfHeader(b,stamp)+`<h3 style="text-align:center;color:#b71c1c;margin:14px 0 10px">📦 ${L("मंगवाने वाले सामान / कच्चे माल की सूची","List of items to arrange")}</h3>
- <table style="width:100%;border-collapse:collapse;font-size:15px"><thead><tr style="background:#b71c1c;color:#fff"><th style="border:1px solid #b71c1c;padding:9px">${L("क्र.","No.")}</th><th style="border:1px solid #b71c1c;padding:9px">${L("सामान का नाम","Item name")}</th><th style="border:1px solid #b71c1c;padding:9px">${L("मात्रा","Quantity")}</th></tr></thead><tbody>${list.map((it,i)=>`<tr style="background:${i%2?"#fff3d6":"#fff"}"><td style="border:1px solid #e3c98a;padding:8px;text-align:center;color:#b71c1c;font-weight:bold">${i+1}</td><td style="border:1px solid #e3c98a;padding:8px;font-weight:600">${esc(it.name)}</td><td style="border:1px solid #e3c98a;padding:8px;color:#7a1010;font-weight:bold">${esc(it.qty||"-")}</td></tr>`).join("")}</tbody></table>
- <div style="margin-top:22px;background:#fdd891;color:#7a1010;text-align:center;padding:12px;border-radius:8px"><b>${L("नोट:","Note:")}</b> ${L("कृपया सामान/कच्चा माल समय पर मंगवा कर रखें। धन्यवाद!","Please arrange the items / raw material on time. Thank you!")}</div>`;
+ const html=pdfHeader(b,stamp)+`<h3 style="text-align:center;color:#4a2410;margin:14px 0 10px">📦 ${L("मंगवाने वाले सामान / कच्चे माल की सूची","List of items to arrange")}</h3>
+ <table style="width:100%;border-collapse:collapse;font-size:15px"><thead><tr style="background:#4a2410;color:#fff"><th style="border:1px solid #4a2410;padding:9px">${L("क्र.","No.")}</th><th style="border:1px solid #4a2410;padding:9px">${L("सामान का नाम","Item name")}</th><th style="border:1px solid #4a2410;padding:9px">${L("मात्रा","Quantity")}</th></tr></thead><tbody>${list.map((it,i)=>`<tr style="background:${i%2?"#fff3d6":"#fff"}"><td style="border:1px solid #e3c98a;padding:8px;text-align:center;color:#4a2410;font-weight:bold">${i+1}</td><td style="border:1px solid #e3c98a;padding:8px;font-weight:600">${esc(it.name)}</td><td style="border:1px solid #e3c98a;padding:8px;color:#3b1c0a;font-weight:bold">${esc(it.qty||"-")}</td></tr>`).join("")}</tbody></table>
+ <div style="margin-top:22px;background:#fdd891;color:#3b1c0a;text-align:center;padding:12px;border-radius:8px"><b>${L("नोट:","Note:")}</b> ${L("कृपया सामान/कच्चा माल समय पर मंगवा कर रखें। धन्यवाद!","Please arrange the items / raw material on time. Thank you!")}</div>`;
  const msg=[L("नमस्ते, सामान की सूची की PDF संलग्न है। कृपया सामान/कच्चा माल समय पर मंगवा कर रखें। धन्यवाद!","Hello, the PDF of the items list is attached. Please arrange the items / raw material on time. Thank you!"),"🗓️ "+stamp,[b.name,bizPh(b)?"📞 "+bizPh(b):""].filter(Boolean).join("\n")].filter(Boolean).join("\n\n");
  await pdfAndShare(html,name,msg,"",t);
 };
@@ -1577,19 +1612,19 @@ ACT.invpdf=async t=>{
  const pyl=(lbk?rows("payments").filter(x=>x.bookingId===lbk.id):rows("payments").filter(x=>x.invoiceId===i.id)).sort((x,y)=>String(x.date).localeCompare(String(y.date)));
  const pTot=pyl.reduce((x,q)=>x+num(q.amount),0),p=pyl.length?pTot:p0;
  const gt="width:calc(100% + 3px);margin:-1.5px;border-collapse:collapse;font-size:13.5px";
- const wkHtml=wk.length?`${pdfSecOpen("👷 "+L("कारीगर भुगतान की डीटेल","Worker payment details"))}<table style="${gt}"><thead><tr style="background:#8f0000;color:#fff"><th style="${th}">${L("क्र.","No.")}</th><th style="${th}">${L("कारीगर / सेवा","Worker / service")}</th><th style="${th}">${L("रेट","Rate")}</th><th style="${th}">${L("दिन","Days")}</th><th style="${th}">${L("राशि","Amount")}</th></tr></thead><tbody>${wk.map((w,x)=>`<tr style="background:${x%2?"#fffaea":"#fff"}"><td style="${td};text-align:center">${x+1}</td><td style="${td}">${esc(wLabel(w))}</td><td style="${td};text-align:right">${money(w.rate)}</td><td style="${td};text-align:center">${w.days}</td><td style="${td};text-align:right"><b>${money(wTotal(w))}</b></td></tr>`).join("")}<tr style="background:#fde7a8"><td colspan="4" style="${td};text-align:right;font-weight:800;color:#8f0000">${L("कुल कारीगर भुगतान","Total worker payment")}</td><td style="${td};text-align:right;font-weight:800;color:#8f0000">${money(wk.reduce((x,w)=>x+wTotal(w),0))}</td></tr></tbody></table>${pdfSecClose()}`:"";
+ const wkHtml=wk.length?`${pdfSecOpen("👷 "+L("कारीगर भुगतान की डीटेल","Worker payment details"))}<table style="${gt}"><thead><tr style="background:#4a2410;color:#fff"><th style="${th}">${L("क्र.","No.")}</th><th style="${th}">${L("कारीगर / सेवा","Worker / service")}</th><th style="${th}">${L("रेट","Rate")}</th><th style="${th}">${L("दिन","Days")}</th><th style="${th}">${L("राशि","Amount")}</th></tr></thead><tbody>${wk.map((w,x)=>`<tr style="background:${x%2?"#fffaea":"#fff"}"><td style="${td};text-align:center">${x+1}</td><td style="${td}">${esc(wLabel(w))}</td><td style="${td};text-align:right">${money(w.rate)}</td><td style="${td};text-align:center">${w.days}</td><td style="${td};text-align:right"><b>${money(wTotal(w))}</b></td></tr>`).join("")}<tr style="background:#fde7a8"><td colspan="4" style="${td};text-align:right;font-weight:800;color:#4a2410">${L("कुल कारीगर भुगतान","Total worker payment")}</td><td style="${td};text-align:right;font-weight:800;color:#4a2410">${money(wk.reduce((x,w)=>x+wTotal(w),0))}</td></tr></tbody></table>${pdfSecClose()}`:"";
  let run=c.total;
- const pyHtml=(pyl.length||isInv)?`${pdfSecOpen("₹ "+L("भुगतान का इतिहास (तारीख अनुसार)","Payment history (by date)"))}<table style="${gt}"><thead><tr style="background:#8f0000;color:#fff"><th style="${th}">${L("क्र.","No.")}</th><th style="${th}">${L("दिनांक","Date")}</th><th style="${th}">${L("प्रकार","Type")}</th><th style="${th}">${L("माध्यम","Method")}</th><th style="${th}">${L("जमा","Paid")}</th><th style="${th}">${L("शेष","Balance")}</th></tr></thead><tbody>${pyl.length?pyl.map((q,x)=>{run=Math.max(0,run-num(q.amount));return `<tr style="background:${x%2?"#fffaea":"#fff"}"><td style="${td};text-align:center">${x+1}</td><td style="${td}">${esc(fmtDate(q.date))}</td><td style="${td}">${esc(ptL(q.type))}${q.note?"<br><small>"+esc(q.note)+"</small>":""}</td><td style="${td}">${esc(pmL(q.method))}</td><td style="${td};text-align:right"><b>${money(q.amount)}</b></td><td style="${td};text-align:right">${money(run)}</td></tr>`}).join(""):`<tr><td colspan="6" style="${td};text-align:center;color:#7a6a5a">${L("अभी कोई भुगतान दर्ज नहीं।","No payment recorded yet.")}</td></tr>`}<tr style="background:#fde7a8"><td colspan="4" style="${td};text-align:right;font-weight:800;color:#8f0000">${L("कुल प्राप्त भुगतान","Total received")}</td><td style="${td};text-align:right;font-weight:800;color:#8f0000">${money(pTot)}</td><td style="${td};text-align:right;font-weight:800;color:#8f0000">${money(Math.max(0,c.total-pTot))}</td></tr></tbody></table>${pdfSecClose()}`:"";
+ const pyHtml=(pyl.length||isInv)?`${pdfSecOpen("₹ "+L("भुगतान का इतिहास (तारीख अनुसार)","Payment history (by date)"))}<table style="${gt}"><thead><tr style="background:#4a2410;color:#fff"><th style="${th}">${L("क्र.","No.")}</th><th style="${th}">${L("दिनांक","Date")}</th><th style="${th}">${L("प्रकार","Type")}</th><th style="${th}">${L("माध्यम","Method")}</th><th style="${th}">${L("जमा","Paid")}</th><th style="${th}">${L("शेष","Balance")}</th></tr></thead><tbody>${pyl.length?pyl.map((q,x)=>{run=Math.max(0,run-num(q.amount));return `<tr style="background:${x%2?"#fffaea":"#fff"}"><td style="${td};text-align:center">${x+1}</td><td style="${td}">${esc(fmtDate(q.date))}</td><td style="${td}">${esc(ptL(q.type))}${q.note?"<br><small>"+esc(q.note)+"</small>":""}</td><td style="${td}">${esc(pmL(q.method))}</td><td style="${td};text-align:right"><b>${money(q.amount)}</b></td><td style="${td};text-align:right">${money(run)}</td></tr>`}).join(""):`<tr><td colspan="6" style="${td};text-align:center;color:#7a6a5a">${L("अभी कोई भुगतान दर्ज नहीं।","No payment recorded yet.")}</td></tr>`}<tr style="background:#fde7a8"><td colspan="4" style="${td};text-align:right;font-weight:800;color:#4a2410">${L("कुल प्राप्त भुगतान","Total received")}</td><td style="${td};text-align:right;font-weight:800;color:#4a2410">${money(pTot)}</td><td style="${td};text-align:right;font-weight:800;color:#4a2410">${money(Math.max(0,c.total-pTot))}</td></tr></tbody></table>${pdfSecClose()}`:"";
  const html=pdfHeader(b,stamp)+`${pdfTitle(isInv?L("बिल / INVOICE","INVOICE"):L("कोटेशन / QUOTATION","QUOTATION"))}
  <div style="display:flex;gap:10px">${pdfInfo("🔢",L("नंबर","No"),esc(i.no))}${pdfInfo("📅",L("दिनांक","Date"),esc(fmtDate(i.date)))}</div>
  <div style="display:flex;gap:10px;margin-top:10px">${pdfInfo("👤",L("ग्राहक","Customer"),esc(i.name))}${i.phone?pdfInfo("📞",L("मोबाइल","Mobile"),esc(i.phone)):""}</div>${i.address?`<div style="margin-top:10px">${pdfInfo("📍",L("पता","Address"),esc(i.address))}</div>`:""}
- ${pdfSecOpen("🧾 "+L("सेवा / काम का चार्ज (अलग-अलग)","Service / work charges (itemised)"))}<table style="width:calc(100% + 3px);margin:-1.5px;border-collapse:collapse;font-size:14px"><thead><tr style="background:#8f0000;color:#fff"><th style="${th}">${L("क्र.","No.")}</th><th style="${th}">${L("विवरण","Description")}</th><th style="${th}">${L("मात्रा","Qty")}</th><th style="${th}">${L("रेट","Rate")}</th><th style="${th}">${L("राशि","Amount")}</th></tr></thead><tbody>${(i.lines||[]).map((l,x)=>`<tr style="background:${x%2?"#fff3d6":"#fff"}"><td style="${td};text-align:center">${x+1}</td><td style="${td}">${esc(l.d)}</td><td style="${td};text-align:center">${num(l.q)}</td><td style="${td};text-align:right">${money(l.r)}</td><td style="${td};text-align:right"><b>${money(num(l.q)*num(l.r))}</b></td></tr>`).join("")}</tbody></table>${pdfSecClose()}
- <table style="width:55%;margin-left:auto;margin-top:10px;font-size:14px;border-collapse:collapse">${[[L("उप-कुल","Subtotal"),money(c.sub)],c.disc?[L("डिस्काउंट","Discount"),"−"+money(c.disc)]:null,num(i.gstPct)?["GST ("+num(i.gstPct)+"%)","+"+money(c.gst)]:null,[L("कुल राशि","Total"),money(c.total),1],isInv?[L("एडवांस / प्राप्त","Advance / Paid"),money(p)]:null,isInv?[L("बाकी राशि","Balance due"),money(Math.max(0,c.total-p)),1]:null].filter(Boolean).map(r=>`<tr><td style="padding:4px 6px;${r[2]?"font-weight:800;color:#b71c1c":""}">${r[0]}</td><td style="padding:4px 6px;text-align:right;${r[2]?"font-weight:800;color:#b71c1c;font-size:16px":""}">${r[1]}</td></tr>`).join("")}</table>
+ ${pdfSecOpen("🧾 "+L("सेवा / काम का चार्ज (अलग-अलग)","Service / work charges (itemised)"))}<table style="width:calc(100% + 3px);margin:-1.5px;border-collapse:collapse;font-size:14px"><thead><tr style="background:#4a2410;color:#fff"><th style="${th}">${L("क्र.","No.")}</th><th style="${th}">${L("विवरण","Description")}</th><th style="${th}">${L("मात्रा","Qty")}</th><th style="${th}">${L("रेट","Rate")}</th><th style="${th}">${L("राशि","Amount")}</th></tr></thead><tbody>${(i.lines||[]).map((l,x)=>`<tr style="background:${x%2?"#fff3d6":"#fff"}"><td style="${td};text-align:center">${x+1}</td><td style="${td}">${esc(l.d)}</td><td style="${td};text-align:center">${num(l.q)}</td><td style="${td};text-align:right">${money(l.r)}</td><td style="${td};text-align:right"><b>${money(num(l.q)*num(l.r))}</b></td></tr>`).join("")}</tbody></table>${pdfSecClose()}
+ <table style="width:55%;margin-left:auto;margin-top:10px;font-size:14px;border-collapse:collapse">${[[L("उप-कुल","Subtotal"),money(c.sub)],c.disc?[L("डिस्काउंट","Discount"),"−"+money(c.disc)]:null,num(i.gstPct)?["GST ("+num(i.gstPct)+"%)","+"+money(c.gst)]:null,[L("कुल राशि","Total"),money(c.total),1],isInv?[L("एडवांस / प्राप्त","Advance / Paid"),money(p)]:null,isInv?[L("बाकी राशि","Balance due"),money(Math.max(0,c.total-p)),1]:null].filter(Boolean).map(r=>`<tr><td style="padding:4px 6px;${r[2]?"font-weight:800;color:#4a2410":""}">${r[0]}</td><td style="padding:4px 6px;text-align:right;${r[2]?"font-weight:800;color:#4a2410;font-size:16px":""}">${r[1]}</td></tr>`).join("")}</table>
  ${wkHtml}${pyHtml}
  ${isInv?pdfUpiHtml(b):""}
  ${b.billInfo?`<div style="margin-top:14px;font-size:13px;border:2px solid #f0b429;border-radius:12px;background:#fff6dc;padding:10px 12px;white-space:pre-line"><b>${L("भुगतान / बैंक विवरण:","Payment / bank details:")}</b>\n${esc(b.billInfo)}</div>`:""}
  ${i.notes||(b.inv&&b.inv.terms)?`<div style="margin-top:10px;font-size:12.5px;white-space:pre-line"><b>${L("नोट / शर्तें:","Notes / terms:")}</b>\n${esc([i.notes,b.inv&&b.inv.terms].filter(Boolean).join("\n"))}</div>`:""}
- <div style="margin-top:18px;border:2px solid #f0b429;border-radius:14px;background:#fff6dc;color:#8f0000;text-align:center;padding:12px"><b>🙏 ${L("धन्यवाद!","Thank you!")}</b> ${esc(b.name||"")}</div>`;
+ <div style="margin-top:18px;border:2px solid #f0b429;border-radius:14px;background:#fff6dc;color:#4a2410;text-align:center;padding:12px"><b>🙏 ${L("धन्यवाद!","Thank you!")}</b> ${esc(b.name||"")}</div>`;
  const msg=[L("नमस्ते "+i.name+" जी, आपका "+(isInv?"बिल":"कोटेशन")+" ("+i.no+") संलग्न है।","Hello "+i.name+", your "+(isInv?"bill":"quotation")+" ("+i.no+") is attached.")+(isInv&&c.total-p>0?"\n"+L("बाकी रकम: ","Balance due: ")+money(c.total-p):""),"🗓️ "+stamp,[b.name,bizPh(b)?"📞 "+bizPh(b):""].filter(Boolean).join("\n")].filter(Boolean).join("\n\n");
  await pdfAndShare(html,(isInv?"Invoice-":"Quotation-")+i.no+".pdf",msg,waPhone(i.phone),t);
 };
@@ -1748,16 +1783,16 @@ function downloadBlob(blob,name){const a=document.createElement("a"),url=URL.cre
 function pdfHeader(b,stamp){
  b=b||biz()||{};
  const qr=qrDataUrl(b),nm=String(b.name||"हलवाई मैनेजर"),fs=nm.length>28?20:nm.length>18?25:31;
- const qrBox=(qr||b.upi)?`<div style="width:132px;flex:none;background:#fff;border:2px solid #f0b429;border-radius:14px;overflow:hidden;text-align:center"><div style="background:#8f0000;color:#fff;font-weight:800;font-size:12.5px;padding:4px 0;white-space:nowrap">UPI QR CODE</div>${qr?`<div style="width:100px;height:100px;margin:6px auto 2px"><img src="${qr}" style="width:100%;height:100%;object-fit:contain;display:block"></div>`:""}${b.upi?`<div style="font-size:10.5px;font-weight:800;color:#222;padding:2px 5px 6px;line-height:1.3;overflow-wrap:anywhere">UPI ID:<br>${esc(b.upi)}</div>`:`<div style="height:6px"></div>`}</div>`:"";
+ const qrBox=(qr||b.upi)?`<div style="width:132px;flex:none;background:#fff;border:2px solid #f0b429;border-radius:14px;overflow:hidden;text-align:center"><div style="background:#4a2410;color:#fff;font-weight:800;font-size:12.5px;padding:4px 0;white-space:nowrap">UPI QR CODE</div>${qr?`<div style="width:100px;height:100px;margin:6px auto 2px"><img src="${qr}" style="width:100%;height:100%;object-fit:contain;display:block"></div>`:""}${b.upi?`<div style="font-size:10.5px;font-weight:800;color:#222;padding:2px 5px 6px;line-height:1.3;overflow-wrap:anywhere">UPI ID:<br>${esc(b.upi)}</div>`:`<div style="height:6px"></div>`}</div>`:"";
  const items=[b.owner?"👤 "+b.owner:"",bizPh(b)?"📞 "+bizPh(b):"",b.address?"📍 "+b.address:"",b.gst?"🧾 GSTIN: "+b.gst:""].filter(Boolean);
  const strip=(items.length||stamp)?`<div style="display:flex;flex-wrap:wrap;justify-content:center;gap:4px 16px;font-size:13px;font-weight:600;color:#5a2d0c;padding:12px 6px 2px">${items.map(x=>`<span>${esc(x)}</span>`).join("")}${stamp?`<span style="color:#7a6a5a">🗓️ ${esc(stamp)}</span>`:""}</div>`:"";
- return `<!--pdfhdr--><div style="background:#7a0000;background-image:linear-gradient(105deg,#c40000,#8f0000 50%,#5a0000);border-bottom:5px solid #f0b429;border-radius:0 0 50% 50%/0 0 26px 26px;padding:18px 20px 24px;display:flex;align-items:center;gap:14px">
+ return `<!--pdfhdr--><div style="background:#7a0000;background-image:linear-gradient(105deg,#c40000,#4a2410 50%,#5a0000);border-bottom:5px solid #f0b429;border-radius:0 0 50% 50%/0 0 26px 26px;padding:18px 20px 24px;display:flex;align-items:center;gap:14px">
  <div style="width:108px;height:108px;flex:none;border-radius:50%;border:4px solid #f0b429;background:#fff;padding:2px;box-sizing:border-box"><img src="${esc(b.logo||DEFAULT_LOGO)}" style="width:100%;height:100%;border-radius:50%;object-fit:cover;display:block"></div>
  <div style="flex:1;min-width:0;text-align:center;color:#fff"><div style="font-size:${fs}px;font-weight:800;line-height:1.3">${esc(nm)}</div>${b.name2?`<div style="font-size:19px;font-weight:800;line-height:1.35;color:#ffd54f">${esc(b.name2)}</div>`:""}${b.tagline?`<div style="font-size:13.5px;font-weight:600;line-height:1.5;margin-top:3px">${esc(b.tagline)}</div>`:""}<div style="height:2px;width:72%;margin:8px auto 0;background:linear-gradient(90deg,rgba(240,180,41,0),#f0b429,rgba(240,180,41,0))"></div></div>${qrBox}</div><!--/pdfhdr-->${strip}`;
 }
-function pdfTitle(t){return `<div style="display:flex;align-items:center;gap:12px;margin:14px 0 10px"><div style="flex:1;height:3px;border-radius:3px;background:#f0b429"></div><div style="background:#8f0000;color:#fff;font-weight:800;font-size:20px;padding:8px 30px;border-radius:30px;border:2px solid #f0b429;white-space:nowrap">${t}</div><div style="flex:1;height:3px;border-radius:3px;background:#f0b429"></div></div>`}
-function pdfPill(t){return `<div style="text-align:center;margin:6px 0 12px"><span style="display:inline-block;background:#fde7a8;border:2px solid #f0b429;color:#8f0000;font-weight:800;font-size:19px;padding:8px 26px;border-radius:30px">${t}</span></div>`}
-function pdfSecOpen(t){return `<div style="margin-top:16px;page-break-inside:avoid"><div style="display:inline-block;background:#8f0000;color:#fff;font-weight:800;font-size:16.5px;padding:7px 26px 7px 14px;border-radius:16px 24px 0 0">${t}</div><div style="border:2px solid #f0b429;border-radius:0 14px 14px 14px;overflow:hidden;background:#fffdf6">`}
+function pdfTitle(t){return `<div style="display:flex;align-items:center;gap:12px;margin:14px 0 10px"><div style="flex:1;height:3px;border-radius:3px;background:#f0b429"></div><div style="background:#4a2410;color:#fff;font-weight:800;font-size:20px;padding:8px 30px;border-radius:30px;border:2px solid #f0b429;white-space:nowrap">${t}</div><div style="flex:1;height:3px;border-radius:3px;background:#f0b429"></div></div>`}
+function pdfPill(t){return `<div style="text-align:center;margin:6px 0 12px"><span style="display:inline-block;background:#fde7a8;border:2px solid #f0b429;color:#4a2410;font-weight:800;font-size:19px;padding:8px 26px;border-radius:30px">${t}</span></div>`}
+function pdfSecOpen(t){return `<div style="margin-top:16px;page-break-inside:avoid"><div style="display:inline-block;background:#4a2410;color:#fff;font-weight:800;font-size:16.5px;padding:7px 26px 7px 14px;border-radius:16px 24px 0 0">${t}</div><div style="border:2px solid #f0b429;border-radius:0 14px 14px 14px;overflow:hidden;background:#fffdf6">`}
 function pdfSecClose(){return `</div></div>`}
 function pdfInfo(icon,k,v){return `<div style="flex:1;min-width:0;border:2px solid #f0b429;border-radius:12px;background:#fff6dc;padding:8px 12px"><div style="font-size:12px;font-weight:700;color:#7a6a5a">${icon} ${k}</div><div style="font-size:15px;font-weight:800;color:#2b1d12;overflow-wrap:anywhere">${v}</div></div>`}
 // UPI QR (प्रोफाइल से अपने-आप): अपलोड की गई QR इमेज, नहीं तो UPI ID से बनाया गया QR
@@ -1845,7 +1880,7 @@ async function pdfAndShare(html,name,msg,phone,btn,landscape){
 // बुकिंग की PDF (ग्राहक को भेजने के लिए)
 function bookingPdfHtml(d){
  const b=biz(),T="border:1.5px solid #f0b429;padding:10px 12px";
- const row=(k,v,i,st)=>`<tr><td style="${T};width:38%;font-weight:800;color:#8f0000;background:#fdf0c9">${k}</td><td style="${T};background:${i%2?"#fffaea":"#fff"};${st||""}">${v}</td></tr>`;
+ const row=(k,v,i,st)=>`<tr><td style="${T};width:38%;font-weight:800;color:#4a2410;background:#fdf0c9">${k}</td><td style="${T};background:${i%2?"#fffaea":"#fff"};${st||""}">${v}</td></tr>`;
  const tb=r=>`<table style="width:calc(100% + 3px);margin:-1.5px;border-collapse:collapse;font-size:15px">${r}</table>`;
  const py=(d.id&&!d.fromForm)?rows("payments").filter(x=>x.bookingId===d.id).sort((x,y)=>String(x.date).localeCompare(String(y.date))):[];
  const det=[[L("बुकिंग नंबर","Booking no"),esc(d.no||"-")],[L("काम / सर्विस","Work / Service"),esc(catL(d.category))],[L("आरंभ तिथि","Start date"),esc(fmtDate(d.sd))+(d.time?" • "+esc(fmtTime(d.time)):"")],[L("समाप्ति तिथि","End date"),esc(fmtDate(d.ed))],[L("कुल दिन","Total days"),String(d.days||"-")]];
@@ -1855,8 +1890,8 @@ function bookingPdfHtml(d){
  const ws=(d.workers||[]).map(normW).filter(w=>w.cat||w.name||w.rate),wsAll=workersSum(ws),wsOwn=ownerSum(ws);
  const wTd="border:1.5px solid #f0b429;padding:8px 9px";
  const wRows=ws.map((w,i)=>`<tr style="background:${i%2?"#fffaea":"#fff"}"><td style="${wTd};font-weight:700">${esc(wLabel(w))}</td><td style="${wTd};text-align:right">${money(w.rate)}</td><td style="${wTd};text-align:center">${esc(String(w.days))}</td><td style="${wTd};text-align:right;font-weight:800">${money(wTotal(w))}</td></tr>`).join("");
- const wHead=[["कैटेगरी / नाम","Category / Name"],["₹ प्रतिदिन","₹ per day"],["दिन","Days"],["कुल","Total"]].map(a=>`<th style="${wTd};background:#8f0000;color:#fff;font-size:13.5px">${L(a[0],a[1])}</th>`).join("");
- const wTot=(k,v,st)=>`<tr style="background:#fdf0c9"><td colspan="3" style="${wTd};text-align:right;font-weight:800;color:#8f0000;${st||""}">${k}</td><td style="${wTd};text-align:right;font-weight:800;${st||""}">${v}</td></tr>`;
+ const wHead=[["कैटेगरी / नाम","Category / Name"],["₹ प्रतिदिन","₹ per day"],["दिन","Days"],["कुल","Total"]].map(a=>`<th style="${wTd};background:#4a2410;color:#fff;font-size:13.5px">${L(a[0],a[1])}</th>`).join("");
+ const wTot=(k,v,st)=>`<tr style="background:#fdf0c9"><td colspan="3" style="${wTd};text-align:right;font-weight:800;color:#4a2410;${st||""}">${k}</td><td style="${wTd};text-align:right;font-weight:800;${st||""}">${v}</td></tr>`;
  const wsHtml=ws.length?pdfSecOpen("👷 "+L("आदमी / कारीगरों का भुगतान","Workers / labour payment"))+`<table style="width:calc(100% + 3px);margin:-1.5px;border-collapse:collapse;font-size:14.5px"><thead><tr>${wHead}</tr></thead><tbody>${wRows}${wsOwn>0?wTot(L("स्वयं (ऑनर) का भुगतान","Own (owner) payment"),money(wsOwn)):""}${wsAll-wsOwn>0?wTot(L("कारीगरों / खर्चे का भुगतान","Workers / expenses payment"),money(wsAll-wsOwn)):""}${wTot(L("कुल भुगतान","Total payment"),money(wsAll),"font-size:16px")}</tbody></table>`+pdfSecClose():"";
  const pay=[[L("कुल रकम","Total amount"),money(d.amt)]];
  if(py.length)py.forEach(q=>pay.push([esc(fmtDate(q.date))+" • "+esc(ptL(q.type))+(q.method?" • "+esc(pmL(q.method)):""),money(q.amount)]));
@@ -1869,9 +1904,9 @@ function bookingPdfHtml(d){
  <div style="margin-top:10px">${pdfInfo("📍",L("कार्यक्रम का पता","Event address"),esc(d.address||"-"))}</div>
  ${pdfSecOpen("📅 "+L("बुकिंग विवरण","Booking details"))}${tb(det.map((r,i)=>row(r[0],r[1],i)).join(""))}${pdfSecClose()}
  ${tasksPdfHtml(d.tasks)}${wsHtml}
- ${pdfSecOpen("₹ "+L("भुगतान विवरण","Payment details"))}${tb(pay.map((r,i)=>row(r[0],r[1],i,r[2])).join("")+row(L("बाकी रकम","Balance due"),money(Math.max(0,d.amt-d.paid)),pay.length,"font-weight:800;color:#b71c1c;font-size:17px"))}${pdfSecClose()}
+ ${pdfSecOpen("₹ "+L("भुगतान विवरण","Payment details"))}${tb(pay.map((r,i)=>row(r[0],r[1],i,r[2])).join("")+row(L("बाकी रकम","Balance due"),money(Math.max(0,d.amt-d.paid)),pay.length,"font-weight:800;color:#4a2410;font-size:17px"))}${pdfSecClose()}
  ${b.billInfo?`<div style="margin-top:14px;font-size:13px;border:2px solid #f0b429;border-radius:12px;background:#fff6dc;padding:10px 12px;white-space:pre-line"><b>${L("भुगतान विवरण:","Payment details:")}</b>\n${esc(b.billInfo)}</div>`:""}
- <div style="margin-top:16px;border:2px solid #f0b429;border-radius:14px;background:#fff6dc;color:#8f0000;text-align:center;padding:12px;line-height:1.7"><div style="font-size:18px;font-weight:800">${L("🙏 धन्यवाद!","🙏 Thank you!")}</div><div style="font-size:13.5px;color:#4a2a12">${L("आपने हम पर भरोसा किया, इसके लिए हृदय से आभार। किसी भी जानकारी के लिए हमसे संपर्क करें।","Thank you for trusting us. For any information, please contact us.")}</div><div style="font-size:15px;font-weight:800;margin-top:3px">${esc(b.name||"")}${bizPh(b)?" • 📞 "+esc(bizPh(b)):""}</div></div>`;
+ <div style="margin-top:16px;border:2px solid #f0b429;border-radius:14px;background:#fff6dc;color:#4a2410;text-align:center;padding:12px;line-height:1.7"><div style="font-size:18px;font-weight:800">${L("🙏 धन्यवाद!","🙏 Thank you!")}</div><div style="font-size:13.5px;color:#4a2a12">${L("आपने हम पर भरोसा किया, इसके लिए हृदय से आभार। किसी भी जानकारी के लिए हमसे संपर्क करें।","Thank you for trusting us. For any information, please contact us.")}</div><div style="font-size:15px;font-weight:800;margin-top:3px">${esc(b.name||"")}${bizPh(b)?" • 📞 "+esc(bizPh(b)):""}</div></div>`;
 }
 function bookingPdfSend(d,btn){
  const b=biz(),stamp=nowStamp(),ph=waPhone(d.phone);
@@ -1951,8 +1986,8 @@ function csvDownload(name,sections){
 ACT.repcsv=()=>{const [a,z]=repRange(),R=buildReport(S.rf.type,a,z);csvDownload("WORK-Manager-"+S.rf.type+"-"+fileStamp()+".csv",R.sections)};
 ACT.reppdf=async t=>{
  const [a,z]=repRange(),R=buildReport(S.rf.type,a,z),b=biz(),stamp=nowStamp(),wide=R.sections.some(s=>s.head.length>5);
- const tbl=s=>`<h3 style="color:#b71c1c;margin:14px 0 6px;font-size:16px">${esc(s.title)}</h3><table style="width:100%;border-collapse:collapse;font-size:12.5px"><thead><tr style="background:#b71c1c;color:#fff">${s.head.map(h=>`<th style="border:1px solid #b71c1c;padding:6px;text-align:left">${esc(h)}</th>`).join("")}</tr></thead><tbody>${s.rows.map((r,i)=>`<tr style="background:${i%2?"#fff3d6":"#fff"}">${r.map(c=>`<td style="border:1px solid #e3c98a;padding:6px">${esc(c)}</td>`).join("")}</tr>`).join("")}</tbody></table>`;
- const html=pdfHeader(b,stamp)+`<h2 style="text-align:center;color:#b71c1c;margin:14px 0 2px">${esc(R.title)}</h2><div style="text-align:center;font-size:13px;margin-bottom:6px">${L("अवधि: ","Period: ")}${esc(R.per)}</div>${R.sections.map(tbl).join("")}${R.type==="bookings"?pdfUpiHtml(b):""}`;
+ const tbl=s=>`<h3 style="color:#4a2410;margin:14px 0 6px;font-size:16px">${esc(s.title)}</h3><table style="width:100%;border-collapse:collapse;font-size:12.5px"><thead><tr style="background:#4a2410;color:#fff">${s.head.map(h=>`<th style="border:1px solid #4a2410;padding:6px;text-align:left">${esc(h)}</th>`).join("")}</tr></thead><tbody>${s.rows.map((r,i)=>`<tr style="background:${i%2?"#fff3d6":"#fff"}">${r.map(c=>`<td style="border:1px solid #e3c98a;padding:6px">${esc(c)}</td>`).join("")}</tr>`).join("")}</tbody></table>`;
+ const html=pdfHeader(b,stamp)+`<h2 style="text-align:center;color:#4a2410;margin:14px 0 2px">${esc(R.title)}</h2><div style="text-align:center;font-size:13px;margin-bottom:6px">${L("अवधि: ","Period: ")}${esc(R.per)}</div>${R.sections.map(tbl).join("")}${R.type==="bookings"?pdfUpiHtml(b):""}`;
  await pdfAndShare(html,"Report-"+S.rf.type+"-"+fileStamp()+".pdf",L("नमस्ते, "+R.title+" ("+R.per+") संलग्न है।","Hello, the "+R.title+" ("+R.per+") is attached.")+"\n\n"+(b.name||""),"",t,wide);
 };
 
