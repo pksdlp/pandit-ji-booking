@@ -150,6 +150,33 @@ details.sec>div{padding:0 14px 14px}
 svg text{fill:var(--muted);font-family:inherit}.legend{display:flex;gap:12px;flex-wrap:wrap;font-size:13px;margin-top:4px}.legend i{display:inline-block;width:11px;height:11px;border-radius:3px;margin-right:4px;vertical-align:-1px}
 .attn{display:flex;gap:6px}.attn button{flex:1;padding:8px 0;border-radius:8px;border:1px solid var(--line);background:var(--card);color:var(--text);font-weight:800;cursor:pointer}.attn button.P.on{background:#15803d;color:#fff}.attn button.H.on{background:#d97706;color:#fff}.attn button.A.on{background:#b91c1c;color:#fff}
 .cal{display:grid;grid-template-columns:repeat(7,1fr);gap:4px}.cal button{border:1px solid var(--line);background:var(--card);border-radius:8px;padding:6px 0;font-size:13px;color:var(--text);cursor:pointer}.cal button.P{background:#15803d;color:#fff}.cal button.H{background:#d97706;color:#fff}.cal button.A{background:#b91c1c;color:#fff}
+
+/* ===== WhatsApp जैसा इंटरफेस (रंग थीम वही) ===== */
+#topbar{background:var(--p);box-shadow:none;padding:10px 6px 10px 14px;padding-top:calc(10px + env(safe-area-inset-top))}
+.tb-biz{background:none;border:0;padding:0;gap:12px;font-size:22px;font-weight:700}
+.tb-biz img{width:34px;height:34px;border:0}
+.tb-btn{background:none;border:0;width:42px;height:42px;font-size:21px}
+.tb-btn b{top:2px;right:2px}
+#bnav{position:fixed;left:0;right:0;bottom:0;z-index:80;background:var(--card);border:0;border-top:1px solid var(--line);box-shadow:none;padding:8px 6px calc(8px + env(safe-area-inset-bottom));gap:0}
+#bnav button{background:none!important;color:var(--text);font-size:12px;font-weight:600;gap:4px;padding:0}
+#bnav button span{padding:3px 20px;border-radius:16px;font-size:22px}
+#bnav button.on{color:var(--text);font-weight:800}
+#bnav button.on span{background:var(--gold)}
+body.dark #bnav button.on span{background:#5a2a24}
+#bnav button.fab{position:fixed;right:16px;bottom:calc(88px + env(safe-area-inset-bottom));flex:none;width:58px;height:58px;border-radius:18px;background:var(--p)!important;color:#fff;font-size:0;justify-content:center;box-shadow:0 4px 12px rgba(0,0,0,.35);z-index:81}
+#bnav button.fab span{padding:0;background:none;box-shadow:none;width:auto;height:auto;border-radius:0;font-size:32px;line-height:1;color:#fff}
+@media(max-width:899px){body{padding-bottom:calc(150px + env(safe-area-inset-bottom))}#toasts{bottom:calc(90px + env(safe-area-inset-bottom))}}
+.li{position:relative;border:0;border-radius:0;box-shadow:none;margin:0;background:var(--card);padding:12px 10px 12px 76px;min-height:74px}
+.li::before{content:"";position:absolute;left:14px;top:13px;width:48px;height:48px;border-radius:50%;background:var(--gold) url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><circle cx='12' cy='8.5' r='4' fill='%23b71c1c'/><path d='M4 21c0-4.4 3.6-7 8-7s8 2.6 8 7z' fill='%23b71c1c'/></svg>") center/30px no-repeat}
+.li::after{content:"";position:absolute;left:76px;right:0;bottom:0;border-bottom:1px solid var(--line)}
+.li .top strong,body.dark .li .top strong{color:var(--text);font-size:16.5px;font-weight:700}
+.li.done{background:#ffe9e9;border:0}body.dark .li.done{background:#4a1212}
+.li.done::before{background-color:#ff0000;background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><circle cx='12' cy='8.5' r='4' fill='%23ffffff'/><path d='M4 21c0-4.4 3.6-7 8-7s8 2.6 8 7z' fill='%23ffffff'/></svg>")}
+.li.done .top strong{color:#d90000}
+.btn{border-radius:24px;box-shadow:none}
+.chip{border-radius:18px;font-weight:600}.chip.on{background:var(--gold);color:var(--pd);border-color:var(--gold)}
+.sheet{background:var(--card);border-radius:28px 28px 0 0}
+.sheet-h{border-bottom:0}
 </style>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Devanagari:wght@400;600;700;800;900&display=swap" rel="stylesheet">
