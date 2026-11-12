@@ -7,8 +7,8 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="हलवाई मैनेजर">
-<title>हलवाई मैनेजर | हर कार्यक्रम का पूरा हिसाब — एक ऐप में</title>
+<meta name="apple-mobile-web-app-title" content="Event Pro">
+<title>Event Pro | हर कार्यक्रम का पूरा हिसाब — एक ऐप में</title>
 <link rel="manifest" href="./manifest.webmanifest">
 <link rel="icon" type="image/png" href="./icon-192.png">
 <link rel="apple-touch-icon" href="./apple-touch-icon.png">
@@ -255,7 +255,7 @@ body{padding-bottom:calc(24px + env(safe-area-inset-bottom))}
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Devanagari:wght@400;600;700;800;900&display=swap" rel="stylesheet">
 </head>
 <body>
-<div id="splash"><img id="spLogo" src="./logo.png" alt=""><b id="spName">हलवाई मैनेजर</b><span>हर कार्यक्रम का पूरा हिसाब — एक ऐप में</span></div>
+<div id="splash"><img id="spLogo" src="./logo.png" alt=""><b id="spName">Event Pro</b><span>हर कार्यक्रम का पूरा हिसाब — एक ऐप में</span></div>
 <div id="offBar" class="hidden"></div>
 <aside id="side"></aside>
 <div id="main"><div id="stick"><nav id="bnav"></nav><header id="topbar"></header></div><main id="app"></main></div>
@@ -457,7 +457,7 @@ function newBizObj(o){
 }
 function legacyBizFrom(p,logoData){
  p=p||{};
- return newBizObj({id:MAIN,name:p.bizName||"हलवाई मैनेजर",owner:p.ownerName||"",phone:p.bizPhone||"",address:p.bizAddress||"",tagline:p.tagline||"",logo:p.logo||logoData||"",type:"catering",categories:OLD_CATS.slice()});
+ return newBizObj({id:MAIN,name:p.bizName||"Event Pro",owner:p.ownerName||"",phone:p.bizPhone||"",address:p.bizAddress||"",tagline:p.tagline||"",logo:p.logo||logoData||"",type:"catering",categories:OLD_CATS.slice()});
 }
 // पुराने ऐप का ढांचा (bookings, businessItems, profile, logo) → नया ढांचा
 function legacyToDB(src,bid){
@@ -494,7 +494,7 @@ function migrateLegacyLocal(){
 }
 function ensureBusiness(){
  if(!DB.businesses.some(b=>!b.del)){
-  const b=newBizObj({id:MAIN,name:"हलवाई मैनेजर",type:"catering",categories:OLD_CATS.slice()});b.auto=true;b.updatedAt="0";
+  const b=newBizObj({id:MAIN,name:"Event Pro",type:"catering",categories:OLD_CATS.slice()});b.auto=true;b.updatedAt="0";
   const i=DB.businesses.findIndex(x=>x.id===MAIN);if(i>=0)DB.businesses[i]=b;else DB.businesses.push(b);
  }
  let a=localStorage.getItem(ACT_KEY)||ACTIVE;
@@ -789,7 +789,7 @@ function renderAll(){
  try{el("app").innerHTML=VIEWS[S.view]();if(S.view==="stock")renderPack()}catch(e){console.error(e);el("app").innerHTML=`<div class="card">⚠ ${esc(e.message)}</div>`}
 }
 function remCount(){try{return reminderList().filter(r=>r.urgent).length}catch(e){return 0}}
-function paintChrome(){paintTop();paintNav();document.body.classList.toggle("dark",themeIsDark());const b=biz(),sl=el("spLogo"),sn=el("spName");if(b&&sl){sl.src=b.logo||DEFAULT_LOGO;sn.textContent=b.name||"हलवाई मैनेजर"}}
+function paintChrome(){paintTop();paintNav();document.body.classList.toggle("dark",themeIsDark());const b=biz(),sl=el("spLogo"),sn=el("spName");if(b&&sl){sl.src=b.logo||DEFAULT_LOGO;sn.textContent=b.name||"Event Pro"}}
 function paintSync(){
  const d=document.querySelector("#topbar .dot");if(d)d.className="dot "+(SYNC.state==="ok"?"ok":SYNC.state==="busy"?"busy":SYNC.state==="err"?"err":"");
  if(S.view==="settings"&&el("syncBox"))el("syncBox").innerHTML=syncBoxHtml();
@@ -807,7 +807,7 @@ function paintTop(){
  tb.dataset.big=(v==="home"&&!S.hsearch)?"1":"0";
  if(v==="home"&&S.hsearch){tb.innerHTML=`<button class="tb-btn" data-act="hsearchx" aria-label="back" style="font-size:24px">←</button><input id="hq" class="hq" data-in="bq" value="${esc(S.bf.q)}" placeholder="${L("बुकिंग खोजें...","Search bookings...")}">`+menu;return}
  if(v==="home"){
-  const ln=nameLines(b.name||"हलवाई मैनेजर"),phs=bizPhones(b);
+  const ln=nameLines(b.name||"Event Pro"),phs=bizPhones(b);
   tb.innerHTML=`<img class="hlogo" src="${esc(b.logo||DEFAULT_LOGO)}" alt=""><div class="hname"><div class="n1">${esc(ln[0])}</div>${ln.length>2?`<div class="n2">${esc(ln[1])}</div>`:""}${ln.length>1?`<div class="n3"><span>${esc(ln[ln.length-1])}</span></div>`:""}</div><div class="hric"><div class="hic"><button class="tb-btn" data-act="hsearch" aria-label="search">🔎</button>${menu}</div>${b.address?`<div class="hadr">📍 ${esc(b.address)}</div>`:""}${phs.length?phs.map((p,i)=>`<div class="hph">📞 ${esc(p)}${i===0?dot:""}</div>`).join(""):`<div class="hph">${dot}</div>`}</div>`;return}
  const m=MODS.find(x=>x.k===v),t=v==="dash"?L("डैशबोर्ड","Dashboard"):m?L(m.hi,m.en):(b.name||"");
  tb.innerHTML=`<button class="tb-btn" data-act="goback" aria-label="back" style="font-size:24px">←</button><div class="tb-title">${esc(t)}</div>`+menu;
@@ -828,7 +828,7 @@ function paintNav(){
    +nb("stock","📦","सामान सूची","Items list","go",v==="stock");
   document.body.classList.toggle("wa-sub",!(v==="home"||v==="bookings"||v==="invoices"||v==="stock"));
  const bz=biz()||{};
- el("side").innerHTML=`<div class="side-logo"><img src="${esc(bz.logo||DEFAULT_LOGO)}" alt=""><div>हलवाई मैनेजर</div></div>`+MODS.filter(m=>!m.hidden&&(m.core||modOn(m.k))).map(m=>`<button class="${on(m.k)}" data-act="go" data-id="${m.k}"><span>${m.ic}</span>${L(m.hi,m.en)}</button>`).join("");
+ el("side").innerHTML=`<div class="side-logo"><img src="${esc(bz.logo||DEFAULT_LOGO)}" alt=""><div>Event Pro</div></div>`+MODS.filter(m=>!m.hidden&&(m.core||modOn(m.k))).map(m=>`<button class="${on(m.k)}" data-act="go" data-id="${m.k}"><span>${m.ic}</span>${L(m.hi,m.en)}</button>`).join("");
 }
 function themeIsDark(){const t=localStorage.getItem(OLD.theme);return t==="1"||(t===null&&window.matchMedia&&matchMedia("(prefers-color-scheme: dark)").matches)}
 function updateOffBar(){const b=el("offBar");if(!b)return;b.textContent=L("📴 ऑफलाइन — डेटा फोन में सुरक्षित है, इंटरनेट आने पर अपने-आप सिंक होगा।","📴 Offline — data is safe on this phone and will sync automatically when internet returns.");b.classList.toggle("hidden",navigator.onLine!==false)}
@@ -905,7 +905,7 @@ VIEWS.dash=()=>{
  const upc=act.filter(x=>x.status!=="काम पूरा"&&(x.endDate||x.date)>=t).sort((a,c)=>a.date.localeCompare(c.date)).slice(0,5);
  const ct=[b.owner?L("संचालक:","Owner:")+" "+b.owner:"",b.address?"📍 "+b.address:"",bizPh(b)?"📞 "+bizPh(b):"",b.gst?"GST: "+b.gst:""].filter(Boolean).join("\n");
  const pcs=[[b.owner,"👤",L("संचालक","Owner")],...bizPhones(b).map((p,i)=>[p,"📞",L("मोबाइल","Mobile")+(i?" "+(i+1):"")]),[b.address,"📍",L("पता","Address")],[b.gst,"🧾","GSTIN"]].filter(x=>x[0]).map(x=>`<${x[1]==="📞"?`a href="tel:${esc(String(x[0]).replace(/[^\d+]/g,""))}"`:"div"} class="pc"><i>${x[1]}</i><div><small>${x[2]}</small><b>${esc(x[0])}</b></div></${x[1]==="📞"?"a":"div"}>`).join("");
- return `<div class="prof"><div class="prof-cover"></div><div class="prof-head"><div class="prof-logo"><img src="${esc(b.logo||DEFAULT_LOGO)}" alt=""></div><h1>${esc(b.name||"हलवाई मैनेजर")}</h1>${b.name2?`<div style="font-size:16px;font-weight:700;color:#b8860b;margin-top:2px">${esc(b.name2)}</div>`:""}<div class="tag">${esc(b.tagline||"One App – Complete Business Management")}</div></div>${pcs?`<div class="prof-ct">${pcs}</div>`:""}</div>
+ return `<div class="prof"><div class="prof-cover"></div><div class="prof-head"><div class="prof-logo"><img src="${esc(b.logo||DEFAULT_LOGO)}" alt=""></div><h1>${esc(b.name||"Event Pro")}</h1>${b.name2?`<div style="font-size:16px;font-weight:700;color:#b8860b;margin-top:2px">${esc(b.name2)}</div>`:""}<div class="tag">${esc(b.tagline||"One App – Complete Business Management")}</div></div>${pcs?`<div class="prof-ct">${pcs}</div>`:""}</div>
  ${b.auto?`<div class="warnbox" data-act="editbiz" style="cursor:pointer">✏️ ${L("अपना बिजनेस प्रोफाइल पूरा करें (नाम, मोबाइल, पता, लोगो) — यहाँ दबाएँ","Complete your business profile (name, phone, address, logo) — tap here")}</div>`:""}
  <div class="grid g4">
  ${modOn("bookings")?kpi("📋",L("कुल बुकिंग","Total bookings"),act.length,"","bookings")+kpi("📅",L("आज की बुकिंग","Today's bookings"),todayB,"info","bookings")+kpi("⏭️",L("आने वाली बुकिंग","Upcoming"),up,"info","bookings")+kpi("✅",L("पूरे हुए काम","Completed"),done,"ok","bookings"):""}
@@ -1797,7 +1797,7 @@ async function checkNotify(force){
 function downloadBlob(blob,name){const a=document.createElement("a"),url=URL.createObjectURL(blob);a.href=url;a.download=name;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1500)}
 function pdfHeader(b,stamp){
  b=b||biz()||{};
- const qr=qrDataUrl(b),nm=String(b.name||"हलवाई मैनेजर"),fs=nm.length>28?20:nm.length>18?25:31;
+ const qr=qrDataUrl(b),nm=String(b.name||"Event Pro"),fs=nm.length>28?20:nm.length>18?25:31;
  const qrBox=(qr||b.upi)?`<div style="width:132px;flex:none;background:#fff;border:2px solid #f0b429;border-radius:14px;overflow:hidden;text-align:center"><div style="background:#4a2410;color:#fff;font-weight:800;font-size:12.5px;padding:4px 0;white-space:nowrap">UPI QR CODE</div>${qr?`<div style="width:100px;height:100px;margin:6px auto 2px"><img src="${qr}" style="width:100%;height:100%;object-fit:contain;display:block"></div>`:""}${b.upi?`<div style="font-size:10.5px;font-weight:800;color:#222;padding:2px 5px 6px;line-height:1.3;overflow-wrap:anywhere">UPI ID:<br>${esc(b.upi)}</div>`:`<div style="height:6px"></div>`}</div>`:"";
  const items=[b.owner?"👤 "+b.owner:"",bizPh(b)?"📞 "+bizPh(b):"",b.address?"📍 "+b.address:"",b.gst?"🧾 GSTIN: "+b.gst:""].filter(Boolean);
  const strip=(items.length||stamp)?`<div style="display:flex;flex-wrap:wrap;justify-content:center;gap:4px 16px;font-size:13px;font-weight:600;color:#5a2d0c;padding:12px 6px 2px">${items.map(x=>`<span>${esc(x)}</span>`).join("")}${stamp?`<span style="color:#7a6a5a">🗓️ ${esc(stamp)}</span>`:""}</div>`:"";
@@ -2155,7 +2155,7 @@ VIEWS.settings=()=>{
  <button class="btn" type="submit">${L("सेव करें","Save")}</button></form><div class="small muted">${L("UPI / बैंक विवरण 'Business Profile' → 'बिल की जानकारी' में भरें।","Fill UPI / bank details in Business Profile → Bill info.")}</div></div></details>`+
  setS("🗂️ Data Management")+`<div><button class="btn ghost" data-act="go" data-id="trash">🗑️ ${L("रीसायकल बिन","Recycle bin")} (${trashItems().length})</button><button class="btn sec" data-act="csvall">📊 ${L("बुकिंग Excel (CSV)","Bookings Excel (CSV)")}</button><button class="btn sec" data-act="go" data-id="reports">📊 ${L("रिपोर्ट","Reports")}</button>
  <div class="small muted" style="margin-top:6px">${L("डिलीट की गई चीज़ें पहले रीसायकल बिन में जाती हैं — गलती से डिलीट होने पर वापस ला सकते हैं।","Deleted things go to the Recycle bin first — you can restore them.")}</div></div></details>`+
- setS("ℹ️ App Information")+`<div><div class="kv"><span>${L("ऐप","App")}</span><b>हलवाई मैनेजर</b></div><div class="kv"><span>${L("वर्शन","Version")}</span><b>${APP_VERSION}</b></div><div class="kv"><span>${L("टैगलाइन","Tagline")}</span><b>हर कार्यक्रम का पूरा हिसाब — एक ऐप में</b></div>
+ setS("ℹ️ App Information")+`<div><div class="kv"><span>${L("ऐप","App")}</span><b>Event Pro</b></div><div class="kv"><span>${L("वर्शन","Version")}</span><b>${APP_VERSION}</b></div><div class="kv"><span>${L("टैगलाइन","Tagline")}</span><b>हर कार्यक्रम का पूरा हिसाब — एक ऐप में</b></div>
  <button class="btn" data-act="install">📲 ${L("मोबाइल में Install करें","Install on phone")}</button><button class="btn sec" data-act="shareapp">📤 ${L("ऐप शेयर करें","Share app")}</button><button class="btn orange" data-act="chkupdate">🔄 ${L("अपडेट जाँचें","Check for update")}</button><button class="btn ghost" data-act="clearcache">🧹 ${L("ऐप कैश साफ करें (डेटा नहीं मिटता)","Clear app cache (data is kept)")}</button></div></details>`;
 };
 FORMS.user=f=>{const d=fd(f);localStorage.setItem(USER_KEY,JSON.stringify({name:d.name,phone:d.phone}));toast(L("सेव हो गया।","Saved."),"ok");return false};
@@ -2168,7 +2168,7 @@ ACT.setlang=t=>{LANG=t.dataset.id;localStorage.setItem(OLD.lang,LANG);document.d
 CHG.remdays=t=>{PREF.remDays=+t.value;savePref();DBV++;refresh()};
 ACT.shareapp=()=>{
  const url=location.href.split("#")[0];
- if(navigator.share)navigator.share({title:"हलवाई मैनेजर",text:"हलवाई मैनेजर",url}).catch(()=>{});
+ if(navigator.share)navigator.share({title:"Event Pro",text:"Event Pro",url}).catch(()=>{});
  else if(navigator.clipboard&&navigator.clipboard.writeText)navigator.clipboard.writeText(url).then(()=>toast(L("ऐप का लिंक कॉपी हो गया।","App link copied."),"ok"));
  else prompt(L("ऐप लिंक कॉपी करें:","Copy app link:"),url);
 };
