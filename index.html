@@ -189,6 +189,13 @@ body.dark #bnav button.on span{background:#5a2a24}
 @media(max-width:899px){body.wa-sub{padding-bottom:24px}body.wa-sub #bnav{display:none}}
 .li[data-av]::before{content:attr(data-av);display:flex;align-items:center;justify-content:center;font-size:23px;font-weight:800;color:var(--p);background-image:none}
 .li.done[data-av]::before{color:#fff}
+.li .top{flex-wrap:nowrap;align-items:center}
+.li .top strong{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.li .when{font-size:12px;color:var(--muted);white-space:nowrap}
+.li .sub{display:flex;align-items:center;gap:8px;margin-top:3px;font-size:14px;color:var(--muted)}
+.li .subt{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.li .due{background:var(--p);color:#fff;border-radius:12px;padding:1px 9px;font-size:12px;font-weight:700;white-space:nowrap}
+.li .paid{color:var(--ok);font-weight:800;font-size:13px;white-space:nowrap}
 </style>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Devanagari:wght@400;600;700;800;900&display=swap" rel="stylesheet">
@@ -728,7 +735,7 @@ function paintNav(){
  const shown=["home",slot2,slot4].filter(Boolean);
  const tabs=["home","customers","payments","ledger"].filter(k=>k==="home"||modOn(k));
  const tm=k=>{const m=MODS.find(x=>x.k===k),h=k==="home";return `<button class="${(h?(v==="home"||v==="bookings"):v===k)?"on":""}" data-act="go" data-id="${k}"><span>${h?"📋":m.ic}</span>${h?L("बुकिंग","Bookings"):L(m.hi,m.en)}</button>`};
- el("bnav").innerHTML=tabs.map(tm).join("")+`<button class="fab" data-act="quick" aria-label="add"><span>＋</span></button>`;
+ el("bnav").innerHTML=tabs.map(tm).join("")+`<button class="fab" data-act="${({home:"newbooking",customers:"newcust",payments:"addpay"})[v]||"quick"}" aria-label="add"><span>＋</span></button>`;
  document.body.classList.toggle("wa-sub",!tabs.includes(v));
  const bz=biz()||{};
  el("side").innerHTML=`<div class="side-logo"><img src="${esc(bz.logo||DEFAULT_LOGO)}" alt=""><div>हलवाई मैनेजर</div></div>`+MODS.filter(m=>!m.hidden&&(m.core||modOn(m.k))).map(m=>`<button class="${on(m.k)}" data-act="go" data-id="${m.k}"><span>${m.ic}</span>${L(m.hi,m.en)}</button>`).join("");
@@ -758,9 +765,9 @@ ACT.menu=()=>{
  const n=remCount(),it=(act,ic,t,id,badge)=>`<button data-act="${act}"${id?` data-id="${id}"`:""}><span>${ic}</span>${t}${badge?`<b>${badge}</b>`:""}</button>`;
  const mods=MODS.filter(m=>!m.hidden&&m.k!=="home"&&m.k!=="settings"&&m.k!=="trash"&&(m.core||modOn(m.k)));
  const html=it("mprof","👤",L("प्रोफाइल","Profile"))+it("mgo","⚙️",L("सेटिंग्स","Settings"),"settings")+mods.map(m=>it("mgo",m.ic,L(m.hi,m.en),m.k,m.k==="reminders"&&n?n:0)).join("")+it("mgo","📊",L("डैशबोर्ड","Dashboard"),"dash")+it("mgo","🗑️",L("रीसायकल बिन","Recycle bin"),"trash")+it("mbiz","🔁",L("व्यवसाय बदलें","Switch business"))+it("mlang","🌐",LANG==="en"?"हिंदी":"English");
- const o=document.createElement("div");o.id="waov";o.className="wa-ov";o.setAttribute("data-act","mclose");o.innerHTML=`<div class="wa-menu">${html}</div>`;document.body.appendChild(o);
+ const o=document.createElement("div");o.id="waov";o.className="wa-ov";o.setAttribute("data-act","wamclose");o.innerHTML=`<div class="wa-menu">${html}</div>`;document.body.appendChild(o);
 };
-ACT.mclose=closeWaMenu;
+ACT.wamclose=closeWaMenu;
 ACT.mgo=t=>{closeWaMenu();closeAllModals();go(t.dataset.id)};
 ACT.mprof=()=>{closeWaMenu();ACT.editbiz()};
 ACT.mbiz=()=>{closeWaMenu();ACT.bizswitch()};
@@ -845,11 +852,10 @@ function filterBookings(){
  });
 }
 function bookingCard(b){
+ const bal=balance(b);
  return `<div class="li ${b.status==="काम पूरा"?"done":b.status==="रद्द"?"cancel":""}" data-act="details" data-id="${esc(b.id)}" data-av="${esc(avL(b.name))}">
- <div class="top"><strong>${esc(b.name||L("बिना नाम","No name"))}</strong><span class="small muted">📅 ${esc(dateRangeText(b))}</span></div>
- <div class="small muted">#${esc(bno(b))} • ${esc(catL(b.category))}${b.address?" • 📍 "+esc(b.address):""}</div>
- <div class="meta"><span class="pill ${stCls(b.status)}">${esc(stLabel(b.status))}</span>${payPill(b)}<span class="small"><b>${money(b.amount)}</b> • ${L("बाकी","Due")} <b>${money(balance(b))}</b></span></div>
- <div class="acts"><button class="btn sm sec" data-act="editbk" data-id="${esc(b.id)}">✏️ ${L("एडिट","Edit")}</button><button class="btn sm" data-act="addpay" data-id="${esc(b.id)}">💳 ${L("भुगतान","Pay")}</button><button class="btn sm wa" data-act="wabk" data-id="${esc(b.id)}">WhatsApp</button><button class="btn sm danger" data-act="delbk" data-id="${esc(b.id)}">🗑️</button></div></div>`;
+ <div class="top"><strong>${esc(b.name||L("बिना नाम","No name"))}</strong><span class="when">${esc(dateRangeText(b))}</span></div>
+ <div class="sub"><span class="subt">${esc(catL(b.category))}${num(b.guests)?" • "+esc(b.guests)+" "+L("प्लेट","plates"):""} • ${esc(stLabel(b.status))}</span>${b.status==="रद्द"?"":bal>0?`<span class="due">${L("बाकी","Due")} ${money(bal)}</span>`:`<span class="paid">✔ ${L("पूरा","Paid")}</span>`}</div></div>`;
 }
 function bookingListHtml(){
  const t=new Date();t.setHours(0,0,0,0);const tk=todayStr(),list=filterBookings();
