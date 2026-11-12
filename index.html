@@ -140,6 +140,7 @@ table.tb{width:100%;border-collapse:collapse;font-size:14px}table.tb th{backgrou
 .wr1 input,.wr2 input{padding:9px 7px;font-size:15px}.wr2 small{display:block;font-size:12px;color:var(--muted);font-weight:700}.wtot b{display:block;padding:9px 0;color:var(--p)}
 .irow{display:flex;justify-content:space-between;align-items:center;gap:7px;background:var(--soft);border:1px solid var(--line);padding:8px;margin:6px 0;border-radius:10px}
 .serial{display:inline-block;min-width:28px;text-align:center;background:var(--p);color:#fff;border-radius:6px;padding:1px 6px;font-size:13px;margin-right:6px}
+.pkcol{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;flex:none}.pkcol .serial{margin-right:0}.pkcol input[type=checkbox]{margin:0}
 .qty{width:130px!important;padding:6px 9px!important;font-size:14px!important;margin-top:4px}
 /* settings */
 details.sec{background:var(--card);border:1px solid var(--line);border-radius:var(--r);margin-bottom:10px;box-shadow:var(--sh)}
@@ -1463,7 +1464,7 @@ function renderPack(){
  if(!el("packList"))return;
  const ae=document.activeElement,fid=ae&&ae.dataset?ae.dataset.pq:undefined,fpos=fid?ae.selectionStart:null;
  const vis=packVisible(),all=packItems().length;packInfo();
- el("packList").innerHTML=vis.length?vis.map(({it,i})=>`<div class="irow"><div style="display:flex;align-items:center;gap:8px;min-width:0"><input type="checkbox" ${it.selected!==false?"checked":""} data-ch="packchk" data-id="${esc(it.id)}"><div><b><span class="serial">${i+1}</span>${esc(it.name)}</b><br><input class="qty" data-in="pqty" data-pq="${esc(it.id)}" value="${esc(it.qty||"")}" placeholder="${esc(L("मात्रा","Quantity"))}"></div></div><div style="white-space:nowrap"><button class="btn sm sec" data-act="packedit" data-id="${esc(it.id)}">✏️</button><button class="btn sm orange" data-act="packclr" data-id="${esc(it.id)}">${L("✖ क्लियर","✖ Clear")}</button></div></div>`).join(""):`<p class="small muted">${all?L("कोई सामान नहीं मिला।","No items match."):L("कोई सामान नहीं है।","No items.")}</p>`;
+ el("packList").innerHTML=vis.length?vis.map(({it,i})=>`<div class="irow"><div style="display:flex;align-items:center;gap:8px;min-width:0"><div class="pkcol"><span class="serial">${i+1}</span><input type="checkbox" ${it.selected!==false?"checked":""} data-ch="packchk" data-id="${esc(it.id)}"></div><div><b>${esc(it.name)}</b><br><input class="qty" data-in="pqty" data-pq="${esc(it.id)}" value="${esc(it.qty||"")}" placeholder="${esc(L("मात्रा","Quantity"))}"></div></div><div style="white-space:nowrap"><button class="btn sm sec" data-act="packedit" data-id="${esc(it.id)}">✏️</button><button class="btn sm orange" data-act="packclr" data-id="${esc(it.id)}">${L("✖ क्लियर","✖ Clear")}</button></div></div>`).join(""):`<p class="small muted">${all?L("कोई सामान नहीं मिला।","No items match."):L("कोई सामान नहीं है।","No items.")}</p>`;
  if(fid){const n=el("packList").querySelector('[data-pq="'+(window.CSS&&CSS.escape?CSS.escape(fid):fid)+'"]');if(n){n.focus();try{n.setSelectionRange(fpos,fpos)}catch(e){}}}
 }
 INP.pksearch=()=>renderPack();
