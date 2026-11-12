@@ -902,7 +902,7 @@ INP.bq=t=>{S.bf.q=t.value;el("blist").innerHTML=bookingListHtml();el("bsum").tex
 ACT.bper=t=>{S.bf.per=t.dataset.id;refresh()};ACT.bst=t=>{S.bf.st=t.dataset.id;refresh()};
 INP.bdate=t=>{S.bf[t.dataset.k]=t.value;el("blist").innerHTML=bookingListHtml();el("bsum").textContent=bkSummary(filterBookings().filter(b=>b.status!=="रद्द"))};
 
-let formWorkers=[];
+let formWorkers=[],formTasks=[];
 function otherBoxHtml(){
  const l=otherAll();
  return `<div class="small muted" style="margin:2px 0 6px">${L("अपना काम चुनें:","Choose your work:")}</div><div class="owgrid">`+l.map((c,i)=>`<button type="button" class="chip${c===curOther?" on":""}" data-act="otherpick" data-id="${i}">${esc(catL(c))}</button>`).join("")+`<button type="button" class="chip" style="border-style:dashed" data-act="othernew">➕ ${L("काम जोड़ें","Add work")}</button></div><div id="owNew" class="hidden" style="display:flex;gap:6px;margin:8px 0"><input id="owNewIn" placeholder="${esc(L("अपना काम लिखें","Write your work"))}"><button type="button" class="btn" style="margin:0;white-space:nowrap" data-act="otheradd">${L("जोड़ें","Add")}</button></div>`;
@@ -918,7 +918,7 @@ function openBookingForm(id,pre){
  const b=id?getR("bookings",id):null;pre=pre||{};
  const bz=biz(),cats=(bz.categories&&bz.categories.length?bz.categories:OLD_CATS).slice();
  if(b&&b.category&&!cats.includes(b.category))cats.push(b.category);
- formWorkers=b?(b.workers||[]).map(normW):[];
+ formWorkers=b?(b.workers||[]).map(normW):[];formTasks=b?(b.dayTasks||[]).map(x=>({date:x.date||"",task:x.task||""})):[];
  const ap=b?getR("payments","adv_"+b.id):null;
  const v=b||{name:pre.name||"",phone:pre.phone||"",address:pre.address||"",customerId:pre.customerId||"",category:MAIN_WORKS[0][0],date:todayStr(),endDate:todayStr(),time:"",amount:"",status:"पक्की",notes:"",payDue:""};
  curMain=MAIN_WORKS.slice(0,3).some(x=>x[0]===v.category)?v.category:"अन्य काम";curOther=(curMain==="अन्य काम"&&v.category!=="अन्य काम")?v.category:"";
@@ -931,14 +931,16 @@ function openBookingForm(id,pre){
  <div id="otherBox" class="${curMain==="अन्य काम"?"":"hidden"}">${otherBoxHtml()}</div>
  ${fld(L("स्थान / कार्यक्रम का पता","Location / event address"),inp("address",v.address,`placeholder="${L("पता / गांव","Address / Village")}"`))}
  <div class="r2">${fld(L("काम आरंभ की तिथि *","Work start date *"),inp("date",v.date,`type="date" required data-in="bkdate"`))}${fld(L("काम समाप्ति की तिथि *","Work end date *"),inp("endDate",v.endDate||v.date,`type="date" required data-in="bkdate"`))}</div>
+ <div class="sect"><label style="display:block;margin-top:10px;font-weight:700;color:var(--muted);font-size:13.5px">🗓️ ${L("रोज़ के काम (तारीख के अनुसार)","Daily tasks (date-wise)")}</label><div id="tkList"></div><button type="button" class="btn sec" style="width:100%;margin-top:6px" data-act="taskadd">➕ ${L("काम ऐड करें...","Add task...")}</button></div>
  ${fld(L("समय","Time"),inp("time",v.time,`type="time"`))}
  <div class="calc hidden" id="bkDays"></div>
  <div class="r2">${fld(L("मेहमान / प्लेट","Guests / plates"),inp("guests",v.guests||"",`type="number" inputmode="numeric" min="0" data-in="plate" placeholder="${L("जैसे: 300","e.g. 300")}"`))}${fld(L("रेट प्रति प्लेट ₹","Rate per plate ₹"),inp("rate",v.rate||"",`type="number" inputmode="decimal" min="0" step="any" data-in="plate" placeholder="${L("जैसे: 250","e.g. 250")}"`))}</div>
  ${fld(L("मेन्यू (बनने वाले पकवान)","Menu (dishes to cook)"),`<textarea name="menu" rows="3" placeholder="${L("जैसे: पूरी, सब्जी, दाल, चावल, रायता, गुलाब जामुन","e.g. Puri, sabzi, dal, rice, raita, gulab jamun")}">${esc(v.menu||"")}</textarea>`)}
-  <div class="r2">${fld(L("कुल रकम ₹ *","Total amount ₹ *"),inp("amount",v.amount,`type="number" inputmode="decimal" min="0" step="any" required placeholder="0" data-in="bkcalc"`))}${fld(L("एडवांस ₹","Advance ₹"),inp("advance",advV||0,`type="number" inputmode="decimal" min="0" step="any" data-in="bkcalc"`))}</div>
- <div class="r2">${fld(L("एडवांस का माध्यम","Advance method"),sel("advMethod",PM.map(m=>[m[0],pmL(m[0])]),ap?ap.method:"कैश"))}${fld(L("भुगतान की अंतिम तारीख","Payment due date"),inp("payDue",v.payDue||"",`type="date"`))}</div>
  <div class="sect"><label style="display:block;margin-top:10px;font-weight:700;color:var(--muted);font-size:13.5px">👷 ${L("आदमियों / कारीगरों का भुगतान ₹","Workers' payment ₹")}</label>
  <input id="wField" readonly data-act="openworkers" style="cursor:pointer;font-weight:700" placeholder="${L("कारीगर जोड़ने के लिए दबाएँ","Tap to add workers")}"><div class="small pre muted" id="wSum" style="margin-top:6px"></div></div>
+ <div class="small muted" style="margin:0 0 8px">${L("💡 कारीगर / स्वयं का भुगतान जोड़ते ही उसका कुल योग 'कुल रकम' में अपने-आप आ जाता है (चाहें तो बदल सकते हैं)।","💡 The total of workers / own payment is filled into 'Total amount' automatically (you can still edit it).")}</div>
+  <div class="r2">${fld(L("कुल रकम ₹ *","Total amount ₹ *"),inp("amount",v.amount,`type="number" inputmode="decimal" min="0" step="any" required placeholder="0" data-in="amtmanual"`))}${fld(L("एडवांस ₹","Advance ₹"),inp("advance",advV||0,`type="number" inputmode="decimal" min="0" step="any" data-in="bkcalc"`))}</div>
+ <div class="r2">${fld(L("एडवांस का माध्यम","Advance method"),sel("advMethod",PM.map(m=>[m[0],pmL(m[0])]),ap?ap.method:"कैश"))}${fld(L("भुगतान की अंतिम तारीख","Payment due date"),inp("payDue",v.payDue||"",`type="date"`))}</div>
  <div class="calc" id="bkSum"></div>
  ${fld(L("काम की स्थिति","Work status"),sel("status",ST.map(s=>[s[0],stLabel(s[0])]),v.status))}
  <div class="small muted">${L("ℹ️ काम की तारीख बीतने पर भी बुकिंग अपने-आप पूरी नहीं होती — काम पूरा होने पर आप खुद स्टेटस बदलें।","ℹ️ A booking is never completed automatically — you confirm it yourself.")}</div>
@@ -946,7 +948,7 @@ function openBookingForm(id,pre){
  <button type="submit" class="btn">${b?L("बदलाव सेव करें","Save changes"):L("बुकिंग सेव करें","Save booking")}</button><button type="button" class="btn sec" data-act="mclose">${L("रद्द करें","Cancel")}</button>
  <button type="button" class="btn wa block" data-act="bkpdfform" style="margin-top:12px;padding:13px">📤 ${L("WhatsApp शेयर (PDF)","Share on WhatsApp (PDF)")}</button></form>`;
  openModal(b?L("✏️ बुकिंग एडिट","✏️ Edit booking"):L("➕ नई बुकिंग","➕ New booking"),body,{sticky:true});
- updateWorkersSummary();updateBookingDays();
+ updateWorkersSummary();updateBookingDays();renderTasks();
 }
 function bkf(n){const f=el("bkForm");return f?f.elements[n]:null}
 function updateBookingDays(){
@@ -958,8 +960,42 @@ function updateFormSummary(){
  const a=num(f.elements.amount.value),adv=num(f.elements.advance.value),w=expSum(formWorkers),ow=ownerSum(formWorkers);
  el("bkSum").textContent="💰 "+L("पूरा हिसाब","Full summary")+"\n"+L("कुल रकम:","Total amount:")+" "+money(a)+"  |  "+L("एडवांस:","Advance:")+" "+money(adv)+"  |  "+L("बाकी रकम:","Balance due:")+" "+money(a-adv)+"\n👷 "+L("कारीगर / खर्चा","Workers / expenses")+": "+money(w)+(ow>0?"  |  "+L("स्वयं की कमाई","Owner earning")+": "+money(ow):"")+"  |  "+L("कुल बचत","Net savings")+": "+money(a-w);
 }
+
+/* ---------- रोज़ के काम (तारीख के अनुसार) ---------- */
+function cleanTasks(){return formTasks.filter(x=>String(x.task||"").trim()).map(x=>({date:x.date||"",task:String(x.task).trim()}))}
+function renderTasks(){
+ const box=el("tkList");if(!box)return;
+ box.innerHTML=formTasks.length?formTasks.map((x,i)=>`<div class="wcard" style="margin:6px 0"><div style="display:flex;gap:6px;align-items:center"><span style="min-width:28px;height:28px;border-radius:50%;background:var(--p);color:#fff;display:inline-flex;align-items:center;justify-content:center;font-weight:800;font-size:14px">${i+1}</span><input type="date" value="${esc(x.date)}" data-in="tk" data-k="date" data-i="${i}" style="flex:1;min-width:0"><button type="button" class="btn danger" style="margin:0" data-act="taskdel" data-id="${i}">🗑️</button></div><input value="${esc(x.task)}" data-in="tk" data-k="task" data-i="${i}" placeholder="${esc(L("इस तारीख को यह काम करना है","Work to do on this date"))}" style="margin-top:6px"></div>`).join(""):`<p class="small muted" style="margin:6px 0">${L("हर तारीख का अलग काम यहाँ जोड़ें।","Add a different task for each date here.")}</p>`;
+}
+INP.tk=t=>{const x=formTasks[+t.dataset.i];if(x)x[t.dataset.k]=t.value};
+ACT.taskdel=t=>{formTasks.splice(+t.dataset.id,1);renderTasks()};
+ACT.taskadd=()=>{
+ const a=bkf("date"),e=bkf("endDate");let d=a?a.value:"";
+ if(formTasks.length){const last=formTasks[formTasks.length-1].date;if(last){const n=addDays(last,1);d=(e&&e.value&&n>e.value)?last:n}}
+ formTasks.push({date:d||"",task:""});renderTasks();
+ const ins=document.querySelectorAll('#tkList input[data-k="task"]');if(ins.length)ins[ins.length-1].focus();
+};
+function tasksCardHtml(l){
+ const t=l.slice().sort((a,b)=>String(a.date).localeCompare(String(b.date)));
+ return `<div class="card" style="margin-top:10px"><div class="b">🗓️ ${L("रोज़ के काम","Daily tasks")}</div><div class="small">${t.map((x,i)=>(i+1)+". <b>"+esc(fmtDate(x.date))+"</b> — "+esc(x.task)).join("<br>")}</div></div>`;
+}
+function tasksPdfHtml(l){
+ l=(l||[]).filter(x=>x&&String(x.task||"").trim());if(!l.length)return "";
+ l=l.slice().sort((a,b)=>String(a.date).localeCompare(String(b.date)));
+ const td="border:1.5px solid #f0b429;padding:8px 9px";
+ return pdfSecOpen("🗓️ "+L("रोज़ के काम (तारीख के अनुसार)","Daily tasks (date-wise)"))+`<table style="width:calc(100% + 3px);margin:-1.5px;border-collapse:collapse;font-size:14.5px"><thead><tr><th style="${td};background:#8f0000;color:#fff;width:11%">${L("क्र.","No.")}</th><th style="${td};background:#8f0000;color:#fff;width:27%">${L("तारीख","Date")}</th><th style="${td};background:#8f0000;color:#fff">${L("काम","Task")}</th></tr></thead><tbody>${l.map((x,i)=>`<tr style="background:${i%2?"#fffaea":"#fff"}"><td style="${td};text-align:center;font-weight:800;color:#8f0000">${i+1}</td><td style="${td};font-weight:700">${esc(fmtDate(x.date))}</td><td style="${td}">${esc(x.task)}</td></tr>`).join("")}</tbody></table>`+pdfSecClose();
+}
 INP.bkcalc=()=>updateFormSummary();
-INP.plate=()=>{const f=el("bkForm");if(!f)return;const g=num(f.elements.guests.value),r=num(f.elements.rate.value);if(g>0&&r>0){f.elements.amount.value=Math.round(g*r*100)/100;updateFormSummary()}};
+INP.amtmanual=t=>{t.dataset.auto="";updateFormSummary()};
+// कुल रकम = (मेहमान × रेट) + कारीगर / स्वयं के भुगतान का कुल योग
+function autoAmount(){
+ const f=el("bkForm");if(!f)return;
+ const g=num(f.elements.guests.value),r=num(f.elements.rate.value),plate=(g>0&&r>0)?g*r:0,ws=workersSum(formWorkers),tot=Math.round((plate+ws)*100)/100,am=f.elements.amount;
+ if(tot>0){am.value=tot;am.dataset.auto="1"}
+ else if(am.dataset.auto==="1"){am.value="";am.dataset.auto=""}
+ updateFormSummary();
+}
+INP.plate=()=>autoAmount();
 INP.bkdate=t=>{
  const f=el("bkForm"),sd=f.elements.date,ed=f.elements.endDate;
  if(t.name==="date"&&sd.value&&(!ed.value||parseYMD(ed.value)<parseYMD(sd.value)))ed.value=sd.value;
@@ -990,7 +1026,7 @@ FORMS.booking=f=>{
  const sd=d.date,ed=d.endDate||sd;
  if(parseYMD(ed)<parseYMD(sd)){toast(L("समाप्ति की तिथि आरंभ की तिथि से पहले नहीं हो सकती।","End date cannot be before the start date."),"err");return false}
  const id=d.id||uid(),old=d.id?getR("bookings",d.id):null,cid=ensureCustomer(d.name,d.phone,d.address);
- const bk=Object.assign({},old||{},{id,no:old&&old.no?old.no:nextNo("bookings","B-"),customerId:cid,name:d.name,phone:d.phone,category:d.category,date:sd,endDate:ed,time:d.time||"",address:d.address,amount,advance,status:d.status,notes:d.notes,payDue:d.payDue||"",guests:num(d.guests),rate:num(d.rate),menu:d.menu||"",workers:formWorkers.map(normW).map(w=>({cat:w.cat,name:w.name,rate:w.rate,days:w.days,amount:wTotal(w)})),createdAt:old?old.createdAt:nowISO()});
+ const bk=Object.assign({},old||{},{id,no:old&&old.no?old.no:nextNo("bookings","B-"),customerId:cid,name:d.name,phone:d.phone,category:d.category,date:sd,endDate:ed,time:d.time||"",address:d.address,amount,advance,status:d.status,notes:d.notes,payDue:d.payDue||"",guests:num(d.guests),rate:num(d.rate),menu:d.menu||"",dayTasks:cleanTasks(),workers:formWorkers.map(normW).map(w=>({cat:w.cat,name:w.name,rate:w.rate,days:w.days,amount:wTotal(w)})),createdAt:old?old.createdAt:nowISO()});
  put("bookings",bk);
  const ap=getR("payments","adv_"+id);
  if(advance>0){const rec=Object.assign({id:"adv_"+id,date:todayStr(),type:"advance",note:""},ap||{},{bookingId:id,customerId:cid,amount:advance,method:d.advMethod||"कैश"});delete rec.del;delete rec.delAt;put("payments",rec)}
@@ -1013,7 +1049,8 @@ function showBooking(id){
  ${b.payDue?`<div class="kv"><span>${L("भुगतान की अंतिम तारीख","Payment due date")}</span><b>${esc(fmtDate(b.payDue))}</b></div>`:""}</div>
  <div class="calc">💰 ${L("पूरा हिसाब","Full summary")}\n${L("कुल रकम:","Total amount:")} ${money(amt)}\n${L("प्राप्त भुगतान:","Paid:")} ${money(pd)}\n${L("बाकी रकम:","Balance due:")} ${money(Math.max(0,amt-pd))}${ws.length?`\n👷 ${L("कारीगर / खर्चा","Workers / expenses")}: ${money(wsum)}${osum>0?"\n"+L("स्वयं की कमाई:","Owner earning:")+" "+money(osum):""}\n${L("कुल बचत","Net savings")}: ${money(amt-wsum)}`:""}</div>
  ${ws.length?`<div class="card" style="margin-top:10px"><div class="b">👷 ${L("कारीगर भुगतान:","Worker payments:")}</div><div class="small">${ws.map(w=>"• "+esc(wLabel(w))+" — "+money(w.rate)+" × "+w.days+" "+L("दिन","days")+" = <b>"+money(wTotal(w))+"</b>").join("<br>")}</div></div>`:""}
- <div class="card" style="margin-top:10px"><div class="b" style="display:flex;justify-content:space-between;align-items:center">💳 ${L("भुगतान का इतिहास","Payment history")}<button class="btn sm" data-act="addpay" data-id="${esc(b.id)}" style="margin:0">➕ ${L("भुगतान","Payment")}</button></div>
+ ${(b.dayTasks&&b.dayTasks.length)?tasksCardHtml(b.dayTasks):""}
+<div class="card" style="margin-top:10px"><div class="b" style="display:flex;justify-content:space-between;align-items:center">💳 ${L("भुगतान का इतिहास","Payment history")}<button class="btn sm" data-act="addpay" data-id="${esc(b.id)}" style="margin:0">➕ ${L("भुगतान","Payment")}</button></div>
  ${pays.length?pays.map(p=>`<div class="kv"><span>${esc(fmtDate(p.date))} • ${esc(ptL(p.type))} • ${esc(pmL(p.method))}${p.note?"<br><small>"+esc(p.note)+"</small>":""}</span><span><b>${money(p.amount)}</b> <button class="btn sm ghost" data-act="editpay" data-id="${esc(p.id)}" style="margin:0">✏️</button></span></div>`).join(""):`<div class="small muted">${L("अभी कोई भुगतान दर्ज नहीं।","No payment recorded yet.")}</div>`}</div>
  <p><b>${L("नोट:","Note:")}</b> ${esc(b.notes||"-")}</p>
  <div class="fld"><label>${L("काम की स्थिति बदलें","Change work status")}</label><div class="chips" style="flex-wrap:wrap">${ST.map(s=>`<button type="button" class="chip ${b.status===s[0]?"on":""}" data-act="setstatus" data-id="${esc(b.id)}" data-st="${esc(s[0])}">${esc(stLabel(s[0]))}</button>`).join("")}</div></div>
@@ -1098,7 +1135,7 @@ ACT.wquick=()=>{const bx=el("wQuick"),l=parseWorkers(bx.value);if(!l.length)retu
 ACT.wapply=t=>{
  formWorkers=workersDraft.map(normW).filter(w=>w.cat.trim()||w.name.trim()||w.rate).map(w=>({cat:w.cat.trim()||L("कारीगर","Worker"),name:w.name.trim(),rate:w.rate,days:w.days}));
  formWorkers.forEach(w=>{if(w.rate)workerRates[w.cat]=w.rate;if(!workerCats.includes(w.cat)&&!DEFAULT_CATS.includes(w.cat))workerCats.push(w.cat)});
- saveWorkerPrefs();closeModal(t.closest(".modal"));updateWorkersSummary();
+ saveWorkerPrefs();closeModal(t.closest(".modal"));updateWorkersSummary();autoAmount();
 };
 function updateWorkersSummary(){
  const f=el("wField"),s=el("wSum");if(!f)return;
@@ -1789,13 +1826,20 @@ function bookingPdfHtml(d){
  const b=biz(),T="border:1.5px solid #f0b429;padding:10px 12px";
  const row=(k,v,i,st)=>`<tr><td style="${T};width:38%;font-weight:800;color:#8f0000;background:#fdf0c9">${k}</td><td style="${T};background:${i%2?"#fffaea":"#fff"};${st||""}">${v}</td></tr>`;
  const tb=r=>`<table style="width:calc(100% + 3px);margin:-1.5px;border-collapse:collapse;font-size:15px">${r}</table>`;
- const py=d.id?rows("payments").filter(x=>x.bookingId===d.id).sort((x,y)=>String(x.date).localeCompare(String(y.date))):[];
+ const py=(d.id&&!d.fromForm)?rows("payments").filter(x=>x.bookingId===d.id).sort((x,y)=>String(x.date).localeCompare(String(y.date))):[];
  const det=[[L("बुकिंग नंबर","Booking no"),esc(d.no||"-")],[L("काम / सर्विस","Work / Service"),esc(catL(d.category))],[L("आरंभ तिथि","Start date"),esc(fmtDate(d.sd))+(d.time?" • "+esc(fmtTime(d.time)):"")],[L("समाप्ति तिथि","End date"),esc(fmtDate(d.ed))],[L("कुल दिन","Total days"),String(d.days||"-")]];
  if(d.guests)det.push([L("मेहमान / प्लेट","Guests / plates"),String(d.guests)+(d.rate?" × "+money(d.rate):"")]);
  if(d.menu)det.push([L("मेन्यू","Menu"),esc(d.menu).replace(/\n/g,"<br>")]);
  if(d.notes)det.push([L("नोट","Note"),esc(d.notes)]);
+ const ws=(d.workers||[]).map(normW).filter(w=>w.cat||w.name||w.rate),wsAll=workersSum(ws),wsOwn=ownerSum(ws);
+ const wTd="border:1.5px solid #f0b429;padding:8px 9px";
+ const wRows=ws.map((w,i)=>`<tr style="background:${i%2?"#fffaea":"#fff"}"><td style="${wTd};font-weight:700">${esc(wLabel(w))}</td><td style="${wTd};text-align:right">${money(w.rate)}</td><td style="${wTd};text-align:center">${esc(String(w.days))}</td><td style="${wTd};text-align:right;font-weight:800">${money(wTotal(w))}</td></tr>`).join("");
+ const wHead=[["कैटेगरी / नाम","Category / Name"],["₹ प्रतिदिन","₹ per day"],["दिन","Days"],["कुल","Total"]].map(a=>`<th style="${wTd};background:#8f0000;color:#fff;font-size:13.5px">${L(a[0],a[1])}</th>`).join("");
+ const wTot=(k,v,st)=>`<tr style="background:#fdf0c9"><td colspan="3" style="${wTd};text-align:right;font-weight:800;color:#8f0000;${st||""}">${k}</td><td style="${wTd};text-align:right;font-weight:800;${st||""}">${v}</td></tr>`;
+ const wsHtml=ws.length?pdfSecOpen("👷 "+L("आदमी / कारीगरों का भुगतान","Workers / labour payment"))+`<table style="width:calc(100% + 3px);margin:-1.5px;border-collapse:collapse;font-size:14.5px"><thead><tr>${wHead}</tr></thead><tbody>${wRows}${wsOwn>0?wTot(L("स्वयं (ऑनर) का भुगतान","Own (owner) payment"),money(wsOwn)):""}${wsAll-wsOwn>0?wTot(L("कारीगरों / खर्चे का भुगतान","Workers / expenses payment"),money(wsAll-wsOwn)):""}${wTot(L("कुल भुगतान","Total payment"),money(wsAll),"font-size:16px")}</tbody></table>`+pdfSecClose():"";
  const pay=[[L("कुल रकम","Total amount"),money(d.amt)]];
  if(py.length)py.forEach(q=>pay.push([esc(fmtDate(q.date))+" • "+esc(ptL(q.type))+(q.method?" • "+esc(pmL(q.method)):""),money(q.amount)]));
+ else if(d.fromForm){if(num(d.adv)>0)pay.push([L("एडवांस","Advance")+" • "+esc(pmL(d.advM||"कैश")),money(d.adv)]);if(num(d.others)>0)pay.push([L("पहले का भुगतान","Earlier payments"),money(d.others)])}
  else if(num(d.paid)>0)pay.push([L("एडवांस / प्राप्त","Advance / Paid"),money(d.paid)]);
  pay.push([L("कुल प्राप्त","Total received"),money(d.paid),"font-weight:800"]);
  return pdfHeader(b,d.stamp)+pdfTitle(L("बुकिंग रसीद","BOOKING RECEIPT"))+pdfPill(d.confirmed?L("✅ बुकिंग पक्की हो गई है","✅ Your booking is confirmed"):L("📋 बुकिंग विवरण","📋 Booking details"))+`
@@ -1803,6 +1847,7 @@ function bookingPdfHtml(d){
  <div style="display:flex;gap:10px">${pdfInfo("👤",L("ग्राहक","Customer"),esc(d.name))}${pdfInfo("📞",L("मोबाइल","Mobile"),esc(d.phone||"-"))}</div>
  <div style="margin-top:10px">${pdfInfo("📍",L("कार्यक्रम का पता","Event address"),esc(d.address||"-"))}</div>
  ${pdfSecOpen("📅 "+L("बुकिंग विवरण","Booking details"))}${tb(det.map((r,i)=>row(r[0],r[1],i)).join(""))}${pdfSecClose()}
+ ${tasksPdfHtml(d.tasks)}${wsHtml}
  ${pdfSecOpen("₹ "+L("भुगतान विवरण","Payment details"))}${tb(pay.map((r,i)=>row(r[0],r[1],i,r[2])).join("")+row(L("बाकी रकम","Balance due"),money(Math.max(0,d.amt-d.paid)),pay.length,"font-weight:800;color:#b71c1c;font-size:17px"))}${pdfSecClose()}
  ${b.billInfo?`<div style="margin-top:14px;font-size:13px;border:2px solid #f0b429;border-radius:12px;background:#fff6dc;padding:10px 12px;white-space:pre-line"><b>${L("भुगतान विवरण:","Payment details:")}</b>\n${esc(b.billInfo)}</div>`:""}
  <div style="margin-top:16px;border:2px solid #f0b429;border-radius:14px;background:#fff6dc;color:#8f0000;text-align:center;padding:12px;line-height:1.7"><div style="font-size:18px;font-weight:800">${L("🙏 धन्यवाद!","🙏 Thank you!")}</div><div style="font-size:13.5px;color:#4a2a12">${L("आपने हम पर भरोसा किया, इसके लिए हृदय से आभार। किसी भी जानकारी के लिए हमसे संपर्क करें।","Thank you for trusting us. For any information, please contact us.")}</div><div style="font-size:15px;font-weight:800;margin-top:3px">${esc(b.name||"")}${bizPh(b)?" • 📞 "+esc(bizPh(b)):""}</div></div>`;
@@ -1815,14 +1860,14 @@ function bookingPdfSend(d,btn){
 }
 ACT.bkpdf=t=>{
  const b=getR("bookings",t.dataset.id);if(!b)return;
- bookingPdfSend({id:b.id,no:bno(b),name:b.name,address:b.address,phone:b.phone,category:b.category,sd:b.date,ed:b.endDate||b.date,time:b.time,days:daysBetween(b.date,b.endDate||b.date),amt:num(b.amount),paid:paid(b),notes:b.notes,guests:b.guests,rate:b.rate,menu:b.menu,confirmed:b.status==="पक्की"||b.status==="काम पूरा"||b.status==="काम शुरू"},t);
+ bookingPdfSend({id:b.id,no:bno(b),name:b.name,address:b.address,phone:b.phone,category:b.category,sd:b.date,ed:b.endDate||b.date,time:b.time,days:daysBetween(b.date,b.endDate||b.date),amt:num(b.amount),paid:paid(b),notes:b.notes,guests:b.guests,rate:b.rate,menu:b.menu,workers:(b.workers||[]).map(normW),tasks:b.dayTasks||[],confirmed:b.status==="पक्की"||b.status==="काम पूरा"||b.status==="काम शुरू"},t);
 };
 ACT.bkpdfform=t=>{
  const f=el("bkForm"),d=fd(f);
  if(!d.name||!d.date){toast(L("फॉर्म में ग्राहक का नाम और काम आरंभ की तिथि भरें।","Fill the customer name and work start date in the form."),"err");return}
  const ed=d.endDate||d.date;if(parseYMD(ed)<parseYMD(d.date)){toast(L("समाप्ति की तिथि आरंभ की तिथि से पहले नहीं हो सकती।","End date cannot be before the start date."),"err");return}
  const old=d.id?getR("bookings",d.id):null,ap=old?getR("payments","adv_"+old.id):null,others=old?paid(old)-(ap&&!ap.del?num(ap.amount):0):0;
- bookingPdfSend({no:old?bno(old):"",name:d.name,address:d.address,phone:d.phone,category:d.category,sd:d.date,ed,time:d.time,days:daysBetween(d.date,ed),amt:num(d.amount),paid:num(d.advance)+others,notes:d.notes,guests:num(d.guests),rate:num(d.rate),menu:d.menu,confirmed:d.status==="पक्की"||d.status==="काम पूरा"||d.status==="काम शुरू"},t);
+ bookingPdfSend({no:old?bno(old):"",name:d.name,address:d.address,phone:d.phone,category:d.category,sd:d.date,ed,time:d.time,days:daysBetween(d.date,ed),amt:num(d.amount),paid:num(d.advance)+others,fromForm:true,adv:num(d.advance),advM:d.advMethod||"कैश",others,workers:formWorkers.map(normW),tasks:cleanTasks(),notes:d.notes,guests:num(d.guests),rate:num(d.rate),menu:d.menu,confirmed:d.status==="पक्की"||d.status==="काम पूरा"||d.status==="काम शुरू"},t);
 };
 
 /* ---------- रिपोर्ट ---------- */
