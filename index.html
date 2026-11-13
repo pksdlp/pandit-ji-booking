@@ -1003,7 +1003,7 @@ function openBookingForm(id,pre){
  <button type="button" class="btn ghost sm" data-act="pickcust" style="margin:0">👥 ${L("पुराने ग्राहक में से चुनें","Choose existing customer")}</button>
  ${fld(L("ग्राहक का नाम *","Customer name *"),inp("name",v.name,`required list="custList" data-ch="bkname" autocomplete="off" placeholder="${L("नाम","Name")}"`))}
  <datalist id="custList">${rows("customers").map(c=>`<option value="${esc(c.name)}">`).join("")}</datalist>
- <div class="r2">${fld(L("मोबाइल नंबर","Mobile"),inp("phone",v.phone,`type="tel" inputmode="tel" placeholder="${L("नंबर","Number")}"`))}${fld(L("काम / सर्विस","Work / Service"),`<select id="mainWork" data-ch="mainwork">${MAIN_WORKS.map(x=>`<option value="${esc(x[0])}" ${x[0]===curMain?"selected":""}>${esc(L(x[0],x[1]))}</option>`).join("")}</select><input type="hidden" name="category" id="bkCat" value="${esc(v.category)}">`)}</div>
+ <div class="r2">${fld(L("मोबाइल नंबर","Mobile"),`<div style="display:flex;gap:6px;align-items:center">${inp("phone",v.phone,`type="tel" inputmode="tel" style="flex:1;min-width:0" placeholder="${L("नंबर","Number")}"`)}<button type="button" class="btn sm ghost" data-act="pickphone" title="${L("फोन की लिस्ट से चुनें","Pick from phone contacts")}" style="margin:0;flex:none">📇</button></div>`)}${fld(L("काम / सर्विस","Work / Service"),`<select id="mainWork" data-ch="mainwork">${MAIN_WORKS.map(x=>`<option value="${esc(x[0])}" ${x[0]===curMain?"selected":""}>${esc(L(x[0],x[1]))}</option>`).join("")}</select><input type="hidden" name="category" id="bkCat" value="${esc(v.category)}">`)}</div>
  <div id="otherBox" class="${curMain==="अन्य काम"?"":"hidden"}">${otherBoxHtml()}</div>
  ${fld(L("स्थान / कार्यक्रम का पता","Location / event address"),inp("address",v.address,`placeholder="${L("पता / गांव","Address / Village")}"`))}
  <div class="r2">${fld(L("काम आरंभ की तिथि *","Work start date *"),inp("date",v.date,`type="date" required data-in="bkdate"`))}${fld(L("काम समाप्ति की तिथि *","Work end date *"),inp("endDate",v.endDate||v.date,`type="date" required data-in="bkdate"`))}</div>
@@ -1081,6 +1081,23 @@ CHG.bkname=t=>{
  if(c&&f){f.elements.customerId.value=c.id;if(!f.elements.phone.value)f.elements.phone.value=c.phone||"";if(!f.elements.address.value)f.elements.address.value=c.address||""}
  else if(f)f.elements.customerId.value="";
 };
+ACT.pickphone=async()=>{
+ const f=el("bkForm");if(!f)return;
+ if(!("contacts" in navigator)||!navigator.contacts.select){toast(L("यह फोन/ब्राउज़र कॉन्टैक्ट लिस्ट सपोर्ट नहीं करता। Android के Chrome में खोलें, या नंबर खुद लिखें।","Contact picker not supported here. Open in Chrome on Android or type the number."),"err");return}
+ try{
+  const r=await navigator.contacts.select(["name","tel"],{multiple:false});
+  if(!r||!r.length)return;
+  const c=r[0],nm=(c.name&&c.name[0]||"").trim();
+  const norm=x=>{let d=String(x||"").replace(/[^\d]/g,"");if(d.length>10&&d.startsWith("91"))d=d.slice(2);if(d.length>10&&d.startsWith("0"))d=d.replace(/^0+/,"");return d};
+  const tels=Array.from(new Set((c.tel||[]).map(norm).filter(Boolean)));
+  if(!tels.length){toast(L("इस कॉन्टैक्ट में नंबर नहीं है","This contact has no number"),"err");return}
+  const pick=n=>{f.elements.phone.value=n;if(nm&&!f.elements.name.value.trim()){f.elements.name.value=nm}if(typeof CHG.bkname==="function")CHG.bkname(f.elements.name)};
+  if(tels.length===1){pick(tels[0]);return}
+  const d=openModal(L("कौनसा नंबर लें?","Which number?"),`<div>${tels.map(n=>`<div class="li" data-act="pickphonenum" data-n="${esc(n)}"><div class="top"><strong>${esc(n)}</strong></div></div>`).join("")}</div>`);
+  window.__pickPhone=pick;
+ }catch(e){if(e&&e.name!=="AbortError")toast(L("कॉन्टैक्ट नहीं मिल सका","Could not read contacts"),"err")}
+};
+ACT.pickphonenum=t=>{closeModal();if(window.__pickPhone)window.__pickPhone(t.dataset.n);window.__pickPhone=null};
 ACT.pickcust=()=>{
  const d=openModal(L("ग्राहक चुनें","Choose customer"),`<div class="search"><input data-in="pickq" placeholder="${L("नाम या मोबाइल खोजें...","Search name or mobile...")}"></div><div id="pickList"></div>`);
  renderPick("");
