@@ -142,6 +142,10 @@ table.tb{width:100%;border-collapse:collapse;font-size:14px}table.tb th{backgrou
 .serial{display:inline-block;min-width:28px;text-align:center;background:var(--p);color:#fff;border-radius:6px;padding:1px 6px;font-size:13px;margin-right:6px}
 .pkcol{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;flex:none}.pkcol .serial{margin-right:0}.pkcol input[type=checkbox]{margin:0}
 .pkcol input[type=checkbox]:checked{background:#16a34a;border-color:#16a34a}
+.pkchip{display:inline-flex;align-items:center;gap:6px;background:#fff;border:1px solid var(--line);border-radius:16px;padding:4px 6px 4px 10px;margin:4px 4px 0 0;font-size:14px}.pkchip b{cursor:pointer;color:#c0392b;padding:0 4px}
+#packList .irow{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
+#packList .irow input{-webkit-user-select:text;user-select:text}
+#packList .irow.pkdrag{position:relative;z-index:50;background:#fff;border-color:#16a34a;box-shadow:0 8px 22px rgba(0,0,0,.28);opacity:.97}
 .qty{width:130px!important;padding:6px 9px!important;font-size:14px!important;margin-top:4px}
 /* settings */
 details.sec{background:var(--card);border:1px solid var(--line);border-radius:var(--r);margin-bottom:10px;box-shadow:var(--sh)}
@@ -1452,7 +1456,8 @@ ACT.itemhist=t=>{
 /* ----- सामान सूची (पुराना फीचर: टिक, मात्रा, एक साथ जोड़ना, PDF + WhatsApp शेयर) ----- */
 const packItems=()=>rows("inventory").sort((a,b)=>(a.ord||0)-(b.ord||0));
 function packBodyHtml(){return `<div style="display:flex;justify-content:space-between;align-items:center;gap:8px"><h4 style="color:var(--p);margin:0">${L("कुल सामान","Total items")} (<span id="pkTotal">0</span>)</h4><button class="btn wa" id="pkShare" data-act="packpdf">📤 ${L("WhatsApp शेयर","WhatsApp share")}</button></div>
- <input id="pkSearch" data-in="pksearch" placeholder="🔎 ${L("सामान खोजें...","Search items...")}" style="margin-top:10px"><div class="small muted" id="pkInfo" style="margin-top:6px"></div><div id="packList" style="margin-top:6px"></div>
+ <div style="margin-top:10px;padding:10px;border:1px dashed var(--line);border-radius:10px;background:var(--soft)"><b>🍽️ ${L("बनाने वाला सामान (PDF में सबसे ऊपर)","Items to prepare (on top of PDF)")}</b><div style="display:flex;gap:6px;margin-top:6px"><input id="pkMenuIn" placeholder="${L("जैसे: गुलाब जामुन, हलवा, मिक्स वेज, रोटी","e.g. Gulab jamun, Halwa, Mix veg, Roti")}" style="flex:1;min-width:0;margin:0"><button class="btn" data-act="menuadd" style="margin:0;width:auto">➕</button></div><div id="pkMenuList"></div></div>
+ <input id="pkSearch" data-in="pksearch" placeholder="🔎 ${L("सामान खोजें...","Search items...")}" style="margin-top:10px"><div class="small muted" id="pkInfo" style="margin-top:6px"></div><div class="small muted" style="margin-top:2px">↕ ${L("क्रम बदलने के लिए किसी सामान को देर तक दबाकर ऊपर-नीचे खिसकाएँ","Long-press an item and drag up/down to reorder")}</div><div id="packList" style="margin-top:6px"></div>
  <hr style="margin:16px 0;border:0;border-top:1px solid var(--line)">
  <div><button class="btn sec" data-act="packall" data-v="1">✔ ${L("सभी चुनें","Select all")}</button><button class="btn sec" data-act="packall" data-v="0">✖ ${L("कोई नहीं","Select none")}</button><button class="btn danger" data-act="packdel">🗑️ ${L("चुने हुए हटाएं","Delete selected")}</button></div>
  ${fld(L("सामान एक साथ जोड़ें (कॉमा , से अलग करें)","Add many items at once (separate with comma ,)"),`<textarea id="pkBulk" rows="4" data-in="pkbulk" placeholder="${L("जैसे: टेंट, कुर्सी, दरी, माइक:2, गैस सिलेंडर:3 पीस","e.g. Tent, Chair, Mat, Mic:2, Gas cylinder:3 pcs")}"></textarea>`)}
@@ -1463,11 +1468,97 @@ function packVisible(){const q=(el("pkSearch")?el("pkSearch").value:"").trim().t
 function packInfo(){const all=packItems(),sel=all.filter(i=>i.selected!==false).length;el("pkTotal").textContent=all.length;el("pkInfo").textContent=L("चुने हुए: ","Selected: ")+sel+" / "+L("कुल: ","Total: ")+all.length}
 function renderPack(){
  if(!el("packList"))return;
+ initPackDnD(el("packList"));renderPkMenu();
  const ae=document.activeElement,fid=ae&&ae.dataset?ae.dataset.pq:undefined,fpos=fid?ae.selectionStart:null;
  const vis=packVisible(),all=packItems().length;packInfo();
- el("packList").innerHTML=vis.length?vis.map(({it,i})=>`<div class="irow"><div style="display:flex;align-items:center;gap:8px;min-width:0"><div class="pkcol"><span class="serial">${i+1}</span><input type="checkbox" ${it.selected!==false?"checked":""} data-ch="packchk" data-id="${esc(it.id)}"></div><div><b>${esc(it.name)}</b><br><input class="qty" data-in="pqty" data-pq="${esc(it.id)}" value="${esc(it.qty||"")}" placeholder="${esc(L("मात्रा","Quantity"))}"></div></div><div style="white-space:nowrap"><button class="btn sm sec" data-act="packedit" data-id="${esc(it.id)}">✏️</button><button class="btn sm orange" data-act="packclr" data-id="${esc(it.id)}">${L("✖ क्लियर","✖ Clear")}</button></div></div>`).join(""):`<p class="small muted">${all?L("कोई सामान नहीं मिला।","No items match."):L("कोई सामान नहीं है।","No items.")}</p>`;
+ el("packList").innerHTML=vis.length?vis.map(({it,i})=>`<div class="irow" data-rid="${esc(it.id)}"><div style="display:flex;align-items:center;gap:8px;min-width:0"><div class="pkcol"><span class="serial">${i+1}</span><input type="checkbox" ${it.selected!==false?"checked":""} data-ch="packchk" data-id="${esc(it.id)}"></div><div><b>${esc(it.name)}</b><br><input class="qty" data-in="pqty" data-pq="${esc(it.id)}" value="${esc(it.qty||"")}" placeholder="${esc(L("मात्रा","Quantity"))}"></div></div><div style="white-space:nowrap"><button class="btn sm sec" data-act="packedit" data-id="${esc(it.id)}">✏️</button><button class="btn sm orange" data-act="packclr" data-id="${esc(it.id)}">${L("✖ क्लियर","✖ Clear")}</button></div></div>`).join(""):`<p class="small muted">${all?L("कोई सामान नहीं मिला।","No items match."):L("कोई सामान नहीं है।","No items.")}</p>`;
  if(fid){const n=el("packList").querySelector('[data-pq="'+(window.CSS&&CSS.escape?CSS.escape(fid):fid)+'"]');if(n){n.focus();try{n.setSelectionRange(fpos,fpos)}catch(e){}}}
 }
+function initPackDnD(pl){
+ if(pl._dnd)return;pl._dnd=1;
+ let st=null;
+ const P=e=>{const t=(e.touches&&e.touches[0])||(e.changedTouches&&e.changedTouches[0])||e;return{x:t.clientX,y:t.clientY}};
+ const scroller=n=>{for(n=n.parentElement;n;n=n.parentElement){const o=getComputedStyle(n).overflowY;if((o==="auto"||o==="scroll")&&n.scrollHeight>n.clientHeight)return n}return null};
+ function place(){
+  const r=st.row;r.style.transform="none";
+  const vt=st.y-st.grab,h=r.offsetHeight;let moved=true,g=0;
+  while(moved&&g++<50){moved=false;const c=vt+h/2,pv=r.previousElementSibling,nx=r.nextElementSibling;
+   if(pv&&pv.classList.contains("irow")){const b=pv.getBoundingClientRect();if(c<b.top+b.height/2){r.parentNode.insertBefore(pv,r.nextSibling);moved=true;continue}}
+   if(nx&&nx.classList.contains("irow")){const b=nx.getBoundingClientRect();if(c>b.top+b.height/2){r.parentNode.insertBefore(nx,r);moved=true}}
+  }
+  r.style.transform="translateY("+(vt-r.getBoundingClientRect().top)+"px)";
+ }
+ function tick(){
+  if(!st||!st.on)return;
+  const H=window.innerHeight,z=70;let d=0;
+  if(st.y<z)d=-Math.ceil((z-st.y)/5);else if(st.y>H-z)d=Math.ceil((st.y-(H-z))/5);
+  if(d){if(st.sc)st.sc.scrollTop+=d;else window.scrollBy(0,d);place()}
+  st.raf=requestAnimationFrame(tick);
+ }
+ function activate(){
+  if(!st)return;
+  if((el("pkSearch")?el("pkSearch").value:"").trim()){toast(L("क्रम बदलने के लिए पहले खोज हटाएँ।","Clear the search first to reorder."),"err");finish(false);return}
+  const r=st.row.getBoundingClientRect();
+  st.on=true;st.grab=st.y0-r.top;st.sc=scroller(st.row);
+  st.row.classList.add("pkdrag");
+  try{navigator.vibrate&&navigator.vibrate(25)}catch(e){}
+  place();st.raf=requestAnimationFrame(tick);
+ }
+ function move(e){
+  if(!st)return;
+  const q=P(e);
+  if(!st.on){if(Math.hypot(q.x-st.x0,q.y-st.y0)>10)finish(false);return}
+  e.preventDefault();st.y=q.y;place();
+ }
+ function end(){finish(true)}
+ function finish(save){
+  if(!st)return;
+  const s=st;st=null;
+  clearTimeout(s.t);cancelAnimationFrame(s.raf);
+  document.removeEventListener("mousemove",move);document.removeEventListener("mouseup",end);
+  if(s.tgt){s.tgt.removeEventListener("touchmove",move);s.tgt.removeEventListener("touchend",end);s.tgt.removeEventListener("touchcancel",end)}
+  if(!s.on)return;
+  s.row.classList.remove("pkdrag");s.row.style.transform="";
+  if(save){
+   const ids=[...pl.querySelectorAll(".irow")].map(r=>r.dataset.rid),by={};
+   packItems().forEach(i=>by[i.id]=i);
+   ids.forEach((id,k)=>{const it=by[id];if(it&&it.ord!==k+1){it.ord=k+1;put("inventory",it)}});
+  }
+  renderPack();
+ }
+ function start(e,touch){
+  if(st)return;
+  if(touch&&e.touches&&e.touches.length>1)return;
+  if(!touch&&e.button!==0)return;
+  if(e.target.closest("input,button,a,select,textarea"))return;
+  const row=e.target.closest(".irow");if(!row||!pl.contains(row))return;
+  const q=P(e);
+  st={row,x0:q.x,y0:q.y,y:q.y,on:false,tgt:touch?e.target:null};
+  st.t=setTimeout(activate,450);
+  if(touch){const t=e.target;t.addEventListener("touchmove",move,{passive:false});t.addEventListener("touchend",end);t.addEventListener("touchcancel",end)}
+  else{document.addEventListener("mousemove",move);document.addEventListener("mouseup",end)}
+ }
+ pl.addEventListener("touchstart",e=>start(e,true),{passive:true});
+ pl.addEventListener("mousedown",e=>start(e,false));
+ pl.addEventListener("contextmenu",e=>{if(st)e.preventDefault()});
+}
+const packMenu=()=>{const b=biz();return b&&Array.isArray(b.packMenu)?b.packMenu:[]};
+function savePackMenu(a){const b=biz();if(!b)return;b.packMenu=a;put("businesses",b)}
+function renderPkMenu(){
+ const box=el("pkMenuList");if(!box)return;
+ const m=packMenu();
+ box.innerHTML=m.length?m.map((x,i)=>`<span class="pkchip">${i+1}. ${esc(x)} <b data-act="menudel" data-i="${i}">✖</b></span>`).join("")+`<div><button class="btn sec sm" data-act="menuclear">${L("सब हटाएँ","Remove all")}</button></div>`:`<div class="small muted" style="margin-top:6px">${L("अभी कोई नहीं जोड़ा। कॉमा (,) से अलग करके कई नाम एक साथ लिख सकते हैं।","Nothing added yet. You can write many names separated by commas (,).")}</div>`;
+}
+ACT.menuadd=()=>{
+ const inp=el("pkMenuIn");if(!inp)return;
+ const cur=packMenu().slice(),seen=new Set(cur.map(x=>x.toLowerCase()));let n=0;
+ String(inp.value||"").split(/[,\n，、;]+/).forEach(r=>{const v=r.trim();if(!v||seen.has(v.toLowerCase()))return;seen.add(v.toLowerCase());cur.push(v);n++});
+ if(!n){toast(L("कोई नया नाम नहीं मिला।","No new name found."),"err");return}
+ savePackMenu(cur);inp.value="";renderPkMenu();inp.focus();
+};
+ACT.menudel=t=>{const a=packMenu().slice();a.splice(+t.dataset.i,1);savePackMenu(a);renderPkMenu()};
+ACT.menuclear=()=>{savePackMenu([]);renderPkMenu()};
+document.addEventListener("keydown",e=>{if(e.key==="Enter"&&e.target&&e.target.id==="pkMenuIn"){e.preventDefault();ACT.menuadd()}});
 INP.pksearch=()=>renderPack();
 const pqT={};
 INP.pqty=t=>{
@@ -1513,13 +1604,17 @@ ACT.packadd=()=>{
  toast(r.out.length+" "+L("नए सामान जोड़े गए।","new items added.")+(r.dup?" "+r.dup+" "+L("सामान पहले से सूची में थे, छोड़ दिए गए।","items were already in the list and were skipped."):""),"ok");
 };
 ACT.packpdf=async t=>{
- const list=packItems().filter(i=>i.selected!==false);
- if(!list.length){toast(L("कम से कम एक सामान चुनें।","Select at least one item."),"err");return}
+ const list=packItems().filter(i=>i.selected!==false),menu=packMenu();
+ if(!list.length&&!menu.length){toast(L("कम से कम एक सामान चुनें या बनाने वाला सामान जोड़ें।","Select at least one item or add an item to prepare."),"err");return}
  const stamp=nowStamp(),name="Saman-List-"+fileStamp()+".pdf",b=biz();
- const html=pdfHeader(b,stamp)+`<h3 style="text-align:center;color:#4a2410;margin:14px 0 10px">📦 ${L("मंगवाने वाले सामान / कच्चे माल की सूची","List of items to arrange")}</h3>
- <table style="width:100%;border-collapse:collapse;font-size:15px"><thead><tr style="background:#4a2410;color:#fff"><th style="border:1px solid #4a2410;padding:9px">${L("क्र.","No.")}</th><th style="border:1px solid #4a2410;padding:9px">${L("सामान का नाम","Item name")}</th><th style="border:1px solid #4a2410;padding:9px">${L("मात्रा","Quantity")}</th></tr></thead><tbody>${list.map((it,i)=>`<tr style="background:${i%2?"#fff3d6":"#fff"}"><td style="border:1px solid #e3c98a;padding:8px;text-align:center;color:#4a2410;font-weight:bold">${i+1}</td><td style="border:1px solid #e3c98a;padding:8px;font-weight:600">${esc(it.name)}</td><td style="border:1px solid #e3c98a;padding:8px;color:#3b1c0a;font-weight:bold">${esc(it.qty||"-")}</td></tr>`).join("")}</tbody></table>
- <div style="margin-top:22px;background:#fdd891;color:#3b1c0a;text-align:center;padding:12px;border-radius:8px"><b>${L("नोट:","Note:")}</b> ${L("कृपया सामान/कच्चा माल समय पर मंगवा कर रखें। धन्यवाद!","Please arrange the items / raw material on time. Thank you!")}</div>`;
- const msg=[L("नमस्ते, सामान की सूची की PDF संलग्न है। कृपया सामान/कच्चा माल समय पर मंगवा कर रखें। धन्यवाद!","Hello, the PDF of the items list is attached. Please arrange the items / raw material on time. Thank you!"),"🗓️ "+stamp,[b.name,bizPh(b)?"📞 "+bizPh(b):""].filter(Boolean).join("\n")].filter(Boolean).join("\n\n");
+ const th="border:1px solid #4a2410;padding:9px",td="border:1px solid #e3c98a;padding:8px";
+ const menuHtml=menu.length?`<h3 style="text-align:center;color:#4a2410;margin:14px 0 10px">🍽️ ${L("बनाने वाला सामान","Items to prepare")}</h3>
+ <table style="width:100%;border-collapse:collapse;font-size:16px"><thead><tr style="background:#4a2410;color:#fff"><th style="${th};width:60px">${L("क्र.","No.")}</th><th style="${th}">${L("बनाने वाला सामान","Item to prepare")}</th></tr></thead><tbody>${menu.map((x,i)=>`<tr style="background:${i%2?"#fff3d6":"#fff"}"><td style="${td};text-align:center;color:#4a2410;font-weight:bold">${i+1}</td><td style="${td};font-weight:700">${esc(x)}</td></tr>`).join("")}</tbody></table>
+ <div style="margin:10px 0 0;background:#e8f5e9;color:#14532d;text-align:center;padding:10px;border-radius:8px"><b>${L("कृपया ऊपर लिखे सभी सामान बनाने के लिए कच्चे माल की सूची बनाकर भेजें।","Please prepare and send the raw material list needed to make all the items above.")}</b></div>`:"";
+ const html=pdfHeader(b,stamp)+menuHtml+(!list.length?"":`<h3 style="text-align:center;color:#4a2410;margin:14px 0 10px">📦 ${L("मंगवाने वाले सामान / कच्चे माल की सूची","List of items to arrange")}</h3>
+ <table style="width:100%;border-collapse:collapse;font-size:15px"><thead><tr style="background:#4a2410;color:#fff"><th style="border:1px solid #4a2410;padding:9px">${L("क्र.","No.")}</th><th style="border:1px solid #4a2410;padding:9px">${L("सामान का नाम","Item name")}</th><th style="border:1px solid #4a2410;padding:9px">${L("मात्रा","Quantity")}</th></tr></thead><tbody>${list.map((it,i)=>`<tr style="background:${i%2?"#fff3d6":"#fff"}"><td style="border:1px solid #e3c98a;padding:8px;text-align:center;color:#4a2410;font-weight:bold">${i+1}</td><td style="border:1px solid #e3c98a;padding:8px;font-weight:600">${esc(it.name)}</td><td style="border:1px solid #e3c98a;padding:8px;color:#3b1c0a;font-weight:bold">${esc(it.qty||"-")}</td></tr>`).join("")}</tbody></table>`)+`
+ <div style="margin-top:22px;background:#fdd891;color:#3b1c0a;text-align:center;padding:12px;border-radius:8px"><b>${L("नोट:","Note:")}</b> ${list.length?L("कृपया सामान/कच्चा माल समय पर मंगवा कर रखें। धन्यवाद!","Please arrange the items / raw material on time. Thank you!"):L("कृपया कच्चे माल की सूची बनाकर भेजें। धन्यवाद!","Please send the raw material list. Thank you!")}</div>`;
+ const msg=[menu.length?L("नमस्ते, PDF संलग्न है। कृपया बनाने वाले सामान के लिए कच्चे माल की सूची बनाकर भेजें। धन्यवाद!","Hello, the PDF is attached. Please prepare and send the raw material list for the items to prepare. Thank you!"):L("नमस्ते, सामान की सूची की PDF संलग्न है। कृपया सामान/कच्चा माल समय पर मंगवा कर रखें। धन्यवाद!","Hello, the PDF of the items list is attached. Please arrange the items / raw material on time. Thank you!"),menu.length?"🍽️ "+L("बनाने वाला सामान: ","Items to prepare: ")+menu.map((x,i)=>(i+1)+". "+x).join(", "):"","🗓️ "+stamp,[b.name,bizPh(b)?"📞 "+bizPh(b):""].filter(Boolean).join("\n")].filter(Boolean).join("\n\n");
  await pdfAndShare(html,name,msg,"",t);
 };
 ACT.newitem2=()=>ACT.newitem();
